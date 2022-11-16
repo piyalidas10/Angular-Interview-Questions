@@ -10,11 +10,7 @@
 | 6   |  Creating custom structural directives
 | 7   |  Advantage of Async pipe
 | 8   |  What is Internationalization & why is used
-| 9   |  What are the functionalities of --------
-            Main.js
-            Bundle.js
-            Packagelock.json
-
+| 9   |  What are the functionalities of -------- Main.js, Bundle.js, Packagelock.json
 | 10   |  Deep copy vs shallow copy
 | 11   |  :host & ::ng-deep
 | 12   |  As we know service is singleton means it will create single instance entire application. How can I create multiple instances of services?
