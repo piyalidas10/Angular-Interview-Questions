@@ -30,5 +30,19 @@
 | 26   |  How can you combine 2 data streams together and use as one observable?
 | 27   |  How can you put a limit to data that you get from stream?
 | 28   |  If you want to put condition on time of observable subscription, which operator should use? Suppose you 
+| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which operator I have to use?
+| 30   |  If you have and application where you have to show user’s messages. How you will get notification of new message arrived?
+| 31   |  How many ways are there for performance optimizations of your application?
+| 32   |  Can I use directive as a component?
+| 33   |  Angular lifecycle hooks explain with example & use
+| 34   |  What Ivy and advantage is of use it ?
+| 35   |  If you want to get @input() changes, which lifecycle hook will be use 
+| 36   |  Purpose of Observables & how many observables are there
+| 37   |  routing, guards, fragments, wild card routes
+| 38   |  ng template vs ng container vs ng content
+| 39   |  Have you ever worked with Dynamic component? If yes, why need this?
+| 40   |  Why use “useClass” & “useValue” in provide?
+| 41   |  @Inject() vs @Injectable
+
 
 
