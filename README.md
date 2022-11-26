@@ -43,7 +43,7 @@
 | 39   |  Have you ever worked with Dynamic component? If yes, why need this?
 | 40   |  Why use “useClass” & “useValue” in provide?
 | 41   |  @Inject() vs @Injectable
-| 42   |  Fix the error
+| 42   |  Fix the error from the bellow code
         
         `main.ts
         
@@ -60,6 +60,53 @@
           .bootstrapModule()
           .catch((err) => console.error(err));
        `
+| 43   |  Why we need angular library? Have you worked any library in your project?
+| 44   |  Can i create multiple angular apps in one project?
+        https://www.tektutorialshub.com/angular/angular-multiple-apps-in-one-project/
+        https://angular.io/guide/file-structure
+| 45   |  useClass vs useValue
+| 46   |  Have you worked in localization? What is the use of it? How it works?
+| 47   |  How you will translate dynamic value using localization?
+          There have two way to use localization : 1. inside HTMl using i18n 2. inside ts file $localize
+          1. inside HTMl using i18n
+          `
+          <button i18n="Submit|Submit the form@@FEEDBACK.USER_FEEDBACK.submit">Submit</button>
+          `
+          inside messages.xlf file, the upper html code will be converted like the following:
+          `
+               <trans-unit id="FEEDBACK.USER_FEEDBACK.submit" datatype="html">
+                <source> Submit </source>
+                <context-group purpose="location">
+                  <context context-type="sourcefile">feedback.html</context>
+                  <context context-type="linenumber">10.23</context>
+                </context-group>
+                <note priority="1" from="description">Submit the form</note>
+                <note priority="1" from="meaning">Submit</note>
+              </trans-unit>
+         `
+         2. inside ts file $localize
+         
+         `
+                .html file
+                <button>{{buttonLabel}}</button>
+                
+                .ts file
+                this.buttonLabel = $localize`:Submit|Submit the form@@FEEDBACK.USER_FEEDBACK.submit`
+          `
+| 48   |  useClass vs useValue   
+| 49   |  When you will use ngOnChanges
+| 50   |  Suppose you have a component, inside it you have another child component like the following
+          `
+          app.compont.html
+          <app-child></app-child>
+          
+          `
+          You want to access the DOM of that child component. Which life cycle hook will give you the access of that child component ?
+| 51   |  What is the starting point of angular application ?
+
+          
+        
+
 
 
 
