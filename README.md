@@ -44,7 +44,7 @@
 | 40   |  Why use “useClass” & “useValue” in provide?
 | 41   |  @Inject() vs @Injectable
 | 42   |  Fix the error from the bellow code <br><br> main.ts <br><br> import { enableProdMode } from '@angular/core'; <br>import { platformBrowserDynamic } from '@angular/platform-browser-dynamic'; <br> import { environment } from './environments/environment'; <br> if (environment.production) { <br>enableProdMode();<br>}<br>platformBrowserDynamic()<br>.bootstrapModule()<br>.catch((err) => console.error(err));
-| 43   |  Why we need angular library? Have you worked any library in your project?
+| 43   |  Why we need angular library? Have you worked in any library in your project?
 | 44   |  Can i create multiple angular apps in one project? <br> https://www.tektutorialshub.com/angular/angular-multiple-apps-in-one-project/ <br>https://angular.io/guide/file-structure
 | 45   |  useClass vs useValue
 | 46   |  Have you worked in localization? What is the use of it? How it works?
