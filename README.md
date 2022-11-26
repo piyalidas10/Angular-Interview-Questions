@@ -43,9 +43,8 @@
 | 39   |  Have you ever worked with Dynamic component? If yes, why need this?
 | 40   |  Why use “useClass” & “useValue” in provide?
 | 41   |  @Inject() vs @Injectable
-| 42   |  Fix the error from the bellow code
-       |
-       |`main.ts
+| 42   |  Fix the error from the bellow code <br>
+          main.ts
         
         import { enableProdMode } from '@angular/core';
         import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
