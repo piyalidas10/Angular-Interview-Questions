@@ -81,6 +81,19 @@
 | 49   |  When you will use ngOnChanges
 | 50   |  Suppose you have a component, inside it you have another child component like the following <br> app.compont.html <br> <app-child></app-child> <br> You want to access the DOM of that child component. Which life cycle hook will give you the access of that child component ?
 | 51   |  What is the starting point of angular application ?
+| 52   |  package.json vs package-lock.json
+| 53   |  What is the use of view encapsulation?
+| 54   |  Explain the @Component Decorator. <br> TypeScript class is one that is used to create components. This genre of class is then decorated with the "@Component" decorator. The decorato’s purpose is to accept a metadata object that provides relevant information about the component.  
+| 55   |  Promises vs Observables
+| 56   |  Subject vs BehaviorSubject
+| 57   |  What are the advantages of Reactive forms over Template driven forms
+| 57   |  Subject vs BehaviorSubject
+| 58   |  Why need Lazy loading ?
+| 59   |  How can you share data between components?
+| 60   |  What is Two way data binding?
+| 61   |  Is constructor a part of angular ?
+| 61   |  What is Dependency Injection?
+
 
           
         
