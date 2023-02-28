@@ -87,12 +87,11 @@
 | 55   |  Promises vs Observables
 | 56   |  Subject vs BehaviorSubject
 | 57   |  What are the advantages of Reactive forms over Template driven forms
-| 57   |  Subject vs BehaviorSubject
 | 58   |  Why need Lazy loading ?
 | 59   |  How can you share data between components?
 | 60   |  What is Two way data binding?
 | 61   |  Is constructor a part of angular ?
-| 61   |  What is Dependency Injection? <br><br> 1. Using Dependency Injection we move the creation of binding dependent object otside of the class that depend on them. 2. DI keeps the code more flexible testable and mutable. 3. Class can inherit external logic without having to create on its own. 4. DI benefits directives, pipes and components.  <br><br> Consider all the components of an application performing common tasks like accessing database, rendering images on the view etc. To avoid rewriting of code, angular services can be used. These services can then be injected into the components that require that service. 
+| 62   |  What is Dependency Injection? <br><br> 1. Using Dependency Injection we move the creation of binding dependent object otside of the class that depend on them. 2. DI keeps the code more flexible testable and mutable. 3. Class can inherit external logic without having to create on its own. 4. DI benefits directives, pipes and components.  <br><br> Consider all the components of an application performing common tasks like accessing database, rendering images on the view etc. To avoid rewriting of code, angular services can be used. These services can then be injected into the components that require that service. 
 
 
           
