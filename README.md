@@ -6,16 +6,16 @@
 | 2   |  How will create custom pipes? Have you ever created any custom pipes in your project?
 | 3   |  Observable vs observer
 | 4   |  How many directives are there? <br><br> 1. Attribute 2. Structural 3. Component
-| 5   |  component vs directive <br><br> Components are a type of Directive. @Directive is a decorator which is used to instruct the DOM to either add a new element or, remove or modify an existing element. @Component is a subclass of @Directive with one additional functionality. Using @component, you can create ou HTML template.
+| 5   |  component vs directive ? <br><br> Components are a type of Directive. @Directive is a decorator which is used to instruct the DOM to either add a new element or, remove or modify an existing element. @Component is a subclass of @Directive with one additional functionality. Using @component, you can create ou HTML template.
 | 6   |  Creating custom structural directives
 | 7   |  Advantage of Async pipe
-| 8   |  What is Internationalization & why is used
+| 8   |  What is Internationalization & why is used ?
 | 9   |  What are the functionalities of -------- Main.js, Bundle.js, Packagelock.json
 | 10   |  Deep copy vs shallow copy
 | 11   |  :host & ::ng-deep
 | 12   |  As we know service is singleton means it will create single instance entire application. How can I create multiple instances of services?
 | 13   |  AOT vs JIT compiler
-| 14   |  What do you mean by data binding & two way data binding <br><br> Types of Data Binding : 1. Interpolation & Property binding 2. Event binding 3. Two way binding <br><br> Interpolation is used to just display/bind a piece of data in HTML UI element, such as displaying a title or a name. <br><br> Property binding lets us bind a property of a DOM object, for example the hidden property, to some data value. It uses syntax []. <br><br> Event binding is used to handle the events raised by the user actions like button click, mouse movement, keystrokes, etc. It flows from the view to the component when an event is triggered.
+| 14   |  What do you mean by data binding & two way data binding <br><br> Types of Data Binding : 1. Interpolation & Property binding 2. Event binding 3. Two way binding <br><br> Interpolation is used to just display/bind a piece of data in HTML UI element, such as displaying a title or a name. <br><br> Property binding lets us bind a property of a DOM object, for example the hidden property, to some data value. It uses syntax []. <br><br> Event binding is used to handle the events raised by the user actions like button click, mouse movement, keystrokes, etc. It flows from the view to the model when an event is triggered. <br><br> In Two way binding, data dlows from model to view and view to model.
 | 15   |  How many ways to share data one component to another
 | 16   |  @ViewChild() vs @Input --- to send data from parent component to child which one 
 | 17   |  Reactive form setValue vs patchValue
@@ -92,7 +92,7 @@
 | 59   |  How can you share data between components?
 | 60   |  What is Two way data binding?
 | 61   |  Is constructor a part of angular ?
-| 61   |  What is Dependency Injection?
+| 61   |  What is Dependency Injection? <br><br> 1. Using Dependency Injection we move the creation of binding dependent object otside of the class that depend on them. 2. DI keeps the code more flexible testable and mutable. 3. Class can inherit external logic without having to create on its own. 4. DI benefits directives, pipes and components.  <br><br> Consider all the components of an application performing common tasks like accessing database, rendering images on the view etc. To avoid rewriting of code, angular services can be used. These services can then be injected into the components that require that service. 
 
 
           
