@@ -135,7 +135,7 @@
 
           Utilizing the tree shaking and dead code elimination can significantly reduce the code size we have in our application. The less code we send over the wire the more performant the application will be.
 
-          ![Tree Shaking Before](Tree_Shaking_before.png)
-          ![Tree Shaking After](Tree_Shaking_after.png)
+![Tree Shaking Before](Tree_Shaking_before.png)
+![Tree Shaking After](Tree_Shaking_after.png)
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
