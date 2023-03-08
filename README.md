@@ -171,3 +171,16 @@
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 71   |  Web worker vs Service worker in angular ? <br><br> Web worker allows scripts to run in the background in separate threads to prevent scripts from blocking one another on the main thread. <br> Service workers are a proxy between the browser and the network. By intercepting requests made by the document, service workers can redirect requests to a cache, enabling offline access. 
+| 72   |  How will test nativeelement in angular ? <br><br> We can access HTML elements using fixture. It is used to get “DebugElement” for a DOM object. DebugElement is an Angular class that contains all kinds of references and methods relevant to investigate an element as well as component. nativeElement returns a reference to the DOM element which can also come under debugElement as stated above.<br>
+            It works for querying both class something like (fixture.debugElement.nativeElement.querySelector('.shan')) as well as id.
+            
+            <div id="shan">Hey there</div>
+            We can use below ways to get it in unit testing:
+
+            ```
+            fixture.debugElement.query(By.css('#shan'))
+            fixture.debugElement.nativeElement.querySelector('#shan')
+            document.getElementById('#shan')
+            ```
+            
+            
