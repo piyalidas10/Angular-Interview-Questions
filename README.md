@@ -20,7 +20,27 @@
 | 16   |  @ViewChild() vs @Input --- to send data from parent component to child which one 
 | 17   |  Reactive form setValue vs patchValue
 | 18   |  When you will use “of”
-| 19   |  What is TestBed?
+| 19   |  What is TestBed? <br><br> TestBed is the primary api for writing unit tests for Angular applications and libraries.
+                    TestBed.configureTestingModule({
+                          declarations: [LoginComponent],
+                          providers: [AuthService]
+                       });
+                       // create component and test fixture
+                        fixture = TestBed.createComponent(LoginComponent); (2)
+
+                        // get test component from the fixture
+                        component = fixture.componentInstance; (3)
+
+                        // UserService provided to the TestBed
+                        authService = TestBed.get(AuthService); (4)
+                        
+          i) A fixture is a wrapper for a component and its template.
+          ii) We create an instance of a component fixture through the TestBed, this injects the AuthService into the component constructor.
+          iii) We can find the actual component from the componentInstance on the fixture.
+          iv) We can get resolve dependencies using the TestBed injector by using the get function.
+                        
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |               
 | 20   |  How you will test one service inside another service?
 | 21   |  megeMap vs concatMap
 | 22   |  Advantage of Server side rendering
@@ -139,3 +159,15 @@
 ![Tree Shaking After](Tree_Shaking_after.png)
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 70   |  What is fixture? <br><br> A fixture is a wrapper for a component and its element & template. 
+          const fixture = TestBed.createComponent(BannerComponent);
+          TestBed.createComponent() creates an instance of the BannerComponent, adds a corresponding element to the test-runner DOM, and returns a ComponentFixture.
+          
+          it('should have <p> with "banner works!"', () => {
+            const bannerElement: HTMLElement = fixture.nativeElement;
+            const p = bannerElement.querySelector('p')!;
+            expect(p.textContent).toEqual('banner works!');
+          });
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 71   |  Web worker vs Service worker in angular ? <br><br> Web worker allows scripts to run in the background in separate threads to prevent scripts from blocking one another on the main thread. <br> Service workers are a proxy between the browser and the network. By intercepting requests made by the document, service workers can redirect requests to a cache, enabling offline access. 
