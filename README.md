@@ -184,6 +184,8 @@
             fixture.debugElement.nativeElement.querySelector('#shan')
             document.getElementById('#shan')
             ```
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 75   |  How will identify, diagnose and fix memory leaks in the application? <br><br> 
           In javascript, memory should be cleared up automatically using a thing called Garbage collector. Javascript is a language who ha garbage collector meaning you don't have to manage your memory manually. It gets cleared automatically & assigned automatically. 
           
