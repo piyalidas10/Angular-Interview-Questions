@@ -184,7 +184,36 @@
             fixture.debugElement.nativeElement.querySelector('#shan')
             document.getElementById('#shan')
             ```
+| 75   |  How will identify, diagnose and fix memory leaks in the application? <br><br> 
+          In javascript, memory should be cleared up automatically using a thing called Garbage collector. Javascript is a language who ha garbage collector meaning you don't have to manage your memory manually. It gets cleared automatically & assigned automatically. 
+          
+          Symptons ::===> 1. Page unresponsive 2. browser simply gets slow and you cann't switch tab anymore 3. Your computer is become slow becuase your browser eats up more and more RAM of your computer 
+          
+          Reasons & Solutions of memory leaks ::===>  
+          1. window.x = 10   it's a global variable. you probably heard many times is a realy bad practive to have global variables. 
+            window.calc  = function() => {}  calc is a fuction and imagine it does something heavy inside. That's obviously gonna stay on the root becuase root is accessing it and garbage collectors think that is always active becuase it sits on the root. 
+            First thing you can do use strict to prevent you from these memory leaks becuae it i going to throw errors as soon as you have global variables. Or simple not use any global variables. 
+          2. When you have setTimeout or setInterval and you have a callback inside and have some dependencies. Dependencies are bad in timeout as long as you don't clear the timeout. 
+          ```
+          setTimeout(() => {
+            let node = document.getElementById('demo');
+          }, 1000);
+          node.remove()
+          ```
+          let's imagine there is some node inside setTimeout function and usually when you delete node from your javascript. now i am removing the node using node.remove(). but this timeout always going to keep a reference to this even if it's deleted. 
+          So make sure you are always clears timeout. To clear timeout, first assinging your timeout to some kind of a variable and quickly call clearTimeout() with variable inside it. In that way when timeout will be cleared, all references inside it also going to be garbage collected.   
+        3.  make sure you delete it from object itself otherwise it's never going to get garbage collected.
+        ```
+        let nodes = {
+           btn: document.getElementById('demo')
+        }
+        document.getElementById('demo').remove();
+        ```
+        you have to do the 
+        delete nodes.btn
+        
+        Diagnose ::===> analyze Memory Leaks with Chrome DevTools: 
+        1. Open DevTools 2. Go to the Memory panel 3.select the “Allocation instrumentation on timeline” radio button 4.Press the Start button
+        1. open the Chrome Dev Tools 2. open the panel on the right 3. click on More Tools > Performance Monitor
+        
 
-| Attempt | #1    | #2    |
-| :-----: | :---: | :---: |
-| Seconds | 301   | 283   |
