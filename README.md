@@ -2,7 +2,7 @@
 
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   |  Pure vs impure pipe
+| 1   |  What is Pipe ? Pure vs impure pipe ? <br><br> Pipes help you to transform data from one format to another format. There have few inbuilt pipes in angular : DatePipe, CurrencyPipe, UpperCasePipe, LowerCasePipe, JsonPipe. <br><br> An impure pipe is called for every change detection cycle no matter whether the value or parameter(s) changes. A pure pipe is only called when Angular detects a change in the value or the parameters passed to a pipe.
 | 2   |  How will create custom pipes? Have you ever created any custom pipes in your project?
 | 3   |  Observable vs observer
 | 4   |  How many directives are there? <br><br> 1. Attribute 2. Structural 3. Component
