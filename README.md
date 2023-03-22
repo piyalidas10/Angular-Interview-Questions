@@ -12,7 +12,38 @@
 | 8   |  What is Internationalization & why is used ?
 | 9   |  What are the functionalities of -------- Main.js, Bundle.js, Packagelock.json
 | 10   |  Deep copy vs shallow copy
-| 11   |  :host & ::ng-deep
+| 11   |  :host & ::ng-deep <br><br> applied directly to the ap-root element only
+        :host h2 {
+            color: red;
+        }
+        
+        ::ng-deep cascade to all child elements of a component, but not to any other element on the page, we can currently do so using by combining the :host with the ::ng-deep selector:
+        :host ::ng-deep h2 {
+            color: red;
+        }
+        :host-context ==> we also want to have a component apply a style to some element outside of it. This does not happen often, but one possible common use case is for theme enabling classes.
+
+        For example, let's say that we would like to ship a component with multiple alternative themes. Each theme can be enabled via adding a CSS class to a parent element of the component.
+
+        Here is how we could implement this use case using the :host-context selector:
+        @Component({
+          selector: 'themeable-button',
+          template: `
+                <button class="btn btn-theme">Themeable Button</button>
+          `,
+          styles: [`
+              :host-context(.red-theme) .btn-theme {
+                background: red;
+              }
+              :host-context(.blue-theme) .btn-theme {
+                  background: blue;
+              }
+          `]
+        })
+        export class ThemeableButtonComponent {
+
+        }
+
 | 12   |  As we know service is singleton means it will create single instance entire application. How can I create multiple instances of services?
 | 13   |  AOT vs JIT compiler
 | 14   |  What do you mean by data binding & two way data binding <br><br> Types of Data Binding : 1. Interpolation & Property binding 2. Event binding 3. Two way binding <br><br> Interpolation is used to just display/bind a piece of data in HTML UI element, such as displaying a title or a name. <br><br> Property binding lets us bind a property of a DOM object, for example the hidden property, to some data value. It uses syntax []. <br><br> Event binding is used to handle the events raised by the user actions like button click, mouse movement, keystrokes, etc. It flows from the view to the model when an event is triggered. <br><br> In Two way binding, data flows from model to view and view to model.
