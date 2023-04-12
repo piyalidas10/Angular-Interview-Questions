@@ -210,6 +210,8 @@
 
 ![Feature module](feature_module.png)
 
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 77   |  How will test native element in angular ? <br><br> We can access HTML elements using fixture. It is used to get “DebugElement” for a DOM object. DebugElement is an Angular class that contains all kinds of references and methods relevant to investigate an element as well as component. nativeElement returns a reference to the DOM element which can also come under debugElement as stated above.<br>
             It works for querying both class something like (fixture.debugElement.nativeElement.querySelector('.shan')) as well as id.
             
