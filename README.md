@@ -261,4 +261,7 @@ Intercepting API calls to return fixed data
         1. Open DevTools 2. Go to the Memory panel 3.select the “Allocation instrumentation on timeline” radio button 4.Press the Start button
         1. open the Chrome Dev Tools 2. open the panel on the right 3. click on More Tools > Performance Monitor
         
-
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 82   |  What are Services in Angular? <br><br> Services helps us to share common business logic, data and functions with different components of an Angular application.
+They are implemented through dependency injection.
