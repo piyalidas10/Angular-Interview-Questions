@@ -8,7 +8,7 @@
 | 4   |  How many directives are there? <br><br> 1. Attribute 2. Structural 3. Component
 | 5   |  component vs directive ? <br><br> Components are a type of Directive. @Directive is a decorator which is used to instruct the DOM to either add a new element or, remove or modify an existing element. @Component is a subclass of @Directive with one additional functionality. Using @component, you can create ou HTML template.
 | 6   |  Creating custom structural directives
-| 7   |  Advantage of Async pipe
+| 7   |  Advantage of Async pipe ? <br/> Automatically handling subscriptions and taking care of memory leaks. Async pipe is really powerfull with NgRx.
 | 8   |  What is Internationalization & why is used ?
 | 9   |  What are the functionalities of -------- Main.js, Bundle.js, Packagelock.json
 | 10   |  Deep copy vs shallow copy
