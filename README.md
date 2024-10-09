@@ -73,7 +73,14 @@
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |               
 | 20   |  How you will test one service inside another service?
-| 21   |  megeMap vs concatMap
+To test a service, you set the providers metadata property with an array of the services that you'll test or mock. content_copy let service: ValueService; beforeEach(() => { TestBed. configureTestingModule({ providers: [ValueService] }); }); Then inject it inside a test by calling TestBed. 
+| 21   |  mergeMap, switchMap, concatMap, exhaustMap, forkjoin in rxjs
+1. mergeMap - It takes an observable and maps each emitted value to another observable, then subscribes to all the mapped observables and emits their values as they arrive. The emitted values are merged into a single stream, which means that they can arrive out of order. It is mainly useful for handling concurrent operations that may emit values in any order.
+2. concatMap - It is similar to mergeMap, but it subscribes to each mapped observable sequentially, waiting for each to complete before subscribing to the next one. The emitted values are concatenated into a single stream, which means that they will arrive in the order in which they were emitted. ConcatMap is useful when you need to maintain the order of emitted values.
+3. switchMap - for any source item, completes the previous Observable and immediately creates the next one. Cancel first one, immediately trigger latest one.
+4. exhaustMap - source items are ignored while the previous Observable is not completed
+5. forkjoin - It is an operator that takes multiple observables and waits for all of them to complete before emitting an array of their last emitted values. If any of the input observables emit an error, the combined observable will also emit an error immediately. It’s useful when you need to perform several operations in parallel and combine their results into a single value.
+![MergeMap_ConcatMap_ForkJoin](MergeMap_ConcatMap_ForkJoin.png)
 | 22   |  Advantage of Server side rendering
 | 23   |  Why use platform-browser package
 | 24   |  How many guards are there
@@ -81,8 +88,13 @@
 | 26   |  How can you combine 2 data streams together and use as one observable?
 | 27   |  How can you put a limit to data that you get from stream?
 | 28   |  If you want to put condition on time of observable subscription, which operator should use? Suppose you 
-| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which operator I have to use?
+| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which RXJS operator I have to use? Ans. ConcatMap 
 | 30   |  If you have and application where you have to show user’s messages. How you will get notification of new message arrived?
+1) Sending Push Notifications from the Backend (Node) using webpush library. Here Need to create a REST endpoint, that when triggered will result in a notification to be sent to all subscribers. The endpoint would have to be protected by both authentication and authorization middleware.
+2) Angular Service Worker to correctly display the message, we need to use proper format. Namely, we will the payload to be one root object containing one property named notification, otherwise the messages will not be displayed to the user. Once we have the message payload ready, we can send it to a given subscriber via a call to webpush.sendNotification().
+3) When the Push service receives the message, it will know to which browser instance to forward the message to based on the unique url of the endpoint. Once the Push Service pushes the message to the user browser, the message is then going to be decrypted and passed to the Angular Service Worker (PWA). The Angular Service Worker will then use the browser Notifications API to display a Notification to the user.
+
+Besides the text and image of the notification, we can also specify a mobile vibration pattern via the vibrate property.
 | 31   |  How many ways are there for performance optimizations of your application?
 | 32   |  Can I use directive as a component?
 | 33   |  Angular lifecycle hooks explain with example & use
