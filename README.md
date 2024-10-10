@@ -80,7 +80,7 @@
           3. switchMap - for any source item, completes the previous Observable and immediately creates the next one. Cancel first one, immediately trigger latest one.
           4. exhaustMap - source items are ignored while the previous Observable is not completed
           5. forkjoin - It is an operator that takes multiple observables and waits for all of them to complete before emitting an array of their last emitted values. If any of the input observables emit an error, the combined observable will also emit an error immediately. It’s useful when you need to perform several operations in parallel and combine their results into a single value.
-          ![MergeMap_ConcatMap_ForkJoin](MergeMap_ConcatMap_ForkJoin.png)
+![MergeMap_ConcatMap_ForkJoin](MergeMap_ConcatMap_ForkJoin.png)
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |          
 | 22   |  Advantage of Server side rendering
