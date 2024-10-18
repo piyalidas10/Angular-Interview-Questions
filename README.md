@@ -75,10 +75,10 @@ constructor(
 | 23   |  Why use platform-browser package
 | 24   |  How many guards are there ? <br/> https://raghuvardhankaranam.medium.com/route-guards-in-angular-c2c01fe6167b
 | 25   |  canLoad vs canActivate (which one is better to use) ? <br/> canActivate is used to prevent unauthorized users from accessing certain routes. canLoad is used to prevent the application from loading entire modules lazily if the user is not authorized to do so.
-| 26   |  How can you combine 2 data streams together and use as one observable? <br/> Rxjs forkjoin & promise.all
-| 27   |  How can you put a limit to data that you get from stream?
-| 28   |  If you want to put condition on time of observable subscription, which operator should use? Suppose you 
-| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which RXJS operator I have to use? Ans. ConcatMap 
+| 26   |  How can you combine 2 data streams together and use as one observable? <br/> Rxjs forkjoin operator & promise.all
+| 27   |  How can you put a limit to data that you get from stream? <br/> Rxjs take operator
+| 28   |  If you want to put condition on time of observable subscription, which operator should use? <br/> Rxjs timer operator
+| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which RXJS operator I have to use? <br/> Ans. ConcatMap 
 | 30   |  If you have and application where you have to show user’s messages. How you will get notification of new message arrived?
 1) Sending Push Notifications from the Backend (Node) using webpush library. Here Need to create a REST endpoint, that when triggered will result in a notification to be sent to all subscribers. The endpoint would have to be protected by both authentication and authorization middleware.
 2) Angular Service Worker to correctly display the message, we need to use proper format. Namely, we will the payload to be one root object containing one property named notification, otherwise the messages will not be displayed to the user. Once we have the message payload ready, we can send it to a given subscriber via a call to webpush.sendNotification().
