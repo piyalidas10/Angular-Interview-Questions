@@ -73,9 +73,9 @@ constructor(
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |          
 | 22   |  Advantage of Server side rendering
 | 23   |  Why use platform-browser package
-| 24   |  How many guards are there
-| 25   |  canLoad vs canActivate (which one is better to use)
-| 26   |  How can you combine 2 data streams together and use as one observable?
+| 24   |  How many guards are there ? <br/> https://raghuvardhankaranam.medium.com/route-guards-in-angular-c2c01fe6167b
+| 25   |  canLoad vs canActivate (which one is better to use) ? <br/> canActivate is used to prevent unauthorized users from accessing certain routes. canLoad is used to prevent the application from loading entire modules lazily if the user is not authorized to do so.
+| 26   |  How can you combine 2 data streams together and use as one observable? <br/> Rxjs forkjoin & promise.all
 | 27   |  How can you put a limit to data that you get from stream?
 | 28   |  If you want to put condition on time of observable subscription, which operator should use? Suppose you 
 | 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which RXJS operator I have to use? Ans. ConcatMap 
