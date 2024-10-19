@@ -120,6 +120,7 @@ constructor(
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | 
 
 | 24   |  How many guards are there ? <br/> https://raghuvardhankaranam.medium.com/route-guards-in-angular-c2c01fe6167b
+
 | 25   |  canLoad vs canActivate (which one is better to use) ? <br/> Ans. canActivate is used to prevent unauthorized users from accessing certain routes. canLoad is used to prevent the application from loading entire modules lazily if the user is not authorized to do so.
 | 26   |  How can you combine 2 data streams together and use as one observable? <br/> Ans. Rxjs forkjoin operator & promise.all
 | 27   |  How can you put a limit to data that you get from stream? <br/> Ans. Rxjs take operator
