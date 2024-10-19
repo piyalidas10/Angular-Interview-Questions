@@ -69,22 +69,56 @@ constructor(
           4. exhaustMap - source items are ignored while the previous Observable is not completed
           5. forkjoin - It is an operator that takes multiple observables and waits for all of them to complete before emitting an array of their last emitted values. If any of the input observables emit an error, the combined observable will also emit an error immediately. It’s useful when you need to perform several operations in parallel and combine their results into a single value.
           ![MergeMap_ConcatMap_ForkJoin](MergeMap_ConcatMap_ForkJoin.png)
+
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |          
-| 22   |  Advantage of Server side rendering
-| 23   |  Why use platform-browser package
-| 24   |  How many guards are there ? <br/> https://raghuvardhankaranam.medium.com/route-guards-in-angular-c2c01fe6167b
-| 25   |  canLoad vs canActivate (which one is better to use) ? <br/> canActivate is used to prevent unauthorized users from accessing certain routes. canLoad is used to prevent the application from loading entire modules lazily if the user is not authorized to do so.
-| 26   |  How can you combine 2 data streams together and use as one observable? <br/> Rxjs forkjoin operator & promise.all
-| 27   |  How can you put a limit to data that you get from stream? <br/> Rxjs take operator
-| 28   |  If you want to put condition on time of observable subscription, which operator should use? <br/> Rxjs timer operator
-| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which RXJS operator I have to use? <br/> Ans. ConcatMap 
-| 30   |  If you have and application where you have to show user’s messages. How you will get notification of new message arrived?
-1) Sending Push Notifications from the Backend (Node) using webpush library. Here Need to create a REST endpoint, that when triggered will result in a notification to be sent to all subscribers. The endpoint would have to be protected by both authentication and authorization middleware.
-2) Angular Service Worker to correctly display the message, we need to use proper format. Namely, we will the payload to be one root object containing one property named notification, otherwise the messages will not be displayed to the user. Once we have the message payload ready, we can send it to a given subscriber via a call to webpush.sendNotification().
-3) When the Push service receives the message, it will know to which browser instance to forward the message to based on the unique url of the endpoint. Once the Push Service pushes the message to the user browser, the message is then going to be decrypted and passed to the Angular Service Worker (PWA). The Angular Service Worker will then use the browser Notifications API to display a Notification to the user.
+| 22   |  Server side rendering vs Client side rendering ? <br/><br/> Ans. https://v17.angular.io/guide/ssr
+| Sl. No.           | Client-side rendering                                              | Server-side rendering                                         |
+| ----------------- | ------------------------------------------------------------------ | --------------------------------------------------------------|
+| Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
+| SEO | Harder for search engines to crawl and index content           | Easier for SEO as search engines can crawl rendered HTML                        |
+| Initial page load | Initially loads an HTML shell, then JavaScript bundle is fetched and executed to render the UI | Initially loads a fully rendered HTML page from the server |
+| Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
+| Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
+| Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
+| Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
 
-Besides the text and image of the notification, we can also specify a mobile vibration pattern via the vibrate property.
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 23   |  How will prevents unnecessary api calls angular ? <br/><br/> Ans. Debounce should be used. The debounceTime allows to buffer events and only handle the last one after an amount of time. It's useful in the context of inputs but it should be defined on the observable that triggers the event not on the one created for the HTTP request. Here is a example on a control associated with an input that leverages the debounceTime operator: 
+        ```@Component({
+          (...)
+          template: `
+            <input [ngFormControl]="ctrl"/>
+          `
+        })
+        export class MyComponent {
+          constructor() {
+            this.ctrl = new Control();
+            this.ctrl.valueChanges
+                       .debounceTime(500)
+                       .distinctUntilChanged()
+                       .switchMap((value: string) => {
+                         // Get data according to the filled value
+                         return this.service.getData(entry);
+                       })
+                       .subscribe(data => {
+                         // Update the linked list
+                         this.list = data;
+                       });
+          }
+        }```
+        
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | 
+
+| 24   |  How many guards are there ? <br/> https://raghuvardhankaranam.medium.com/route-guards-in-angular-c2c01fe6167b
+| 25   |  canLoad vs canActivate (which one is better to use) ? <br/> Ans. canActivate is used to prevent unauthorized users from accessing certain routes. canLoad is used to prevent the application from loading entire modules lazily if the user is not authorized to do so.
+| 26   |  How can you combine 2 data streams together and use as one observable? <br/> Ans. Rxjs forkjoin operator & promise.all
+| 27   |  How can you put a limit to data that you get from stream? <br/> Ans. Rxjs take operator
+| 28   |  If you want to put condition on time of observable subscription, which operator should use? <br/> Ans. Rxjs timer operator
+| 29   |  If I have more than one APIs to merge to get the results but should come as sequential order as I sent them. Which RXJS operator I have to use? <br/> Ans. ConcatMap 
+| 30   |  If you have and application where you have to show user’s messages. How you will get notification of new message arrived? <br/><br/> 1) Sending Push Notifications from the Backend (Node) using webpush library. Here Need to create a REST endpoint, that when triggered will result in a notification to be sent to all subscribers. The endpoint would have to be protected by both authentication and authorization middleware. <br/> 2) Angular Service Worker to correctly display the message, we need to use proper format. Namely, we will the payload to be one root object containing one property named notification, otherwise the messages will not be displayed to the user. Once we have the message payload ready, we can send it to a given subscriber via a call to webpush.sendNotification(). <br/> 3) When the Push service receives the message, it will know to which browser instance to forward the message to based on the unique url of the endpoint. Once the Push Service pushes the message to the user browser, the message is then going to be decrypted and passed to the Angular Service Worker (PWA). The Angular Service Worker will then use the browser Notifications API to display a Notification to the user. Besides the text and image of the notification, we can also specify a mobile vibration pattern via the vibrate property.
 | 31   |  How many ways are there for performance optimizations of your application?
 | 32   |  Can I use directive as a component?
 | 33   |  Angular lifecycle hooks explain with example & use
