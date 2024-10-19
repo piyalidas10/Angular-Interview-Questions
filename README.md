@@ -311,7 +311,8 @@ Intercepting API calls to return fixed data
 | 82   |  What are Services in Angular? <br><br> Services helps us to share common business logic, data and functions with different components of an Angular application.
 They are implemented through dependency injection.
 | 83   |  How you will test one service inside another service? To test a service, you set the providers metadata property with an array of the services that you'll test or mock. content_copy let service: ValueService; beforeEach(() => { TestBed. configureTestingModule({ providers: [ValueService] }); }); Then inject it inside a test by calling TestBed. 
-| 84   |  What is TestBed? <br><br> TestBed is the primary api for writing unit tests for Angular applications and libraries.
+| 84  |  Use of Rxjs <b>of</b> operator ? <br/> Ans. Writing unit testcase of injectable service in angular component. When we have a service for sucscribing inside a component, write spyOn with success & error response. Example : spyOn(dataService, 'makePost').and.returnValue(of(res)); spyOn(dataService, 'makePost').and.returnValue(throwError(() => error)); 
+| 85   |  What is TestBed? <br><br> TestBed is the primary api for writing unit tests for Angular applications and libraries.
                     ```TestBed.configureTestingModule({
                           declarations: [LoginComponent],
                           providers: [AuthService]
@@ -330,6 +331,3 @@ They are implemented through dependency injection.
           iii) We can find the actual component from the componentInstance on the fixture.
           iv) We can get resolve dependencies using the TestBed injector by using the get function.
           ```
-
-| No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |  | 85  |  Use of Rxjs <b>of</b> operator ? <br/> Ans. Writing unit testcase of injectable service in angular component. When we have a service for sucscribing inside a component, write spyOn with success & error response. Example : spyOn(dataService, 'makePost').and.returnValue(of(res)); spyOn(dataService, 'makePost').and.returnValue(throwError(() => error)); 
