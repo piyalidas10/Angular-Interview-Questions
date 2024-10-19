@@ -71,23 +71,24 @@ constructor(
           ![MergeMap_ConcatMap_ForkJoin](MergeMap_ConcatMap_ForkJoin.png)
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |          
-| 22   |  Server side rendering vs Client side rendering ? <br/><br/> Ans. https://v17.angular.io/guide/ssr
-        | Sl. No.           | Client-side rendering                                              | Server-side rendering                                         |
-        | ----------------- | ------------------------------------------------------------------ | --------------------------------------------------------------|
-        | Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
-        | SEO | Harder for search engines to crawl and index content           | Easier for SEO as search engines can crawl rendered HTML                        |
-        | Initial page load | Initially loads an HTML shell, then JavaScript bundle is fetched and executed to render the UI | Initially loads a fully rendered HTML page from the server |
-        | Initial page load experience | User sees a blank page or loading spinner until the JavaScript bundle is downloaded and executed| User sees the rendered content immediately upon page load|
-        | Type of application | Ideal for SPAs, highly interactive web apps like social media platforms and chat apps, and internal apps user dashboards| Ideal for content-heavy websites and apps with limited interactivity requirements like landing pages, ecommerce apps, documentation, and media publications|
-        | Framework that support it | Frameworks include React, Angular, Vue, Svelte, Backbone.js, and Ember.js| Frameworks include Next.js, Nuxt.js, Remix, SvelteKit, Angular Universal, Astro, and Qwik. Note that some of these frameworks also support CSR.|
-        | Interactivity | Highly interactive and responsive after the initial load, as subsequent interactions are handled client-side without requiring full page refreshes| Initial interactivity is limited to the pre-rendered content; subsequent interactions may require full page refreshes or client-side rendering|
-        | Loading speed | Slower initial load time due to fetching and parsing JavaScript files | Faster initial load time as HTML is pre-rendered |
-        | Caching | Difficult to cache rendered pages | Easier to cache rendered HTML pages on servers or CDNs |
-        | Data fetching | Data is fetched via API calls after the initial load| Data is fetched on the server |
-        | Server load | Reduced server load since rendering occurs on the browser | Increased server load since rendering occurs on the server |
-        | HTTP requests | Makes fewer HTTP requests to the server| Requires more HTTP requests to the server|
-        | JavaScript dependency | Depends heavily on JavaScript | Minimal JavaScript dependency |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |  
+| 22   |  Server side rendering vs Client side rendering ? <br/><br/> Ans. https://v17.angular.io/guide/ssr                                                                
+
+| Sl. No.           | Client-side rendering                                              | Server-side rendering                                         |
+| ----------------- | ------------------------------------------------------------------ | --------------------------------------------------------------|
+| Rendering process | Rendering process occurs on the browser using JavaScript           | Rendering process occurs on the server                        |
+| SEO | Harder for search engines to crawl and index content           | Easier for SEO as search engines can crawl rendered HTML                        |
+| Initial page load | Initially loads an HTML shell, then JavaScript bundle is fetched and executed to render the UI | Initially loads a fully rendered HTML page from the server |
+| Initial page load experience | User sees a blank page or loading spinner until the JavaScript bundle is downloaded and executed| User sees the rendered content immediately upon page load|
+| Type of application | Ideal for SPAs, highly interactive web apps like social media platforms and chat apps, and internal apps user dashboards| Ideal for content-heavy websites and apps with limited interactivity requirements like landing pages, ecommerce apps, documentation, and media publications|
+| Framework that support it | Frameworks include React, Angular, Vue, Svelte, Backbone.js, and Ember.js| Frameworks include Next.js, Nuxt.js, Remix, SvelteKit, Angular Universal, Astro, and Qwik. Note that some of these frameworks also support CSR.|
+| Interactivity | Highly interactive and responsive after the initial load, as subsequent interactions are handled client-side without requiring full page refreshes| Initial interactivity is limited to the pre-rendered content; subsequent interactions may require full page refreshes or client-side rendering|
+| Loading speed | Slower initial load time due to fetching and parsing JavaScript files | Faster initial load time as HTML is pre-rendered |
+| Caching | Difficult to cache rendered pages | Easier to cache rendered HTML pages on servers or CDNs |
+| Data fetching | Data is fetched via API calls after the initial load| Data is fetched on the server |
+| Server load | Reduced server load since rendering occurs on the browser | Increased server load since rendering occurs on the server |
+| HTTP requests | Makes fewer HTTP requests to the server| Requires more HTTP requests to the server|
+| JavaScript dependency | Depends heavily on JavaScript | Minimal JavaScript dependency |
 
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
