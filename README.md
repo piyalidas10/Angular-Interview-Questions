@@ -171,13 +171,28 @@ constructor(
                 .ts file
                 this.buttonLabel = $localize`:Submit|Submit the form@@FEEDBACK.USER_FEEDBACK.submit`
           ```
-| No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No.  | Questions                                                                                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 48   |  useClass vs useValue   
 | 49   |  When you will use ngOnChanges
 | 50   |  Suppose you have a component, inside it you have another child component like the following <br> app.compont.html <br> <app-child></app-child> <br> You want to access the DOM of that child component. Which life cycle hook will give you the access of that child component ?
 | 51   |  What is the starting point of angular application ?
 | 52   |  package.json vs package-lock.json
+```
+~version	Approximately equivalent to version, i.e., only accept new patch versions
+^version	Compatible with version, i.e., accept new minor and patch versions
+version	        Must match version exactly
+>version	Must be greater than version
+>=version	Must be equal or greater than version
+<version	Must be lesser than version
+<=version	Must be equal or lesser than version
+1.2.x	        1.2.0, 1.2.1, etc., but not 1.3.0
+*	        Matches any version
+latest	        Obtains latest release
+```
+
+| No.  | Questions                                                                                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 53   |  What is the use of view encapsulation?
 | 54   |  Explain the @Component Decorator. <br> TypeScript class is one that is used to create components. This genre of class is then decorated with the "@Component" decorator. The decorato’s purpose is to accept a metadata object that provides relevant information about the component.  
 | 55   |  Promises vs Observables
