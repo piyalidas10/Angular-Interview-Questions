@@ -360,4 +360,36 @@ Intercepting API calls to return fixed data
 | 96   |  What is Nx ? <br/><br/> NX is a set of powerful tools and best practices for building and maintaining complex applications. NX provides a number of benefits: <br/><br/> 1) A set of powerful command-line tools: NX provides a set of powerful command-line tools for building, testing, and deploying your applications. <br/> 2) A set of best practices: NX provides a set of best practices for developing applications in a Monorepo. These best practices help you to write better code, faster. <br/> 3)An extensible plugin system: NX provides an extensible plugin system that allows you to add new features and capabilities to your applications. <br/> https://dev.to/thekrprince/getting-started-with-monorepo-using-nx-17j0
 | 97   |  Is a monorepo a monolith ? <br/><br/> A monolith is an app with related data to this app. While a monorepo may contain a monolith, a monolith is not always in a monorepo. A monolith can be broken up into microservices, but a monorepo can only be broken down into individual repositories. Monorepos are sometimes referred to as monolithic repositories. However, monolithic architecture, used for building self-contained applications, should not be confused with monorepos. Also, It is important to note that monorepos are the exact opposite of multirepos. Monorepos consists of a single repository with multiple projects (think of it as a single big folder containing the entire codebase), while multirepos consists of different projects, with each having its own repository.
 | 97   |  Monorepo vs MicroFrontend ? <br/><br/> A monolith is an app with related data to this app. While a monorepo may contain a monolith, a monolith is not always in a monorepo. <br/> A monolith can be broken up into microservices, but a monorepo can only be broken down into individual repositories. <br/> The opposite of a monorepo is a multirepo (or a polyrepo) and the opposite of a monolith is distributed microservices. <br/> Monoliths have tightly coupled code bases which can only be decoupled by distributed microservices not by polyrepos or monorepos. <br/> A monorepo is often mistakenly thought to be a monolith - this is when code is colocated with no clear establishment of the relationship or use of such a stratgey. <br/> And a monolith is often broken down into polyrepos each with their own code base to decouple code. This decoupling of code is best when related code bases are still colocated without being tightly coupled. <br/> Monorepos can solve some of the challenges faced by a polyrepo approach - inconsistent tooling, duplication of code, a lack of ease in code sharing. <br/> A combination of monorepos and microservices could solve the challenges of monorepos as monorepos are expensive in terms of data storage. Microservices for the distribution of these data sets across microservices may be one available solution. <br/> A monolith may have different package managers, different stacks and different sets of data configured in different ways all related to a single application. <br/><br/> https://monorepo.tools/
+| 98   |  Extends vs Implements ? <br/><br/> extends: You get all these methods/properties from the parent class so you don't have to implement this yourself. <br/> implements: It is a contract that the class has to follow. The class has to implement at least the following methods/properties.
+```
+class Person {
+  name: string;
+  age: number;
+  walk(): void {
+    console.log('Walking (person Class)')
+  }
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+class child extends Person { }
+
+class man implements Person {
+  name: string;
+  age: number;
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+  walk(): void {
+    console.log('Walking (man class)')
+  }
+}
+
+(new child('Mike', 12)).walk();
+// logs: Walking(person Class)
+
+```
 
