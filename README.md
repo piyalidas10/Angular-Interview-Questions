@@ -395,4 +395,9 @@ class man implements Person {
 // logs: Walking(person Class)
 
 ```
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 103 |  @for vs *ngFor ? <br/><br/> The @for block is part of the new control flow syntax introduced in Angular 17.0. The control flow blocks (@if, @for, @switch) are here to replace the 3 structural directives ngIf, ngFor and ngSwitch. In the case of the @for block, feature wise they serve the same purpse with a few advantages : 1) No need to import the directive in standalone components. The @for syntax is automatically included in templates, no explicit imports are needed. 2) The @for now forces developers to use a tracking function, so performance-wise it's safer 3) If the collection is empty, you can use the @empty block to display something specific. 4) Generate a bit less code in the final bundle
+| 104 |  @if vs *nglf ? <br/><br/> 1) No need to import the directive in standalone components. The @if syntax is automatically included in templates, no explicit imports are needed. 2) @if supports @else if and @else conditions. esle if is not supported by *nglf 3) Generate a bit less code in the final bundle
+| 105 |  Migrate control flow to new angular version ? <br/><br/> Control flow syntax is available from Angular v17. The new syntax is baked into the template, so you don't need to import CommonModule anymore. This schematic migrates all existing code in your application to use new Control Flow Syntax. Run the schematic using the following command: <strong>`ng generate @angular/core:control-flow` </strong>
 
