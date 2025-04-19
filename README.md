@@ -401,3 +401,34 @@ class man implements Person {
 | 104 |  @if vs *nglf ? <br/><br/> 1) No need to import the directive in standalone components. The @if syntax is automatically included in templates, no explicit imports are needed. 2) @if supports @else if and @else conditions. esle if is not supported by *nglf 3) Generate a bit less code in the final bundle
 | 105 |  Migrate control flow to new angular version ? <br/><br/> Control flow syntax is available from Angular v17. The new syntax is baked into the template, so you don't need to import CommonModule anymore. This schematic migrates all existing code in your application to use new Control Flow Syntax. Run the schematic using the following command: <strong>`ng generate @angular/core:control-flow` </strong>
 
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 106 |  What is a CORS error, why does it arise, and how do you fix it? <br/><br/> CORS stands for Cross-Origin Resource Sharing—a security feature built into browsers. It blocks requests made from one origin (domain, protocol, or port) to another origin unless explicitly allowed by the server. 
+For example: 
+- Your frontend is hosted at `frontend.com`. 
+- Your backend API is hosted at `api.backend.com`. 
+The browser treats these as different origins and blocks the request unless it’s explicitly allowed. When the backend server doesn’t include the right CORS headers, the browser refuses to share the response and throws this error: > *Access to fetch at 'https://api.backend.com' from origin 'https://frontend.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present.*
+In short, the browser isn’t blocking the request—it’s blocking the response for security reasons. 
+It’s not a frontend issue. It’s a server-side configuration issue.
+
+Solution 
+-----------------------------------------------------
+Step 1: Update the Backend. 
+The server must send the right headers, like: 
+- `Access-Control-Allow-Origin: *` (Allows all origins). 
+- Or specify trusted domains like `Access-Control-Allow-Origin: https://frontend.com`. 
+
+Step 2: Handle Preflight Requests (OPTIONS). 
+For complex requests (like `POST` with custom headers), browsers send a preflight request before the actual call. 
+
+The server must respond to this with: 
+- `Access-Control-Allow-Methods: GET, POST, OPTIONS` 
+- `Access-Control-Allow-Headers: Content-Type, Authorization` 
+
+Step 3: Use a Proxy for Local Development. 
+If the backend isn’t updated yet, set up a proxy to forward requests through the same origin as your frontend. 
+
+Can We Bypass CORS? 
+-----------------------------------------------------
+Short answer—No. Any hacky workaround, like disabling CORS in the browser or using extensions, won’t work in production. Fix it properly by configuring the server. That’s the only scalable solution.
+
