@@ -403,9 +403,13 @@ class man implements Person {
 
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 106 |  What is a CORS error, why does it arise, and how do you fix it? <br/><br/> CORS stands for Cross-Origin Resource Sharing—a security feature built into browsers. It blocks requests made from one origin (domain, protocol, or port) to another origin unless explicitly allowed by the server. For example: - Your frontend is hosted at `frontend.com`. - Your backend API is hosted at `api.backend.com`. The browser treats these as different origins and blocks the request unless it’s explicitly allowed. When the backend server doesn’t include the right CORS headers, the browser refuses to share the response and throws this error: > *Access to fetch at 'https://api.backend.com' from origin 'https://frontend.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present.*
-In short, the browser isn’t blocking the request—it’s blocking the response for security reasons. 
-It’s not a frontend issue. It’s a server-side configuration issue.
+| 106 |  What is a CORS error, why does it arise, and how do you fix it? <br/><br/> CORS stands for Cross-Origin Resource Sharing—a security feature built into browsers. It blocks requests made from one origin (domain, protocol, or port) to another origin unless explicitly allowed by the server. 
+        For example: 
+        - Your frontend is hosted at `frontend.com`.
+        - Your backend API is hosted at `api.backend.com`.
+        The browser treats these as different origins and blocks the request unless it’s explicitly allowed. When the backend server doesn’t include the right CORS headers, the browser refuses to share the response and throws this error: > *Access to fetch at 'https://api.backend.com' from origin 'https://frontend.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present.*
+        In short, the browser isn’t blocking the request—it’s blocking the response for security reasons. 
+        It’s not a frontend issue. It’s a server-side configuration issue.
 
         Solution 
         -----------------------------------------------------
