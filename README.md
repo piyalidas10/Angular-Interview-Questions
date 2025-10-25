@@ -16,7 +16,7 @@ You can add an image or a code block, too.
 </details>
 
 
-## Interview Questions upto Angular 15 verions
+## Interview Questions upto Angular 15 versions
 
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
