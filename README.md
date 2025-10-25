@@ -1,7 +1,7 @@
 ## Interview questions from Angular 16 to 19 versions
 <details>
 
-<summary><strong>Angular Location services</strong></summary>
+<summary><strong>Angular Location service</strong></summary>
 
 #### 1. What is the difference between Router and Location service?
 | Feature           | `Router`                                   | `Location`                             |
@@ -128,6 +128,221 @@ Ans. They are not triggered. Location updates the browser URL only — it doesn�
 Ans. this.router.navigate(['/settings']);
 ➡ Use Router — because this is a true navigation event that should trigger route lifecycle hooks.
 
+</details>
+
+
+<details>
+
+<summary>Angular Signals</summary>
+
+#### 1. What are Angular Signals?
+Ans: Signals are a reactive primitive introduced in Angular (v16+) to track and respond to changes in application state. They are functions that hold a value and notify consumers automatically when that value changes — without RxJS or manual subscriptions.
+```
+import { signal } from '@angular/core';
+
+const counter = signal(0);
+console.log(counter()); // 0
+counter.set(1);
+console.log(counter()); // 1
+```
+
+#### 2. How do you create and update a Signal?
+Ans: Use signal() to create. Use .set(), .update(), or .mutate() to modify.
+```
+const name = signal('Alice');
+
+name.set('Bob'); // replaces the value
+name.update(n => n.toUpperCase()); // updates based on previous value
+```
+
+#### 3. What are the main types of Signals?
+Ans: There are two main types of signals:
+Writable Signals: These are signals whose values you can directly change using the .set() or .update() methods. You create them using the signal() function.
+```
+// Create a writable signal
+const count = signal(0);
+
+// Update its value
+count.set(10); 
+
+// Update based on the previous value
+count.update(currentValue => currentValue + 1);
+```
+Computed Signals: These are read-only signals that derive their value from other signals. Their value is calculated lazily (only when read) and memoized (re-calculated only when one of its dependencies changes). You create them using the computed() function.
+```
+const count = signal(5);
+const double = computed(() => count() * 2); // double() will be 10
+
+count.set(10);
+// double() will now automatically be 20
+```
+
+#### 4. How do you create and update a writable signal?
+A: You create a writable signal by calling the signal() function with an initial value.
+```
+import { signal } from '@angular/core';
+const counter = signal(0); // Created with initial value 0
+```
+You can update it in two ways:
+
+.set(value): Directly sets a new value.
+```counter.set(5); // The value is now 5```
+.update(fn): Computes a new value based on the current value. This is safer for updates that depend on the previous state.
+```counter.update(currentValue => currentValue + 1); // The value is now 6```
+
+#### 5. How do you read the value of a Signal?
+Answer: You call it like a function:
+```
+const count = signal(5);
+console.log(count()); // prints 5
+```
+
+#### 6. What is a Computed Signal?
+Answer: A computed signal derives a new value automatically from other signals. It recalculates automatically when dependencies change.
+```
+import { signal, computed } from '@angular/core';
+
+const count = signal(2);
+const double = computed(() => count() * 2);
+
+console.log(double()); // 4
+count.set(3);
+console.log(double()); // 6 (auto-updated)
+```
+
+#### 7. What is an Effect in Signals?
+Answer: An effect runs side effects (like logging, API calls, DOM updates) when dependent signals change.
+```
+import { effect } from '@angular/core';
+
+const count = signal(0);
+
+effect(() => {
+  console.log('Count changed:', count());
+});
+count.set(1);
+```
+
+#### 8. How do Signals integrate with Angular’s Change Detection?
+Answer: Signals mark components as dirty only when their values change. Angular automatically re-renders only the affected parts, improving performance compared to default zone.js-based detection.
+
+#### 9. How do you use Signals in a Component?
+Answer:
+```
+@Component({
+  selector: 'app-counter',
+  template: `
+    <h2>{{ count() }}</h2>
+    <button (click)="increment()">+</button>
+  `
+})
+export class CounterComponent {
+  count = signal(0);
+  increment() {
+    this.count.update(v => v + 1);
+  }
+}
+```
+
+#### 10. What is mutate() used for?
+Answer: Used for mutating objects or arrays inside a signal directly (without replacing the whole object).
+```
+const todos = signal([{ title: 'Learn Angular', done: false }]);
+todos.mutate(list => list.push({ title: 'Use Signals', done: false }));
+```
+
+#### 11. Can a Signal hold complex data like objects or arrays?
+Answer: Yes — Signals can hold any serializable data type (primitive, array, object, etc.). You should prefer .mutate() or .update() for efficient updates.
+
+#### 12. What are Writable and Readonly Signals?
+Answer: 
+Writable Signal: can be modified (signal()). 
+Readonly Signal: created using .asReadonly(), prevents external updates. 
+```
+const _count = signal(0);
+const count = _count.asReadonly();
+```
+
+#### 13. How can Signals be used in Angular Services?
+Answer: Signals can replace BehaviorSubjects for state management.
+```
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private _user = signal<User | null>(null);
+  user = this._user.asReadonly();
+
+  login(u: User) { this._user.set(u); }
+  logout() { this._user.set(null); }
+}
+```
+
+#### 14. How are Signals different from NgRx Store?
+Ans. Use Signals for local reactive state, and NgRx/SignalStore for app-wide state.
+| Aspect         | Signals       | NgRx                 |
+| -------------- | ------------- | -------------------- |
+| State          | Local / small | Global / large-scale |
+| Boilerplate    | Minimal       | High                 |
+| Async Handling | Manual        | Built-in effects     |
+| Debugging      | Simple        | DevTools integration |
+
+#### 15. What is Angular’s SignalStore?
+Answer: A new state management pattern in Angular built on top of Signals (introduced in v17+). It provides an NgRx-like store but simpler, without reducers or actions.
+```
+import { signalStore, withState, withMethods } from '@ngrx/signals';
+
+export const CounterStore = signalStore(
+  withState({ count: 0 }),
+  withMethods((store) => ({
+    increment() { store.count.update(v => v + 1); }
+  }))
+);
+```
+
+#### 16. Can Signals be used for async data like HTTP calls?
+Answer: Yes, but they’re synchronous by nature — you can combine them with toSignal() to convert Observables.
+```
+import { toSignal } from '@angular/core/rxjs-interop';
+users = toSignal(this.http.get<User[]>('/api/users'), { initialValue: [] });
+```
+
+#### 17. What is toSignal() and toObservable()?
+Answer: They are interop utilities:
+```
+toSignal(obs) → converts Observable → Signal.
+
+toObservable(sig) → converts Signal → Observable.
+
+import { toObservable } from '@angular/core/rxjs-interop';
+const count$ = toObservable(this.count);
+```
+
+#### 18. When should you use Effects instead of Computed Signals?
+Answer: 1) Computed: For deriving data. 2) Effect: For side effects (logging, HTTP, DOM).
+
+#### 19. How do Signals improve SSR (Server-Side Rendering) performance?
+Answer: Signals are zone-less, making them ideal for non-blocking SSR. They allow fine-grained reactivity without the overhead of global change detection.
+
+#### 20. Can Signals replace RxJS completely?
+Answer: No. Use Signals for local UI state. Use RxJS for async streams, e.g., websockets, interval timers, or event-based systems.
+
+#### 21. How to debug or inspect Signal changes?
+Answer: Use Angular DevTools (v17+), which includes a Signals tab to visualize dependencies and reactivity flow.
+
+#### 22. When should I use Signals vs. RxJS Observables?
+A: Both are reactive, but they solve different problems.
+
+**Use Signals for:** 
+Component State: Managing local state within your components (e.g., toggles, form values, counters).  
+Synchronous State: Values that are always available and change synchronously.  
+Derived Values: Creating values that depend on other state (e.g., fullName from firstName and lastName).  
+Glitching-free Execution: Signals are designed to avoid intermediate "glitchy" states where one signal has updated but a derived one hasn't yet.  
+
+**Use RxJS Observables for:**
+Asynchronous Events: Handling complex async operations over time (e.g., HTTP requests, WebSockets, complex user events like drag-and-drop).  
+Event Streams: Managing streams of multiple values (e.g., keyboard inputs, mouse movements).  
+Complex Orchestration: When you need powerful operators to filter, map, debounce, throttle, switchMap, or combine multiple async streams.  
+
+In short: Think of Signals for state (the "what") and RxJS for events (the "when"). They work very well together; you can easily convert between them using functions like toSignal (from RxJS) and toObservable (from Angular).
 
 </details>
 
