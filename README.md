@@ -1,30 +1,65 @@
 ## Interview questions from Angular 16 to 19 versions
 <details>
 
-<summary><strong>Interview questions</strong></summary>
-<strong>1. What is the difference between Router and Location service?</strong>
+<summary><strong>Angular Location services</strong></summary>
+
+#### 1. What is the difference between Router and Location service?
 | Feature           | `Router`                                   | `Location`                             |
 | ----------------- | ------------------------------------------ | -------------------------------------- |
 | Purpose           | High-level navigation between routes       | Low-level URL and history manipulation |
 | Routing awareness | Works with Angular’s routing configuration | Doesn’t depend on routing setup        |
 | Example           | `this.router.navigate(['/home'])`          | `this.location.go('/home')`            |
 
-<strong>2. How does the Location service differ from the JavaScript window.history API?</strong>
+#### 2. How does the Location service differ from the JavaScript window.history API?
 The Angular Location service, found in @angular/common, provides a way to interact with the browser's URL and history stack within an Angular application. It offers a more structured and Angular-specific approach compared to directly manipulating window.history. 
    -   Location is Angular-aware, meaning it keeps URL changes in sync with Angular’s routing system.
    -   window.history works at the browser level, outside of Angular’s change detection.
 
-<strong>3. What does Location.go() do?</strong>
+#### 3. What does Location.go() do?
 It changes the browser’s URL without reloading the page and without adding a new entry to the history stack (unlike navigation). 
 ```
 import { Location } from '@angular/common';
 this.location.go('/profile');
 ```
-<strong>4. How can you get the current path using the Location service?</strong>
+#### 4. How can you get the current path using the Location service?
 ```
 const path = this.location.path();
 console.log(path); // e.g., /dashboard
 ```
+#### 5. What does Location.replaceState() do?
+```this.location.replaceState('/login');```
+It updates the current URL in place (replacing the current history entry) instead of pushing a new one.
+
+#### 6. What is Location.prepareExternalUrl() used for?
+```
+const externalUrl = this.location.prepareExternalUrl('/about');
+console.log(externalUrl);
+```
+It prepares an absolute URL based on the Angular app’s base href (useful for constructing links safely).
+
+#### 7. How can you listen to URL changes using Location?
+```
+this.location.onUrlChange((url, state) => {
+  console.log('URL changed to:', url);
+});
+```
+
+#### 8. What’s the role of PlatformLocation in Angular?
+Ans. PlatformLocation is a lower-level service used by Location internally.
+It provides direct access to the browser’s native window.location and history APIs.
+You’d rarely use it directly unless writing custom routing logic.
+
+#### 9. Can you use the Location service in an Angular SSR (Server-Side Rendering) environment?
+Ans: Yes, but cautiously. The server doesn’t have a window object, so Angular provides a universal-safe mock implementation of Location.Direct browser-dependent methods (like back()) won’t work on the server.
+
+#### 10. What’s the difference between Location.go() and Router.navigate()?
+| Feature                               | `Location.go()`                          | `Router.navigate()`     |
+| ------------------------------------- | ---------------------------------------- | ----------------------- |
+| Updates URL?                          | ✅ Yes                                    | ✅ Yes                   |
+| Updates Router state?                 | ❌ No                                     | ✅ Yes                   |
+| Triggers navigation guards/resolvers? | ❌ No                                     | ✅ Yes                   |
+| Typical Use Case                      | Custom URL updates without re-navigation | Normal route navigation |
+
 
 
 </details>
