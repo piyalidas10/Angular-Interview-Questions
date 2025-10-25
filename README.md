@@ -132,6 +132,8 @@ Ans. this.router.navigate(['/settings']);
 </details>
 
 
+
+
 ## Interview Questions upto Angular 15 versions
 
 | No. | Questions                                                                                                                                                         |
