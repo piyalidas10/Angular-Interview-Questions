@@ -1,4 +1,4 @@
-### Interview questions upto Angular 19 version
+## Interview questions from Angular 16 to 19 versions
 <details>
 
 <summary>Tips for collapsed sections</summary>
@@ -16,7 +16,7 @@ You can add an image or a code block, too.
 </details>
 
 
-### Table of Contents
+## Interview Questions upto Angular 15 verions
 
 | No. | Questions                                                                                                                                                         |
 | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
