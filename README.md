@@ -1,17 +1,31 @@
 ## Interview questions from Angular 16 to 19 versions
 <details>
 
-<summary>Tips for collapsed sections</summary>
+<summary><strong>Interview questions</strong></summary>
+<strong>1. What is the difference between Router and Location service?</strong>
+| Feature           | `Router`                                   | `Location`                             |
+| ----------------- | ------------------------------------------ | -------------------------------------- |
+| Purpose           | High-level navigation between routes       | Low-level URL and history manipulation |
+| Routing awareness | Works with Angular’s routing configuration | Doesn’t depend on routing setup        |
+| Example           | `this.router.navigate(['/home'])`          | `this.location.go('/home')`            |
 
-### You can add a header
+<strong>2. How does the Location service differ from the JavaScript window.history API?</strong>
+The Angular Location service, found in @angular/common, provides a way to interact with the browser's URL and history stack within an Angular application. It offers a more structured and Angular-specific approach compared to directly manipulating window.history. 
+   -   Location is Angular-aware, meaning it keeps URL changes in sync with Angular’s routing system.
+   -   window.history works at the browser level, outside of Angular’s change detection.
 
-You can add text within a collapsed section.
-
-You can add an image or a code block, too.
-
-```ruby
-   puts "Hello World"
+<strong>3. What does Location.go() do?</strong>
+It changes the browser’s URL without reloading the page and without adding a new entry to the history stack (unlike navigation). 
 ```
+import { Location } from '@angular/common';
+this.location.go('/profile');
+```
+<strong>4. How can you get the current path using the Location service?</strong>
+```
+const path = this.location.path();
+console.log(path); // e.g., /dashboard
+```
+
 
 </details>
 
