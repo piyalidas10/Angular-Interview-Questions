@@ -20,6 +20,7 @@ It changes the browser’s URL without reloading the page and without adding a n
 ```
 import { Location } from '@angular/common';
 this.location.go('/profile');
+this.location.go('/users?page=2&sort=asc');
 ```
 #### 4. How can you get the current path using the Location service?
 ```
@@ -60,6 +61,72 @@ Ans: Yes, but cautiously. The server doesn’t have a window object, so Angular 
 | Triggers navigation guards/resolvers? | ❌ No                                     | ✅ Yes                   |
 | Typical Use Case                      | Custom URL updates without re-navigation | Normal route navigation |
 
+#### 11. When would you use Location over Router?
+Ans. 1) When you need fine-grained control over the browser URL without routing logic. 2) For custom back-navigation (e.g., modal close returning to previous state). 3) When working with embedded webviews or micro-frontends that require direct URL manipulation.
+
+#### 12. You have a route /products and a modal that opens at /products/details/10. When the user closes the modal, you want to go back to /products using the browser history. How would you implement this using Location?
+Ans. 
+```
+openDetails(id: number) {
+  this.location.go(`/products/details/${id}`);
+}
+closeDetails() {
+  this.location.back();
+}
+```
+This maintains a natural browser back-button experience without forcing re-navigation.
+
+#### 13. How can you detect when a user presses the browser’s Back button using Location?
+Ans. 
+```
+import { Location } from '@angular/common';
+
+constructor(private location: Location) {
+  this.location.onUrlChange(url => {
+    console.log('User navigated back or forward:', url);
+  });
+}
+```
+#### 14. What is the Location service in Angular?
+Ans. It’s a low-level API from @angular/common that lets you interact with the browser’s URL, history stack, and base href — without relying on the Angular Router.
+
+#### 15. After login, replace /login in history with /dashboard — so clicking Back doesn’t go to /login.
+Ans.
+```
+loginSuccess() {
+  this.location.replaceState('/dashboard');
+}
+```
+Show that you know the difference between go() (pushes URL) and replaceState() (replaces current URL).
+
+#### 16. Log a message whenever the user presses the browser’s back/forward buttons.
+Ans. 
+```
+import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
+
+@Component({
+  selector: 'app-tracker',
+  template: `<p>Tracking navigation...</p>`
+})
+export class TrackerComponent implements OnInit {
+  constructor(private location: Location) {}
+
+  ngOnInit() {
+    this.location.onUrlChange(url => {
+      console.log('URL changed (back/forward):', url);
+    });
+  }
+}
+```
+Useful for analytics, unsaved form warning, or preventing accidental exits.
+
+#### 17. If you use Location.go() instead of Router.navigate(), what happens to route guards and resolvers?
+Ans. They are not triggered. Location updates the browser URL only — it doesn’t involve Angular’s routing lifecycle.
+
+#### 18. When a user clicks the “Settings” button, you want to navigate to a new route /settings, run guards, resolvers, and update Angular’s route state. Which one do you use between Location.go() vs Router.navigate()?
+Ans. this.router.navigate(['/settings']);
+➡ Use Router — because this is a true navigation event that should trigger route lifecycle hooks.
 
 
 </details>
