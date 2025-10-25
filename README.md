@@ -133,7 +133,7 @@ Ans. this.router.navigate(['/settings']);
 
 <details>
 
-<summary><strong>Angular Signals</strong>strong></summary>
+<summary><strong>Angular Signals</strong></summary>
 
 #### 1. What are Angular Signals?
 Ans: Signals are a reactive primitive introduced in Angular (v16+) to track and respond to changes in application state. They are functions that hold a value and notify consumers automatically when that value changes — without RxJS or manual subscriptions.
