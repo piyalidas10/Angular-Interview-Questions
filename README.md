@@ -45,6 +45,51 @@
    -   Effects API timing changed (in developer preview): effects triggered outside of change detection now run as part of change detection (vs microtask). This may change execution order / timing in tests or change-detection sensitive code.
    -   Some experimental API renamings: e.g., ExperimentalPendingTasks renamed to PendingTasks.
 
+### Why use @angular-devkit/build-angular:application instead of @angular-devkit/build-angular:browser ?
+
+| Feature                             | `:browser` (Old)                                | `:application` (New, Angular 17+)                                  |
+| ----------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------ |
+| **Purpose**                         | Client-side only                                | Universal (client + SSR + hybrid rendering)                        |
+| **Performance optimizations**       | Limited                                         | Automatic optimizations (e.g., deferred loading, modern JS output) |
+| **Image optimization**              | Manual setup needed                             | Integrated with `NgOptimizedImage` and `IMAGE_CONFIG`              |
+| **Hybrid rendering (SSR + CSR)**    | ❌ Not supported                                 | ✅ Supported (via `@angular/ssr`)                                   |
+| **Configuration simplicity**        | Needs separate `"browser"` + `"server"` targets | Single `"application"` target handles all                          |
+| **Development server (`ng serve`)** | CSR only                                        | Can serve SSR/hybrid apps easily                                   |
+| **Future support**                  | Deprecated                                      | Actively developed & recommended                                   |
+
+**🧩 Key Benefits of :application**
+✅ One unified pipeline for SSR, Prerendering, and CSR
+✅ Better lazy-loading & code-splitting by default
+✅ Simplified server integration (e.g., Express or Fastify)
+✅ Native support for hybrid rendering (RenderMode.Client, RenderMode.Server, etc.)
+✅ Built-in image optimization and critical CSS extraction
+
+**Old (Angular ≤16):**
+```
+"build": {
+  "builder": "@angular-devkit/build-angular:browser",
+  "options": {
+    "outputPath": "dist/my-app/browser",
+    "index": "src/index.html",
+    "main": "src/main.ts"
+  }
+}
+```
+**New (Angular ≥17):**
+```
+"build": {
+  "builder": "@angular-devkit/build-angular:application",
+  "options": {
+    "outputPath": "dist/my-app",
+    "browser": "src/main.ts",
+    "server": "src/main.server.ts",
+    "ssr": {
+      "entry": "src/server.ts"
+    }
+  }
+}
+```
+
 </details>
 
 <details>
