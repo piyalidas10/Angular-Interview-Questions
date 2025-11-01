@@ -4,7 +4,7 @@
 
 <summary><strong>Angular Versions Upgradation</strong></summary>
 
-#### What are the new features integrated from angular 16 to angular 19 versions?
+### What are the new features integrated from angular 16 to angular 19 versions?
 **🔹 Angular 16**
    -   Introduction of Signals (a new fine-grained reactive primitive) allowing more efficient state updates and reactivity integration.
    -   Improved server-side rendering (SSR) hydration: non-destructive hydration so client can attach to server-rendered DOM without full re-render.
@@ -51,7 +51,7 @@
 
 <summary><strong>Security improves with Angular 16 to 19 versions</strong></summary>
 
-#### 🔐 What’s New & Improved
+### 🔐 What’s New & Improved
 **Angular 16**
    -   Added support for Trusted Types: Angular 16 lets you adopt the browser’s Trusted Types feature, which enforces stricter rules on how strings are used in sensitive contexts (e.g., innerHTML, script URLs). This helps reduce risk of XSS (Cross-Site Scripting) attacks.
    -   Better sanitisation and built-in safe defaults: While not always explicitly labelled as “new security feature”, the v16 release emphasised improved handling of untrusted HTML/strings. 
@@ -66,14 +66,14 @@ iFlair Web Technologies
    -   Improved DOM sanitisation, stronger integration of Trusted Types and better defaults: Sources report “stronger DOM sanitisation in edge cases”, improved safe handling of untrusted HTML/URLs.
    -   Better alignment with secure-by-default behaviour: Angular’s security documentation emphasises that values bound to templates are untrusted by default, AOT should be used, etc. Although this has been part of Angular before v16, the newer versions reinforce the message and tooling.
 
-#### Why Security is important for any application ?
+### Why Security is important for any application ?
    -   XSS mitigation: Trusted Types + automatic CSP mean you have stronger resistances against attackers injecting malicious scripts or content.
    -   Reduced attack surface: With better sanitisation and safer defaults, fewer manual “escape this value” code paths are needed, reducing developer mistakes.
    -   Better policy enforcement: CSP is one of the most effective layers for preventing script injection (beyond sanitisation). The fact that Angular now helps you generate a CSP is a big win.
    -   Safer routing / component access: With component-level guards, you can restrict access finer than whole routes, which helps secure UI surfaces.
    -   Up-to-date dependencies: New versions of frameworks like Angular incorporate patched vulnerabilities. Staying current helps ensure known issues are fixed.
 
-#### ⚠️ What You Should Still Watch / Do
+### ⚠️ What You Should Still Watch / Do
    -   The automatic CSP feature in Angular 19 is developer-preview: It’s not yet fully mature in every environment. You’ll still need to verify CSP works correctly on your server (headers, nonces, hashing).
    -   Trusting user input is still a risk: Even with sanitisation you must avoid manually bypassing Angular’s security (e.g., via bypassSecurityTrustHtml) unless absolutely sure.
    -   Backend / full-stack security still required: Angular’s client security features are one layer. You still need secure authentication, authorization, server-side validation, HTTPS, etc.
@@ -588,6 +588,51 @@ Or use signals or computed() functions for automatic updates.
 
 #### 16. Can you mix Zone.js and signals together?
 Answer: ✅ Yes, absolutely. Angular allows hybrid use — signals handle local reactivity, while Zone.js manages async CD globally.
+
+
+</details>
+
+<details>
+
+<summary><strong>Angular Image Optimization</strong></summary>
+
+### 🧮 Summary Table: Key Image Optimisation Features by Version
+
+| Version | What you get / upgraded features                                                                                                                                     |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **16**  | Core NgOptimizedImage support: `ngSrc`, width/height or fill, lazy loading by default, `priority` attribute, srcset support, resource hints.                         |
+| **17**  | Expanded performance-guidance (warnings if you don’t use directive), more flexible custom loader support (loaderParams).                                             |
+| **18**  | Configurable `IMAGE_CONFIG` (breakpoints, placeholder resolution, disable warnings), more refined responsive image support, fill mode improvements.                  |
+| **19**  | Enhanced directive behavior: automatic `sizes="auto, …"` prefixing for responsive images, further refinement of loader/CDN support and docs, matured best-practices. |
+
+### ✅ Why this matters & what to adopt
+   -   Using NgOptimizedImage (or migrating to it) helps significantly with performance metrics (especially LCP, CLS) because images often dominate load size and layout shift.
+   -   The enhancements over the versions mean you have more control (breakpoints, custom loaders) and built-in warnings to catch sub-optimal image usage.
+   -   If you’re upgrading an older Angular app (pre-15, or using standard <img src>), migrating to use ngSrc + width/height/fill + priority + custom loader gives a “quick win”.
+   -   On Angular 19, make sure to leverage the newer behaviors like sizes="auto" benefit, especially for responsive layouts, so that you don’t over-download large images on small screens.
+   -   Also adopt CDN/custom loader support so you can serve optimized formats (WebP, AVIF), which the directive supports conceptually by enabling srcset and loaders that generate those formats.
+
+### 🛠 Practical Migration Tips
+   -   Replace <img src="…"> with <img ngSrc="…" width="…" height="…"> (or use fill mode if size is dynamic).
+   -   For hero / above-the-fold images, add priority attribute so they load eagerly and preload hint is generated.
+   -   Set up an image loader if you use a CDN (many built-in loaders or custom).
+   -   Configure IMAGE_CONFIG (in providers) if you have custom breakpoint/resolution needs:
+```
+providers: [
+  {
+    provide: IMAGE_CONFIG,
+    useValue: {
+      breakpoints: [320, 640, 1024],
+      placeholderResolution: 40,
+      disableImageSizeWarning: false
+    }
+  }
+]
+```
+   -   Test responsive scenarios: check srcset output, verify sizes attribute. On Angular 19, you’ll benefit from auto prefix.
+   -   If using SSR (server-side rendering), ensure preload hints are generated (the directive handles that) and you’re not lazy-loading the LCP image.
+   -   Audit your images: large un-optimized JPEGs, missing width/height, lots of layout shifts, missing srcset — these are things NgOptimizedImage will warn you about (especially in v17+).
+   -   After upgrade/build, test your Core Web Vitals (LCP, CLS) and compare before/after image behaviour.
 
 
 </details>
