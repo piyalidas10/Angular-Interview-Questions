@@ -49,6 +49,43 @@
 
 <details>
 
+<summary><strong>Security improves with Angular 16 to 19 versions</strong></summary>
+
+#### 🔐 What’s New & Improved
+**Angular 16**
+   -   Added support for Trusted Types: Angular 16 lets you adopt the browser’s Trusted Types feature, which enforces stricter rules on how strings are used in sensitive contexts (e.g., innerHTML, script URLs). This helps reduce risk of XSS (Cross-Site Scripting) attacks.
+   -   Better sanitisation and built-in safe defaults: While not always explicitly labelled as “new security feature”, the v16 release emphasised improved handling of untrusted HTML/strings. 
+iFlair Web Technologies
+
+**Angular 17 → 18**
+   -   While not a huge “headline” feature in some sources, v18 improved the guard-rails around routing and component protection. For instance: component-level route guards were introduced in v18, giving finer-grained control of access to components.
+   -   Also in v18: stronger foundations for SSR/hydration and implicit improvements to security via infrastructure (less exposing of internals) though many articles treat them as performance/architecture features rather than pure security. 
+
+**Angular 19**
+   -   Automatic hash-based Content Security Policy (CSP) support: Angular 19 introduces (in developer-preview) a build option ("security": { "autoCsp": true }) that will generate script hashes for inline scripts and help you emit a CSP header that allows only those scripts to run. This dramatically strengthens defence against script injection and XSS.
+   -   Improved DOM sanitisation, stronger integration of Trusted Types and better defaults: Sources report “stronger DOM sanitisation in edge cases”, improved safe handling of untrusted HTML/URLs.
+   -   Better alignment with secure-by-default behaviour: Angular’s security documentation emphasises that values bound to templates are untrusted by default, AOT should be used, etc. Although this has been part of Angular before v16, the newer versions reinforce the message and tooling.
+
+#### Why Security is important for any application ?
+   -   XSS mitigation: Trusted Types + automatic CSP mean you have stronger resistances against attackers injecting malicious scripts or content.
+   -   Reduced attack surface: With better sanitisation and safer defaults, fewer manual “escape this value” code paths are needed, reducing developer mistakes.
+   -   Better policy enforcement: CSP is one of the most effective layers for preventing script injection (beyond sanitisation). The fact that Angular now helps you generate a CSP is a big win.
+   -   Safer routing / component access: With component-level guards, you can restrict access finer than whole routes, which helps secure UI surfaces.
+   -   Up-to-date dependencies: New versions of frameworks like Angular incorporate patched vulnerabilities. Staying current helps ensure known issues are fixed.
+
+#### ⚠️ What You Should Still Watch / Do
+   -   The automatic CSP feature in Angular 19 is developer-preview: It’s not yet fully mature in every environment. You’ll still need to verify CSP works correctly on your server (headers, nonces, hashing).
+   -   Trusting user input is still a risk: Even with sanitisation you must avoid manually bypassing Angular’s security (e.g., via bypassSecurityTrustHtml) unless absolutely sure.
+   -   Backend / full-stack security still required: Angular’s client security features are one layer. You still need secure authentication, authorization, server-side validation, HTTPS, etc.
+   -   Third-party libraries: Even with Angular protections, libraries you include may introduce vulnerabilities (especially if they manipulate DOM unsafely).
+   -   Custom build / SSR setups: Features like CSP, Trusted Types or zoneless detection may behave differently in server-side rendering or with custom bundlers. Test thoroughly.
+   -   Keep Angular patched: The official docs stress that you should keep your Angular libraries up-to-date to pick up security fixes.
+
+
+</details>
+
+<details>
+
 <summary><strong>Angular Location service</strong></summary>
 
 #### 1. What is the difference between Router and Location service?
