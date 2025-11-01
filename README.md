@@ -1,4 +1,52 @@
 ## Interview questions from Angular 16 to 19 versions
+
+<details>
+
+<summary><strong>Angular Versions Upgradation</strong></summary>
+
+#### What are the new features integrated from angular 16 to angular 19 versions?
+**🔹 Angular 16**
+   -   Introduction of Signals (a new fine-grained reactive primitive) allowing more efficient state updates and reactivity integration.
+   -   Improved server-side rendering (SSR) hydration: non-destructive hydration so client can attach to server-rendered DOM without full re-render.
+   -   Improved support for standalone APIs (components, directives, pipes not always needing NgModule) and more flexibility for routing/forms.
+   -   New decorator option: @Input({ required: true }) to enforce input requiredness.
+   -   Some improvements in the tooling and build/CLI side (though less dramatic than later versions).
+
+**🔹 Angular 17**
+   -   Further integration of Signals into more core APIs (e.g., router, forms) so reactivity is more “first class”.
+   -   Standalone components, directives, and router improvements continued.
+   -   General performance and tooling improvements (though less “headline” than v16 or v18).
+   -   In version 16, the legacy compatibility compiler (ngcc) was removed, meaning libraries that depend on the old View-Engine architecture will no longer work.
+   -   Tests with MockPlatformLocation may behave differently—MockPlatformLocation is now the default in tests, which may affect code relying on BrowserPlatformLocation.
+   -   In version 17, the NgSwitch directive changed its default equality check from == (loose) to === (strict). That means existing code relying on loose equality might behave differently.
+   -   Some APIs removed or modified: e.g., in v17 the mutate method on WritableSignal was removed.
+   -   Deprecations: Several router properties and older i18n pipes are being deprecated or removed.
+
+**🔹 Angular 18**
+   -   Experimental support for zoneless change detection (i.e., optionally running without zone.js) to reduce overhead and improve performance.
+   -   SSR and hydration improvements: incremental hydration, better support for i18n hydration, event replay, more mature SSR tooling.
+   -   Features like built-in control flow (e.g., @if, @for) and deferrable views (deferred templates) become stable.
+   -   Ability to use functions for redirectTo in routing for more dynamic route redirects.
+   -   Improved debugging, forms API enhancements (e.g., new events property on FormControl, FormGroup, FormArray).
+   -   TypeScript support updated (e.g., TS 5.4) and improved tooling experience.
+   -   Change detection / view lifecycle timing differences: In v18, certain root views with OnPush strategy or those created/attached during change detection may be refreshed differently; code relying on previous timing may break.
+   -   Router guard return types: Guards can now return a new type (RedirectCommand) in addition to UrlTree, so code expecting only boolean or UrlTree may need adjustment.
+   -   Some modules/features removed or behaviour changed (less documented in my sources than 16/17).
+
+**🔹 Angular 19**
+   -   Standalone components, directives, and pipes are default (i.e., you no longer need to explicitly set standalone: true).
+   -   Signals and related reactive APIs are advancing, with new experimental APIs like linkedSignal, resource() / rxResource() for async/reactive state.
+   -   Hot Module Replacement (HMR) improvements for templates and styles (faster dev feedback loop) in v19.
+   -   Incremental hydration (client hydrates parts of the page on demand) introduced/previewed.
+   -   Improvements in the ecosystem (e.g., UI library theming, Angular Material updates) and tooling refinements (e.g., better CLI migrations).
+   -   Directives, components and pipes are now standalone by default in v19. That means if you don’t explicitly set standalone: false, Angular will assume standalone: true.
+   -   this.foo in component templates no longer refers to template context variables automatically. If you were referencing a template variable via this, you’ll need to remove the this. prefix (i.e., you should reference the variable directly in template).
+   -   Minimum TypeScript version bumped: versions less than TS 5.5 are no longer supported.
+   -   Effects API timing changed (in developer preview): effects triggered outside of change detection now run as part of change detection (vs microtask). This may change execution order / timing in tests or change-detection sensitive code.
+   -   Some experimental API renamings: e.g., ExperimentalPendingTasks renamed to PendingTasks.
+
+</details>
+
 <details>
 
 <summary><strong>Angular Location service</strong></summary>
