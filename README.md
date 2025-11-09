@@ -2,6 +2,142 @@
 
 <details>
 
+<summary><strong>How performace is increased from Angular 2 to Latest</strong></summary>
+
+Let’s go deep into how Angular’s performance improved — from Angular 2 → Angular 19 (2025) — across rendering, build, memory, SSR, and runtime execution.
+
+### 🚀 Angular Performance Evolution (v2 → v19)
+
+We’ll break this into five key dimensions of performance:
+   - 🧩 Rendering Engine (View Engine → Ivy → Vite Hybrid)
+   - ⚙️ Compilation & Build System (JIT → AOT → esbuild)
+   - 🧠 Change Detection & Memory Management (Zones → Signals)
+   - 🌍 SSR & Hydration (Universal → Hybrid Rendering)
+   - ⚡ Developer & CI/CD Build Speed (Webpack → esbuild + Vite)
+
+### 🧩 1. Rendering Engine Evolution
+| Version           | Engine                               | Key Performance Improvements                                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Angular 2–7**   | **View Engine**                      | - Heavy factory generation per component.<br>- Larger bundle sizes (no tree-shaking).<br>- Change detection runs globally (Zone.js).<br>- DOM diffing inefficient for nested trees.                                                                             |
+| **Angular 9–14**  | **Ivy Renderer**                     | - Introduced **incremental DOM** — updates only the affected nodes.<br>- Eliminated factories → smaller bundles.<br>- Better tree-shaking & dead code removal.<br>- Lazy loading more efficient.<br>- Faster template instantiation.                            |
+| **Angular 15–16** | **Ivy + Standalone Components**      | - Removes NgModule overhead → less runtime memory.<br>- Bootstraps directly using `bootstrapApplication()`.<br>- Reduced dependency graph complexity.                                                                                                           |
+| **Angular 17–19** | **Ivy + Vite Runtime Optimizations** | - Rendering engine works with **partial hydration** (SSR + CSR merge).<br>- **Hybrid rendering**: prerenders on server, resumes client state without re-rendering.<br>- Faster startup (no full re-bootstrap).<br>- Internal runtime optimizations for Signals. |
+
+**🧠 Effect:**
+   -   Component rendering latency ↓ up to 60–80% vs Angular 2.
+   -   DOM patching time ↓ dramatically due to incremental updates. 
+
+### ⚙️ 2. Compilation & Build Performance
+| Version   | Compiler                            | Build System            | Impact                                                                                                                                                                                       |
+| --------- | ----------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **2–4**   | Template compiler (View Engine JIT) | Manual / SystemJS       | - JIT builds were very slow.<br>- No caching, huge rebuild times.                                                                                                                            |
+| **5–8**   | ngc (AOT) + Webpack                 | Angular CLI             | - AOT introduced (precompiled templates).<br>- Faster runtime, smaller bundles.<br>- But still slow incremental builds (Webpack).                                                            |
+| **9–14**  | Ivy Compiler                        | Angular CLI + Webpack 5 | - Compiles templates at instruction level.<br>- 30–40% smaller bundles.<br>- Improved incremental rebuilds.<br>- Better caching.                                                             |
+| **15–16** | Ivy + esbuild (preview)             | Hybrid CLI              | - Partial replacement of Webpack with esbuild.<br>- Builds ~2× faster.<br>- Better HMR.                                                                                                      |
+| **17–19** | Ivy + Vite + esbuild                | `@angular/build`        | - **Vite dev server** with near-instant rebuilds.<br>- esbuild for bundling (10–100× faster than Webpack).<br>- Native code splitting & caching.<br>- Builds reduced from minutes → seconds. |
+
+**⚡ Effect:**
+   -   Cold build time: 5–10× faster than Angular 2 era.
+   -   HMR reloads: <1s instead of 5–10s.
+   -   Bundle sizes: ~60–70% smaller (Ivy + esbuild tree-shaking).
+
+### 🧠 3. Change Detection & Memory Efficiency
+| Version   | Strategy                         | Details                                                                                                                                                                                              |
+| --------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **2–8**   | **Zone.js + full tree re-check** | - Each async event re-checks *entire component tree*.<br>- Memory heavy.<br>- Difficult to fine-tune.                                                                                                |
+| **9–15**  | **Ivy fine-grained diffing**     | - Change detection is instruction-level.<br>- Reduced memory footprint per component.<br>- MarkForCheck / OnPush strategies improved.                                                                |
+| **16–19** | **Signals (Reactive Core)**      | - **Zone-less reactivity.**<br>- Components react only to signal changes.<br>- Eliminates full-tree checks.<br>- Enables SSR hydration reactivity.<br>- Up to **95% fewer change detection cycles.** |
+
+**🧠 Effect:**
+   -   Faster runtime updates, especially on large UIs.
+   -   Angular apps now rival React/Svelte reactivity speeds.
+   -   Lower memory leaks due to deterministic reactivity.
+
+### 🌍 4. SSR, Hydration & Rendering Architecture
+| Version   | SSR Mechanism                    | Performance Impact                                                                                                                                |
+| --------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **4–8**   | Angular Universal (Express)      | - Server renders HTML.<br>- Client reboots full app → duplicate work.                                                                             |
+| **9–15**  | Universal + TransferState        | - Transfers partial app state.<br>- Still full client bootstrap.                                                                                  |
+| **16–18** | SSR + Partial Hydration          | - Server renders static HTML.<br>- Client **hydrates** existing DOM instead of re-rendering.<br>- ~50% faster TTI (Time To Interactive).          |
+| **19**    | **Hybrid Rendering (SSR + CSR)** | - `"renderMode": "hybrid"` allows per-route rendering mode.<br>- SSR pages seamlessly resume on client.<br>- Greatly reduced CPU + network usage. |
+
+**🌐 Effect:**
+   -   TTFB faster due to streaming SSR.
+   -   Largest Contentful Paint (LCP) improved by 30–40%.
+   -   CPU load lower on hydration vs full re-render.
+
+### ⚡ 5. Developer Build & CI/CD Performance
+| Metric                        | Angular 2     | Angular 14 | Angular 19           |
+| ----------------------------- | ------------- | ---------- | -------------------- |
+| **Cold Build Time**           | ~90s          | ~25s       | **~5s (esbuild)**    |
+| **Rebuild (HMR)**             | ~5–8s         | ~2–3s      | **~0.5–1s**          |
+| **SSR Build Time**            | Manual (~60s) | ~25s       | **~8s**              |
+| **Bundle Size (Hello World)** | 800KB+        | 180KB      | **<70KB**            |
+| **Runtime FPS (Large List)**  | 30–40fps      | 55–60fps   | **60+ fps (stable)** |
+
+**🧩 Why so much faster now?**
+   -   esbuild: compiled in Go → ~100× faster than Webpack in JS.
+   -   Vite: uses native ES Modules + dev server caching.
+   -   Ivy: no factories, direct template instructions.
+   -   Signals: less runtime churn.
+   -   SSR Hybrid: less redundant rendering.
+
+### 🔍 Summary Table — Angular Performance Evolution
+| Area                   | Angular 2                        | Angular 19                        | Improvement              |
+| ---------------------- | -------------------------------- | --------------------------------- | ------------------------ |
+| **Rendering engine**   | View Engine (template factories) | Ivy (incremental DOM + hydration) | ⚡ 3–5× faster rendering  |
+| **Compiler / Build**   | JIT (slow)                       | esbuild + AOT                     | ⚙️ 10–100× faster builds |
+| **Change detection**   | Zone.js full tree                | Signals (fine-grained)            | 🧠 80–95% fewer checks   |
+| **SSR / Hydration**    | None / manual                    | Built-in Hybrid                   | 🌍 ~2× faster TTI        |
+| **Bundle size**        | 700–900KB                        | ~60–90KB                          | 📦 ~85–90% smaller       |
+| **Developer rebuilds** | 5–10s                            | <1s                               | 🧩 5–10× faster          |
+| **Startup memory**     | High                             | Low                               | 💾 ~50% less memory      |
+
+</details>
+
+<details>
+
+<summary><strong>Angular Build Architecture Evolution</strong></summary>
+
+### 🧱 Angular Build Architecture Evolution
+| Angular Version             | Build Tool / Architecture                                     | Compiler                                                   | Key Features / Notes                                                                                                                                                                                                                                        |
+| --------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **2.x – 4.x (2016–2017)**   | **SystemJS / Webpack (manual setup)**                         | **View Engine (JIT / AOT)**                                | - Used `@angular/compiler` for JIT.<br>- Optional AOT (Ahead-of-Time) compiler.<br>- Manual Webpack or SystemJS setups.<br>- No CLI bundler yet.                                                                                                            |
+| **5.x – 7.x (2017–2018)**   | **Angular CLI + Webpack (via @angular-devkit/build-angular)** | **View Engine (AOT default)**                              | - Angular CLI standardizes builds.<br>- Introduced `angular.json` for build configuration.<br>- Builds used Webpack internally.<br>- Differential loading (modern + legacy JS).                                                                             |
+| **8.x (2019)**              | **Angular CLI + Webpack (View Engine + Ivy preview)**         | **Ivy (opt-in)**                                           | - Ivy compiler introduced as preview.<br>- Still uses Webpack-based CLI builder.<br>- Faster incremental builds (still early).                                                                                                                              |
+| **9.x – 11.x (2020–2021)**  | **Webpack (Ivy default)**                                     | **Ivy (default)**                                          | - Ivy replaces View Engine.<br>- Better tree-shaking & build speed.<br>- Introduced `ngcc` (Angular compatibility compiler) to convert old View Engine packages.<br>- `@angular-devkit/build-angular` main builder.                                         |
+| **12.x – 14.x (2021–2022)** | **Webpack 5 + Angular CLI**                                   | **Ivy**                                                    | - Webpack 5 becomes default.<br>- Deprecated `ngcc` pipeline for future.<br>- Introduced **esbuild** experimentation internally.<br>- Faster builds, persistent caching.<br>- Angular Package Format (APF v13+).                                            |
+| **15.x (2022)**             | **Webpack 5 (stable) + Optional esbuild preview**             | **Ivy + Standalone Components**                            | - Standalone components reduce NgModule dependency.<br>- Partial builds with esbuild experiments begin.<br>- Angular CLI still Webpack-driven.                                                                                                              |
+| **16.x (2023)**             | **Hybrid Build: Webpack + esbuild (Preview)**                 | **Ivy + Signals (developer preview)**                      | - Major re-architecture prep.<br>- Introduced `@angular/build` experimental esbuild-based builder.<br>- esbuild & Vite integration experiments.<br>- Beginning of future replacement for Webpack.                                                           |
+| **17.x (Nov 2023)**         | **New build system: esbuild + Vite (default)**                | **Ivy / JIT compatible**                                   | - **Goodbye Webpack by default.**<br>- `@angular/build` replaces `@angular-devkit/build-angular`.<br>- Vite + esbuild for dev server + bundling.<br>- 90% faster HMR & rebuilds.<br>- CLI simplified configuration.<br>- Hybrid SSR support.                |
+| **18.x (May 2024)**         | **Vite + esbuild (stable)**                                   | **Ivy (optimized)**                                        | - Fully stable new builder (`application`, `browser`, `dev-server`).<br>- Simplified `angular.json` structure.<br>- Universal SSR upgraded (based on Vite middleware).<br>- `ng build` and `ng serve` now powered by esbuild + Vite.                        |
+| **19.x (Nov 2024 – 2025)**  | **Vite + esbuild (mature)**                                   | **Ivy (final) / Preparations for Angular “Next” compiler** | - Unified build + SSR + prerender architecture.<br>- New `"outputMode": "server"` & `"renderMode"` APIs.<br>- `"@angular/ssr"` fully integrated.<br>- `@angular/build` is now official and stable.<br>- Angular CLI config simplified for hybrid rendering. |
+
+</details>
+
+<details>
+
+<summary><strong>Evolution of Angular Manual Configuration (2 → 19)</strong></summary>
+
+### 🧭 Evolution of Angular Manual Configuration (2 → 19)
+| Era                             | Main Config Files                                                                                                                              | Key Changes / Purpose                                                                                                                                                                                                                                                        |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Angular 2 (2016)**            | • `systemjs.config.js`  <br>• `tsconfig.json`  <br>• `main.ts` bootstrap                                                                       | - No CLI yet; setup done manually. <br>- Developers configured SystemJS loader manually. <br>- `tsconfig.json` had custom `module: system` or `commonjs`. <br>- No `angular.json`, no build system abstraction.                                                              |
+| **Angular 4 (2017)**            | • `angular-cli.json` (early CLI)  <br>• `tsconfig.json`  <br>• `environments/*.ts`                                                             | - Angular CLI introduced! <br>- CLI generated `angular-cli.json` for build & environment configs. <br>- Developers no longer had to manage Webpack/SystemJS manually.                                                                                                        |
+| **Angular 5 – 7 (2017–2018)**   | • `angular.json` *(replaced angular-cli.json)*  <br>• `tsconfig.app.json`, `tsconfig.spec.json`  <br>• `polyfills.ts`  <br>• `.browserslistrc` | - **`angular.json` schema introduced** for all project settings (build, serve, test, lint). <br>- Split `tsconfig.*` files for app/test. <br>- Introduced **AOT** and build configurations (`production`, `development`). <br>- Polyfills separated into `src/polyfills.ts`. |
+| **Angular 8 (2019)**            | • `angular.json` (Webpack 4) <br>• `tsconfig.base.json`  <br>• `tsconfig.app.json`                                                             | - Introduced **differential loading** → uses `browserslist` to generate ES5 + ES2015 bundles. <br>- Ivy compiler preview toggle added in `tsconfig.json`: `"angularCompilerOptions": { "enableIvy": true }`.                                                                 |
+| **Angular 9 – 11 (2020–2021)**  | • `angular.json` (Webpack 5) <br>• `tsconfig.app.json` <br>• `polyfills.ts`                                                                    | - **Ivy became default**, `enableIvy` removed. <br>- Added `"aot": true` default for all builds. <br>- Added `ngcc` compatibility pipeline (for View Engine libs). <br>- Optional `"scripts"`/`"styles"` arrays for global assets.                                           |
+| **Angular 12 – 14 (2021–2022)** | • `angular.json`  <br>• `tsconfig.json` with `"strictTemplates": true`                                                                         | - Angular moved to **Webpack 5**. <br>- Introduced `"strict"` and `"strictTemplates"` flags. <br>- Deprecated `es5BrowserSupport`. <br>- Added **inline style/image optimization** options.                                                                                  |
+| **Angular 15 (2022)**           | • `angular.json`  <br>• Standalone component bootstraps in `main.ts`                                                                           | - Introduced **Standalone APIs** (no NgModule). <br>- Added `"standalone": true` usage. <br>- Manual config changes: remove `AppModule`, use `bootstrapApplication()`. <br>- CLI builds still Webpack 5.                                                                     |
+| **Angular 16 (2023)**           | • `angular.json` (hybrid Webpack + esbuild preview) <br>• `tsconfig.app.json` <br>• Optional `vite.config.ts` (experimental)                   | - Optional builder: `"@angular/build:browser"` (esbuild). <br>- New config keys for **signals** dev preview. <br>- Still compatible with old Webpack builders.                                                                                                               |
+| **Angular 17 (2023 Nov)**       | • `angular.json` simplified (new schema)  <br>• Uses `"@angular/build"`                                                                        | - **Vite + esbuild default**. <br>- Simplified build targets: `build`, `serve`, `test`. <br>- Removed `polyfills.ts` (auto-injected polyfills). <br>- Removed `.browserslistrc` (CLI uses built-in modern targets).                                                          |
+| **Angular 18 (2024)**           | • `angular.json` with unified targets (`application`, `dev-server`, `ssr`)                                                                     | - **SSR integration** directly via `"outputMode": "server"`. <br>- `"renderMode"` added (Client / Server / Hybrid). <br>- Removed older builders (`browser`, `server`, `prerender`). <br>- Default TypeScript 5 config.                                                      |
+| **Angular 19 (2025)**           | • `angular.json`  (minimal, unified) <br>• `tsconfig.json` (simplified)                                                                        | - **Full Vite + esbuild architecture.** <br>- Manual config minimal: only `"main"`, `"index"`, `"tsConfig"`, `"renderMode"`. <br>- Automatic polyfill injection, environment loading. <br>- SSR and CSR merged; no need for separate server builds.                          |
+
+</details>
+
+<details>
+
 <summary><strong>Angular Versions Upgradation</strong></summary>
 
 ### What are the new features integrated from angular 16 to angular 19 versions?
@@ -82,35 +218,6 @@
 | **Debugging**                 | Mature, familiar                     | Works seamlessly, better source maps |
 
 Note : Angular 19 fully embraces esbuild + Vite by default through the new builder → @angular-devkit/build-angular:application.
-
-### 🧱 Angular Build Architecture Evolution
-| Angular Version             | Build Tool / Architecture                                     | Compiler                                                   | Key Features / Notes                                                                                                                                                                                                                                        |
-| --------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **2.x – 4.x (2016–2017)**   | **SystemJS / Webpack (manual setup)**                         | **View Engine (JIT / AOT)**                                | - Used `@angular/compiler` for JIT.<br>- Optional AOT (Ahead-of-Time) compiler.<br>- Manual Webpack or SystemJS setups.<br>- No CLI bundler yet.                                                                                                            |
-| **5.x – 7.x (2017–2018)**   | **Angular CLI + Webpack (via @angular-devkit/build-angular)** | **View Engine (AOT default)**                              | - Angular CLI standardizes builds.<br>- Introduced `angular.json` for build configuration.<br>- Builds used Webpack internally.<br>- Differential loading (modern + legacy JS).                                                                             |
-| **8.x (2019)**              | **Angular CLI + Webpack (View Engine + Ivy preview)**         | **Ivy (opt-in)**                                           | - Ivy compiler introduced as preview.<br>- Still uses Webpack-based CLI builder.<br>- Faster incremental builds (still early).                                                                                                                              |
-| **9.x – 11.x (2020–2021)**  | **Webpack (Ivy default)**                                     | **Ivy (default)**                                          | - Ivy replaces View Engine.<br>- Better tree-shaking & build speed.<br>- Introduced `ngcc` (Angular compatibility compiler) to convert old View Engine packages.<br>- `@angular-devkit/build-angular` main builder.                                         |
-| **12.x – 14.x (2021–2022)** | **Webpack 5 + Angular CLI**                                   | **Ivy**                                                    | - Webpack 5 becomes default.<br>- Deprecated `ngcc` pipeline for future.<br>- Introduced **esbuild** experimentation internally.<br>- Faster builds, persistent caching.<br>- Angular Package Format (APF v13+).                                            |
-| **15.x (2022)**             | **Webpack 5 (stable) + Optional esbuild preview**             | **Ivy + Standalone Components**                            | - Standalone components reduce NgModule dependency.<br>- Partial builds with esbuild experiments begin.<br>- Angular CLI still Webpack-driven.                                                                                                              |
-| **16.x (2023)**             | **Hybrid Build: Webpack + esbuild (Preview)**                 | **Ivy + Signals (developer preview)**                      | - Major re-architecture prep.<br>- Introduced `@angular/build` experimental esbuild-based builder.<br>- esbuild & Vite integration experiments.<br>- Beginning of future replacement for Webpack.                                                           |
-| **17.x (Nov 2023)**         | **New build system: esbuild + Vite (default)**                | **Ivy / JIT compatible**                                   | - **Goodbye Webpack by default.**<br>- `@angular/build` replaces `@angular-devkit/build-angular`.<br>- Vite + esbuild for dev server + bundling.<br>- 90% faster HMR & rebuilds.<br>- CLI simplified configuration.<br>- Hybrid SSR support.                |
-| **18.x (May 2024)**         | **Vite + esbuild (stable)**                                   | **Ivy (optimized)**                                        | - Fully stable new builder (`application`, `browser`, `dev-server`).<br>- Simplified `angular.json` structure.<br>- Universal SSR upgraded (based on Vite middleware).<br>- `ng build` and `ng serve` now powered by esbuild + Vite.                        |
-| **19.x (Nov 2024 – 2025)**  | **Vite + esbuild (mature)**                                   | **Ivy (final) / Preparations for Angular “Next” compiler** | - Unified build + SSR + prerender architecture.<br>- New `"outputMode": "server"` & `"renderMode"` APIs.<br>- `"@angular/ssr"` fully integrated.<br>- `@angular/build` is now official and stable.<br>- Angular CLI config simplified for hybrid rendering. |
-
-### 🧭 Evolution of Angular Manual Configuration (2 → 19)
-| Era                             | Main Config Files                                                                                                                              | Key Changes / Purpose                                                                                                                                                                                                                                                        |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Angular 2 (2016)**            | • `systemjs.config.js`  <br>• `tsconfig.json`  <br>• `main.ts` bootstrap                                                                       | - No CLI yet; setup done manually. <br>- Developers configured SystemJS loader manually. <br>- `tsconfig.json` had custom `module: system` or `commonjs`. <br>- No `angular.json`, no build system abstraction.                                                              |
-| **Angular 4 (2017)**            | • `angular-cli.json` (early CLI)  <br>• `tsconfig.json`  <br>• `environments/*.ts`                                                             | - Angular CLI introduced! <br>- CLI generated `angular-cli.json` for build & environment configs. <br>- Developers no longer had to manage Webpack/SystemJS manually.                                                                                                        |
-| **Angular 5 – 7 (2017–2018)**   | • `angular.json` *(replaced angular-cli.json)*  <br>• `tsconfig.app.json`, `tsconfig.spec.json`  <br>• `polyfills.ts`  <br>• `.browserslistrc` | - **`angular.json` schema introduced** for all project settings (build, serve, test, lint). <br>- Split `tsconfig.*` files for app/test. <br>- Introduced **AOT** and build configurations (`production`, `development`). <br>- Polyfills separated into `src/polyfills.ts`. |
-| **Angular 8 (2019)**            | • `angular.json` (Webpack 4) <br>• `tsconfig.base.json`  <br>• `tsconfig.app.json`                                                             | - Introduced **differential loading** → uses `browserslist` to generate ES5 + ES2015 bundles. <br>- Ivy compiler preview toggle added in `tsconfig.json`: `"angularCompilerOptions": { "enableIvy": true }`.                                                                 |
-| **Angular 9 – 11 (2020–2021)**  | • `angular.json` (Webpack 5) <br>• `tsconfig.app.json` <br>• `polyfills.ts`                                                                    | - **Ivy became default**, `enableIvy` removed. <br>- Added `"aot": true` default for all builds. <br>- Added `ngcc` compatibility pipeline (for View Engine libs). <br>- Optional `"scripts"`/`"styles"` arrays for global assets.                                           |
-| **Angular 12 – 14 (2021–2022)** | • `angular.json`  <br>• `tsconfig.json` with `"strictTemplates": true`                                                                         | - Angular moved to **Webpack 5**. <br>- Introduced `"strict"` and `"strictTemplates"` flags. <br>- Deprecated `es5BrowserSupport`. <br>- Added **inline style/image optimization** options.                                                                                  |
-| **Angular 15 (2022)**           | • `angular.json`  <br>• Standalone component bootstraps in `main.ts`                                                                           | - Introduced **Standalone APIs** (no NgModule). <br>- Added `"standalone": true` usage. <br>- Manual config changes: remove `AppModule`, use `bootstrapApplication()`. <br>- CLI builds still Webpack 5.                                                                     |
-| **Angular 16 (2023)**           | • `angular.json` (hybrid Webpack + esbuild preview) <br>• `tsconfig.app.json` <br>• Optional `vite.config.ts` (experimental)                   | - Optional builder: `"@angular/build:browser"` (esbuild). <br>- New config keys for **signals** dev preview. <br>- Still compatible with old Webpack builders.                                                                                                               |
-| **Angular 17 (2023 Nov)**       | • `angular.json` simplified (new schema)  <br>• Uses `"@angular/build"`                                                                        | - **Vite + esbuild default**. <br>- Simplified build targets: `build`, `serve`, `test`. <br>- Removed `polyfills.ts` (auto-injected polyfills). <br>- Removed `.browserslistrc` (CLI uses built-in modern targets).                                                          |
-| **Angular 18 (2024)**           | • `angular.json` with unified targets (`application`, `dev-server`, `ssr`)                                                                     | - **SSR integration** directly via `"outputMode": "server"`. <br>- `"renderMode"` added (Client / Server / Hybrid). <br>- Removed older builders (`browser`, `server`, `prerender`). <br>- Default TypeScript 5 config.                                                      |
-| **Angular 19 (2025)**           | • `angular.json`  (minimal, unified) <br>• `tsconfig.json` (simplified)                                                                        | - **Full Vite + esbuild architecture.** <br>- Manual config minimal: only `"main"`, `"index"`, `"tsConfig"`, `"renderMode"`. <br>- Automatic polyfill injection, environment loading. <br>- SSR and CSR merged; no need for separate server builds.                          |
 
 ### Why use @angular-devkit/build-angular:application instead of @angular-devkit/build-angular:browser ?
 | Feature                             | `:browser` (Old)                                | `:application` (New, Angular 17+)                                  |
