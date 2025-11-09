@@ -45,8 +45,26 @@
    -   Effects API timing changed (in developer preview): effects triggered outside of change detection now run as part of change detection (vs microtask). This may change execution order / timing in tests or change-detection sensitive code.
    -   Some experimental API renamings: e.g., ExperimentalPendingTasks renamed to PendingTasks.
 
-### Why use @angular-devkit/build-angular:application instead of @angular-devkit/build-angular:browser ?
+### Difference between Webpack and esbuild + Vite ?
+| Concept                    | Webpack (used in Angular ≤ v16)                 | esbuild + Vite (used in Angular ≥ v17)                            |
+| -------------------------- | ----------------------------------------------- | ----------------------------------------------------------------- |
+| **Role**                   | Bundler & dev server                            | Compiler + bundler (esbuild) and lightning-fast dev server (Vite) |
+| **Language**               | Written in Node.js (JS)                         | Written in Go (esbuild) + JS wrapper (Vite)                       |
+| **Angular integration**    | via `@angular-devkit/build-angular:browser`     | via `@angular-devkit/build-angular:application`                   |
+| **Build time**             | Moderate to slow (JS-based)                     | 5–10× faster (native Go)                                          |
+| **Dev server reload**      | Full reload or HMR via plugin                   | Instant “hot module replacement” & style HMR by default           |
+| **Config complexity**      | Large, verbose config (webpack.config.js)       | Zero-config (Vite detects automatically)                          |
+| **Bundling strategy**      | Eagerly bundles entire dependency graph         | On-demand bundling (Vite serves unbundled ESM in dev)             |
+| **Source map generation**  | JS-based, slower                                | Native & parallelized                                             |
+| **Plugin ecosystem**       | Huge – many loaders/plugins                     | Smaller but growing fast                                          |
+| **Tree-shaking**           | Terser + Webpack optimization                   | Native esbuild tree-shaking                                       |
+| **Build pipeline**         | Multi-step: TypeScript → tsc → Webpack → Terser | Single-pass: TypeScript → esbuild (transpile + bundle)            |
+| **Hot reload latency**     | 2–5 seconds typical                             | < 300 ms typical                                                  |
+| **Default output folders** | `dist/my-app`                                   | `dist/my-app/browser` + `server`                                  |
+| **SSR/Hydration**          | Separate build config                           | Integrated hybrid rendering support                               |
+| **Angular builder name**   | `@angular-devkit/build-angular:browser`         | `@angular-devkit/build-angular:application`                       |
 
+### Why use @angular-devkit/build-angular:application instead of @angular-devkit/build-angular:browser ?
 | Feature                             | `:browser` (Old)                                | `:application` (New, Angular 17+)                                  |
 | ----------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------ |
 | **Purpose**                         | Client-side only                                | Universal (client + SSR + hybrid rendering)                        |
