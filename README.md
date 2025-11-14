@@ -5,9 +5,9 @@
 <summary><strong>Angular Dependency Injection</strong></summary>
 
 ### Why use Inject instead of DI with the Constructor ?
-Ans. This is class-based injection — Angular automatically provides the service instance when the component (or directive, or service) is created.
-✅ Works great for components, directives, pipes, and services.
-❌ But only works inside class constructors.
+Ans. This is class-based injection — Angular automatically provides the service instance when the component (or directive, or service) is created. 
+✅ Works great for components, directives, pipes, and services. 
+❌ But only works inside class constructors. 
 If you want to use a service in a function, effect, or utility file, you can’t — because there’s no class context.
 
 </details>
