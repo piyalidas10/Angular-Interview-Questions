@@ -31,8 +31,6 @@ You can use it:
 
 <details>
 
-<details>
-
 <summary><strong>Angular Dependency Injection</strong></summary>
 
 ### Why Angular 17–19 Moved to ESBuild + Vite ?
@@ -84,6 +82,8 @@ Some frameworks do this:
 
 
 </details>
+
+<details>
 
 <summary><strong>How performace is increased from Angular 2 to Latest</strong></summary>
 
