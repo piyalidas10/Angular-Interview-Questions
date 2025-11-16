@@ -31,7 +31,7 @@ You can use it:
 
 <details>
 
-<summary><strong>Angular Dependency Injection</strong></summary>
+<summary><strong>Why Angular 17–19 Moved to ESBuild + Vite</strong></summary>
 
 ### Why Angular 17–19 Moved to ESBuild + Vite ?
 **Switch:**
