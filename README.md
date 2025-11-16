@@ -31,6 +31,60 @@ You can use it:
 
 <details>
 
+<details>
+
+<summary><strong>Angular Dependency Injection</strong></summary>
+
+### Why Angular 17–19 Moved to ESBuild + Vite ?
+**Switch:**
+  -  Webpack ⟶ ESBuild + Dev Vite
+  -  Build system drastically simplified
+
+**Why Angular replaced Webpack**
+| Feature     | Webpack             | ESBuild/Vite               |
+| ----------- | ------------------- | -------------------------- |
+| Dev server  | Slow (HMR ~2–3 sec) | Ultra-fast (HMR ~20–50 ms) |
+| Build speed | Slow                | 10×–30× faster             |
+| Setup       | complex             | minimal                    |
+| DX          | heavy               | modern                     |
+
+**Angular's new architecture:**
+  -  ESBuild handles TS → JS, bundling, minification
+  -  Vite handles dev server + HMR
+  -  Rollup used internally for SSR
+
+**Angular 19 (Latest):**
+  -  ESBuild everywhere
+  -  Webpack removed
+  -  Faster SSR build
+  -  First-class support for hybrid rendering with Vite SSR
+
+**ESBuild vs SWC vs Babel**
+| Engine      | Language | Speed       | Use Case                      |
+| ----------- | -------- | ----------- | ----------------------------- |
+| **ESBuild** | Go       | ⚡ Fastest   | Bundling, transforms, minify  |
+| **SWC**     | Rust     | ⚡ Very fast | Babel replacement, JSX, TS    |
+| **Babel**   | JS       | 🐢 Slow     | Legacy plugins, compatibility |
+
+**Performance order:**
+ESBuild > SWC > Babel
+
+**Use-cases:**
+  -  ESBuild → best for bundling + minifying
+  -  SWC → fastest for React JSX/TS transpilation
+  -  Babel → best for legacy browser transforms
+
+**Why use all three?**
+Some frameworks do this:
+| Framework   | Dev Transforms | Bundling            |
+| ----------- | -------------- | ------------------- |
+| **Next.js** | SWC            | Webpack / Turbopack |
+| **Vite**    | ESBuild        | Rollup              |
+| **Angular** | ESBuild        | ESBuild / Vite      |
+
+
+</details>
+
 <summary><strong>How performace is increased from Angular 2 to Latest</strong></summary>
 
 Let’s go deep into how Angular’s performance improved — from Angular 2 → Angular 19 (2025) — across rendering, build, memory, SSR, and runtime execution.
