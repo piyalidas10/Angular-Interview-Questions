@@ -434,6 +434,71 @@ Component isolation
 Consistent patterns
 Automated testing
 
+</details>
+
+<details>
+
+<summary><strong>Core Architecture Deep Dive</strong></summary>
+
+### How does Angular’s hydration pipeline interact with zone-less change detection?
+Ans. During hydration, Angular reconstructs the component tree and connects signals and listeners; in zone-less mode it manually runs the initial change detection once, then hands over all further UI updates to fine-grained signal reactivity instead of Zone.js.
+**Angular’s modern SSR pipeline has three major stages:**
+  -  Server Render → HTML + serialized injection state
+  -  Hydration → Attach client runtime to server DOM
+  -  Change Detection → Make the page interactive and keep it up-to-date
+When you go zone-less, only step 3 changes fundamentally — and hydration adapts to it.
+**Hydration simply:**
+  -  Reads server-rendered DOM
+  -  Walks the component tree
+  -  Reconstructs internal Angular views
+  -  Connects event listeners
+  -  Resumes client execution without re-rendering
+All of those steps don’t need Zone.js, so hydration works the same with or without zones.
+**Hydration Pipeline — Step-by-Step**
+1. Server Rendering - Same in both zoned and zone-less. Angular renders the app in Node:
+  -  Generates HTML
+  -  Serializes transfer state
+  -  Precomputes router state
+  -  Creates DOM markers (ng-hydrate, comments, indexes)
+2. Client Bootstrap (before hydration) - When the app bootstraps in the browser:
+  -  Zoned mode : Zone.js patches async APIs → calls Angular’s internal change detector → runs CD automatically.
+  - Zone-less mode : Nothing patches async APIs. Angular waits for you (or the framework) to signal change detection manually using:
+    -  runInInjectionContext
+    -  ChangeDetectorRef.detectChanges()
+    -  effect() or computed signals
+    -  Event listeners
+    -  Input change notifications
+3. Hydration Execution
+During hydration Angular does:
+  -  Step A — DOM mapping : Component View Tree ⇆ Server DOM Nodes
+  -  Step B — Skip DOM creation : Angular does not generate new DOM. It “adopts” the server DOM.
+  -  Step C — Reconnect listeners : All event listeners ((click), (change)) are wired.
+  -  Step D — Initialize signals (v17+) : Component signals are reconnected with the DOM.
+**How initial change detection works in zone-less mode**
+  - In zoned mode : hydration → emits microtask → Zone.js sees it → Angular CD runs → Tree becomes interactive.
+  - In zone-less mode : Angular explicitly triggers change detection once after hydration by platformRef.tick();
+**Zoned vs Zone-less Change Detection (Post-Hydration)**
+```
+[ZONED MODE]
+───────────────────────────────────────────────
+Events → Zone.js patches → Angular calls tick()
+→ CD walks entire component tree
+
+
+[ZONE-LESS MODE]
+───────────────────────────────────────────────
+Events → Handlers update signals → Dirty nodes
+→ Angular updates ONLY affected bindings
+(0 global CD passes)
+
+Zoned:  Change Detection = Global
+Zone-less: Change Detection = Signals only (fine-grained)
+
+```
+
+
+### 
+
 
 </details>
 
