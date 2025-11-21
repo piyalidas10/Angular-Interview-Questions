@@ -2,6 +2,152 @@
 
 <details>
 
+<summary><strong>Angular Architectural Questions & Answers</strong></summary>
+
+### What is Angular architecture?
+Ans. Angular follows a component-based architecture where the UI is split into components, each with its own template, logic, and styles. These components are organized into a dependency-injection-based system and connected using routing, services, and reactive patterns (RxJS, Reactive Forms, Signals).
+
+### What are standalone components? Why did Angular adopt them?
+Ans. Standalone components remove NgModules. They make Angular more lightweight and modular. 
+**Benefits:**
+  -  Less boilerplate
+  -  Tree-shakeable
+  -  Faster build & better performance
+  -  Simplified folder structure
+  -  Clear and direct imports
+
+### How does Change Detection work in Angular?
+Ans. Angular runs change detection using zone.js (or zone-less mode), executing a check cycle to update DOM whenever model changes.
+**Modes:**
+  -  Default – checks entire tree
+  -  OnPush – checks only for @Input change, event emission, or Observable async pipe change
+  -  Signal-based reactivity (v16+) uses fine-grained reactivity
+
+### How Many Dependency Injectors Does Angular Have?
+Ans. Angular provides two main types of injectors:
+```
+                         ┌──────────────────────────┐
+                         │      Null Injector       │
+                         └────────────┬─────────────┘
+                                      │
+                         ┌────────────▼─────────────┐
+                         │      Root Injector        │
+                         │ (providedIn: 'root')      │
+                         └────────────┬─────────────┘
+                                      │
+                       ┌──────────────┴──────────────┐
+                       │                             │
+        ┌──────────────▼──────────────┐   ┌──────────▼───────────┐
+        │   Root Environment Injector  │   │   Router Env Injector│
+        │ (bootstrapApplication())     │   │  (route-level DI)    │
+        └──────────────┬──────────────┘   └──────────┬───────────┘
+                       │                             │
+                       │                  ┌──────────▼───────────┐
+                       │                  │   Lazy Route Injector │
+                       │                  │ (Lazy-loaded modules) │
+                       │                  └──────────┬───────────┘
+                       │                             │
+         ┌─────────────▼─────────────┐   ┌───────────▼────────────┐
+         │  Component Injectors       │   │ Component Injectors     │
+         │ (providers/viewProviders) │   │ for Lazy Loaded Components│
+         └─────────────┬─────────────┘   └───────────┬────────────┘
+                       │                             │
+             ┌─────────▼─────────┐          ┌────────▼─────────┐
+             │ Directive Injectors│          │ Directive Injectors│
+             └────────────────────┘          └────────────────────┘
+```
+
+**1. Module Injector (a.k.a. Root Injector)**
+This is created when the application starts. It holds:
+  -  Services provided in @Injectable({ providedIn: 'root' })
+  -  Providers listed in AppModule or other NgModules
+👉 There is exactly one root/module injector per Angular app.
+
+**2. Element Injectors (a.k.a. Node/Component Injectors)**
+Angular creates one injector for every component and directive instance if they have providers. Examples that create element injectors:
+  -  providers: [...] in a component
+  -  viewProviders: [...]
+  -  providers on a directive
+📌 So the number of element injectors = number of component/directive instances that define providers.
+You may have hundreds or thousands of element injectors depending on the DOM.
+```
+@Component({
+  selector: 'my-cmp',
+  providers: [AService],
+  viewProviders: [BService]
+})
+
+                            ┌─────────────────────┐
+                            │  Parent Injector     │
+                            └──────────┬───────────┘
+                                       │
+                     ┌─────────────────▼─────────────────┐
+                     │     Component Injector             │
+                     │  provides: AService               │
+                     │  viewProviders: BService          │
+                     └───────────────┬───────────────────┘
+                                     │
+               ┌─────────────────────▼─────────────────────┐
+               │ Directive Injectors inside template        │
+               │ (can access AService but not BService)     │
+               └────────────────────────────────────────────┘
+
+```
+
+**3. Environment Injector**
+Introduced with standalone APIs. Created for:
+  -  bootstrapApplication()
+  -  Providers passed via provide*() functions
+  -  Route-level providers (providers: [...] in route config)
+👉 There may be multiple environment injectors (e.g., root environment + route-based environments).
+```
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZoneChangeDetection(),
+    provideHttpClient(),
+    ...
+  ]
+})
+
+                  ┌─────────────────────────────────────────┐
+                  │     Root Environment Injector           │
+                  │  (from bootstrapApplication())          │
+                  └───────────────┬─────────────────────────┘
+                                  │
+                    ┌─────────────▼──────────────┐
+                    │      Root Injector          │
+                    │ (providedIn: 'root')        │
+                    └─────────────┬──────────────┘
+                                  │
+                     ┌────────────▼────────────┐
+                     │   AppComponent Injector │
+                     │  (if component has DI)  │
+                     └────────────┬────────────┘
+                                  │
+               ┌──────────────────▼──────────────────┐
+               │ Child Components → Their Injectors  │
+               │ Directives → Their Injectors        │
+               └─────────────────────────────────────┘
+```
+
+**4. Router Injectors**
+Angular router creates:
+  -  A Router Environment Injector for route-level providers
+  -  A Component Route Injector for lazy-loaded routes
+  -  These injectors form child nodes in the injector hierarchy.
+Lazy-loaded routes introduce a lazy route injector, isolating providers.
+```
+{
+  path: 'products',
+  loadComponent: () => import('./products.component'),
+  providers: [ProductsApi]
+}
+```
+
+</details>
+
+<details>
+
 <summary><strong>Angular Dependency Injection</strong></summary>
 
 ### Why use Inject instead of DI with the Constructor ?
