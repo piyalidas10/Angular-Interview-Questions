@@ -736,9 +736,23 @@ In short: Think of Signals for state (the "what") and RxJS for events (the "when
 
 <summary><strong>Angular Zone.js & Zoneless Concepts</strong></summary>
 
+| Aspect           | Before (Zone.js)       | After (Zone-less + Signals) |
+| ---------------- | ---------------------- | --------------------------- |
+| State tracking   | Implicit (Zones)       | Explicit (Signals)          |
+| Performance      | Slower (patched async) | Faster (no patches)         |
+| Async updates    | Auto change detection  | Signal-based reactivity     |
+| Control          | Automatic              | Developer-controlled        |
+| Recommended from | Angular 2 – 16         | Angular 17 – 19 +           |
+
+
 #### 1. What is Zone.js in Angular?
 Answer: Zone.js is a library that patches asynchronous APIs (like setTimeout, Promise, addEventListener) and notifies Angular when tasks are completed. It helps Angular automatically detect and trigger change detection after async operations — without needing manual calls like detectChanges(). 
 Without Zone.js, Angular wouldn't know when your data might have changed. After you received data from an HTTP request and updated a component property, you would have to manually tell Angular, "Hey, I just changed something, please update the view now!"
+
+Angular wraps your app in a "zone" — specifically, the NgZone.
+
+Every async task (like an HTTP call, setTimeout, or event listener) runs inside this zone. When any of these tasks complete, Zone.js tells Angular: “Hey, something just happened — maybe the UI needs to be updated!” Then Angular runs change detection automatically.
+
 
 #### 2. How does Zone.js work to trigger change detection?
 Ans. It works in a few steps:
