@@ -143,6 +143,297 @@ Lazy-loaded routes introduce a lazy route injector, isolating providers.
   providers: [ProductsApi]
 }
 ```
+### How do you structure a large Angular application folder?
+Ans. 
+```
+src/
+ ├─ app/
+ │   ├─ core/  ← Global, singleton, app-wide services & features
+ │   │     ├── guards/
+ │   │     |           ├── auth.guard.ts
+ │   │     |           ├── role.guard.ts
+ │   │     |           └── admin.guard.ts
+ │   │     ├── interceptors/
+ │   │     |           ├── auth.interceptor.ts
+ │   │     |           ├── error.interceptor.ts
+ │   │     |           └── logging.interceptor.ts
+ │   │     ├── services/
+ │   │     |           ├── auth.service.ts
+ │   │     |           ├── api.service.ts
+ │   │     |           ├── logger.service.ts
+ │   │     |           └── storage.service.ts
+ │   │     ├── layout/     (header/footer/navbar)
+ │   │     |           ├── header/
+ │   │     |           ├── footer/
+ │   │     |           └── sidebar/
+ │   │     ├── state/      (global app state)
+ │   │     |           ├── app-state.service.ts
+ │   │     |           └── app-store.ts
+ │   │     ├── config/     (env, tokens, constants)
+ │   │     |           ├── app.config.ts
+ │   │     |           ├── environment.tokens.ts
+ │   │     |           ├── error-messages.ts
+ │   │     |           └── constants.ts
+ │   │     └── core.module.ts (ONLY if using NgModules; optional in standalone)
+ │   ├─ shared/ (reusable directives/components)
+ │   │    ├── components/
+ │   │    ├── ui/         (buttons, modals, form controls)
+ │   │    ├─ models/
+ │   │    ├─ pipes/
+ │   │    ├─ services/
+ │   │    ├─ guards/
+ │   ├─ features/  ← App business modules
+ │   │    ├─ auth/
+ │   │    │      ├─ login/
+ │   │    │      │       ├─ models/
+ │   │    │      │       ├─ pipes/
+ │   │    │      │       ├─ services/
+ │   │    │      │       ├─ guards/
+ │   │    │      ├─ register/
+ │   │    │      │       ├─ models/
+ │   │    │      │       ├─ pipes/
+ │   │    │      │       ├─ services/
+ │   │    │      │       ├─ guards/
+ │   │    ├─ users/
+ │   │    │      ├─ models/
+ │   │    │      ├─ pipes/
+ │   │    │      ├─ services/
+ │   │    │      ├─ guards/
+ │   │    ├─ products/
+ │   │    │      ├─ models/
+ │   │    │      ├─ pipes/
+ │   │    │      ├─ services/
+ │   │    │      ├─ guards/
+ │   │    └─ dashboard/
+ │   │    │      ├─ models/
+ │   │    │      ├─ pipes/
+ │   │    │      ├─ services/
+ │   │    │      ├─ guards/
+ │   ├─ state/
+ │   ├─ app.routes.ts
+ │   └─ app.config.ts
+ ├─ assets/
+ ├─ environments/
+ └── main.ts
+```
+
+### How do large-scale Angular apps manage state?
+Ans. Options:
+  -  Signals + ComponentStore (recommended)
+  -  NgRx (Redux pattern)
+  -  Akita (domain-specific alternatives)
+  -  NgXS (domain-specific alternatives)
+  -  Services with RxJS behaviour subjects
+**Modern recommendation:**
+➡ Signals Store + RxJS Streams for backend events.
+
+### How should you architect a scalable Angular monorepo?
+Ans. 
+**Tools:**
+  -  Nx
+  -  Turborepo
+  -  Angular CLI workspace (small teams)
+**Rules:**
+  -  Separation by domain → features → UI → shared → core
+  -  Use libraries for:
+      -  Shared UI
+      -  Services
+      -  Models
+      -  Utils
+  -  Enforce boundaries using tagging (Nx)
+
+### How do interceptors fit into Angular architecture?
+Ans. Intercept HTTP requests/responses for: auth, caching, retry, headers.
+
+### What is an InjectionToken and why use it?
+Ans. A unique DI key used for non-class values, configuration objects, or multi-providers.
+
+### What is the role of schemas (NO_ERRORS_SCHEMA)?
+Ans. To allow non-Angular elements without compiler errors.
+
+### What are functional guards?
+Ans. Route guards written as simple functions instead of classes.
+
+### What is a content projection?
+Ans. Mechanism using <ng-content> to inject DOM content into components.
+
+### What is deferred loading (v17+)?
+Ans. A directive @defer that loads components lazily in templates.
+
+### What is the role of ViewContainerRef?
+Ans. Create, insert, destroy dynamic components programmatically.
+
+### How do you share data between routes?
+Ans. via Router params, query params, state, or a global service.
+
+### How do you disable change detection temporarily?
+Ans. ChangeDetectorRef.detach().
+
+### What architectural problem do Signals solve?
+Ans. Inefficient dirty-checking and inconsistent reactive state flows.
+
+### How does Angular’s rendering pipeline work?
+Ans. Template → Ivy compiler → instructions → DOM operations.
+
+### What is the difference between APP_INITIALIZER and PROVIDE_APP_INITIALIZER?
+Ans. One is module-based; the other is functional-config based for standalone apps.
+
+### How do Signals interop with RxJS?
+Ans. Using toSignal(), toObservable().
+
+### What is the difference between injector.runInContext and runInInjectionContext?
+Ans. Both execute functions inside DI context; second is preferred for standalone.
+
+### How do you choose Monorepo or Polyrepo for Angular?
+Ans.
+Monorepo → shared libs, synchronized versions.
+Polyrepo → independent deployments.
+
+### What is a BFF (Backend for Frontend) pattern for Angular?
+Ans. API gateway optimized for frontend UI (aggregates + transforms data).
+
+### What is the role of a facade service?
+Ans. Encapsulate business logic + state to keep components lean.
+
+### What is the difference between library and application in Angular workspace?
+Ans. Library is reusable and has no bootstrap logic.
+
+### How do you share environment configuration across apps?
+Ans. Use workspace libs or injection tokens with dynamic values.
+
+### What is SSR cache invalidation strategy?
+Ans. Based on stale-while-revalidate, TTL, or tag-based.
+
+### How does Angular prevent memory leaks?
+Ans. Destroy hooks, takeUntil, signals auto-dispose, RxJS finalize.
+
+### How do you implement API versioning in Angular architecture?
+Ans. Separate service classes per version or dynamic injection.
+
+### How do you structure a multilingual Angular app?
+Ans. Use i18n + translation service + content libs.
+
+### What caching layer should be used in Angular SSR?
+Ans. Memory cache, Redis, edge CDN, and TransferState.
+
+### What is the role of Route Config Loaders?
+Ans. Load routes dynamically at runtime.
+
+### How do you design multi-tenant Angular apps?
+Ans. Tenant-aware services, theme service, dynamic config.
+
+### How do you secure Angular architecture?
+Ans. Auth guards, interceptors, sanitization, CSP, JWT rotation.
+  -  Route guards (auth, roles, permission)
+  -  JWT rotation + silent refresh
+  -  DOM Sanitization (built-in)
+  -  CSP headers
+  -  Avoid innerHTML unless sanitized
+  -  Disable debug info in prod
+
+### How do you organize reusable business logic?
+Ans. Domain libs + core services + facade layer.
+
+### What is API aggregation in Angular?
+Ans. Combining multiple backend calls into single service.
+
+### How do you measure architectural performance?
+Ans. Use Profiler, Angular DevTools, Lighthouse, Web Vitals.
+
+### What is enterprise theming architecture?
+Ans. CSS variables + theme service + dynamic theme injection.
+
+### What is multi-zone SSR (edge rendering)?
+Ans. Running hydratable Angular apps across edge nodes.
+
+### How do you design offline-first Angular apps?
+Ans. Service Worker + background sync + caching strategies.
+
+### How do you design an event-bus architecture?
+Ans. Use RxJS Subjects/ReplaySubjects or Signals.
+
+### What is route-based analytics architecture?
+Ans. Listen to NavigationEnd and log metadata.
+
+### What is progressive hydration?
+Ans. Hydrate parts of the page based on viewport or user actions.
+
+### What is preboot and its role?
+Ans. Capture user events before hydration begins (SSR).
+
+### How do you protect large Angular apps from regressions?
+Ans. Component tests + E2E + visual regression tests.
+**Unit Tests**
+  -  Jasmine/Jest
+  -  TestBed for DI
+  -  Shallow component testing
+**E2E**
+  -  Playwright or Cypress
+**Contract Testing**
+  -  Pact or OpenAPI mock server
+
+### What is a universal DI container?
+Ans. A DI that works across server + client contexts.
+
+### How do you handle huge forms across domains?
+Ans. Dynamic forms via JSON schema + custom CVA.
+
+### How do you enforce API typing?
+Ans. OpenAPI codegen → strict typed models.
+
+### How do you design dashboards in Angular?
+Ans. Lazy load widgets + embed portal components.
+
+### How do you isolate feature team code?
+Ans. Feature libs with strict boundaries + local ownership.
+
+### How do you architect SEO in Angular?
+Ans. SSR + meta tags + pre-render + clean URLs.
+
+### How do you design real-time UI architecture?
+Ans. WebSockets + RxJS merge + signal stores.
+
+### What is the command pattern applied in Angular?
+Ans. Encapsulating actions into command classes/services.
+
+### How do you handle domain-level error mapping?
+Ans. Map HTTP errors to domain error types.
+
+### How to architect large table grids?
+Ans. Pagination + virtualization + caching layers.
+
+### How do you implement UI-level access control?
+Ans. Structural directives like *hasPermission.
+
+### How do you design analytics architecture in Angular?
+Ans. Event tracker service + dataLayer + route-based events.
+
+### How do you load configuration at runtime?
+Ans. APP_INITIALIZER + fetch config.json + provideConfig token.
+
+### What is feature toggle architecture?
+Ans. Dynamic flags that enable/disable components or routes.
+
+### Enterprise Architecture Patterns
+Ans. 
+  -  Domain-Driven Design (DDD)
+  -  Facade services
+  -  Presenter components
+  -  Clean architecture (UI → Domain → API)
+  -  Plugin architecture (CDK Portals + DI)
+  -  Micro-frontends (Module Federation or Web Components)
+  -  Multi-tenant theming
+
+### How do you ensure maintainability in Angular architecture?
+Ans. 
+Clean folder structure
+Shared UI libraries
+Typed API
+Strict mode
+Component isolation
+Consistent patterns
+Automated testing
+
 
 </details>
 
