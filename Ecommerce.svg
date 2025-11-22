@@ -1,0 +1,139 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg width="1200" height="760" viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.15"></feDropShadow>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0 0 L10 5 L0 10 z" fill="#374151"></path>
+    </marker>
+    <style>
+      .node-text { font-family: Inter, Arial, sans-serif; font-size:14px; fill:#0f172a; }
+      .small { font-size:12px; fill:#0f172a; }
+      .label { font-family: Inter, Arial, sans-serif; font-size:13px; fill:#fff; font-weight:600; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <rect x="24" y="14" rx="8" ry="8" width="1152" height="56" fill="#111827"></rect>
+  <text x="40" y="52" class="label">Ecommerce Hybrid Rendering Workflow — CDN → SSR → Hydration → CSR Islands</text>
+
+  <!-- User -->
+  <g transform="translate(40,100)">
+    <rect x="0" y="0" rx="12" ry="12" width="180" height="60" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="90" y="36" text-anchor="middle" class="node-text">User (Browser)</text>
+  </g>
+
+  <!-- CDN -->
+  <g transform="translate(260,90)">
+    <rect x="0" y="0" rx="12" ry="12" width="220" height="90" fill="#ede9fe" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="110" y="32" text-anchor="middle" class="node-text" font-weight="700">CDN (CloudFront / Cloudflare)</text>
+    <text x="110" y="54" text-anchor="middle" class="small">Static assets | Edge cache | Rewrite rules</text>
+  </g>
+
+  <!-- Arrow User -> CDN -->
+  <line x1="220" y1="130" x2="260" y2="130" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+
+  <!-- Decision box -->
+  <g transform="translate(510,90)">
+    <rect x="0" y="0" rx="6" ry="6" width="220" height="90" fill="#fff7ed" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="110" y="32" text-anchor="middle" class="node-text" font-weight="700">Routing Decision</text>
+    <text x="110" y="54" text-anchor="middle" class="small">Static ? CSR ? SSR ? Hybrid ?</text>
+  </g>
+
+  <!-- Arrow CDN -> Decision -->
+  <line x1="480" y1="135" x2="510" y2="135" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+
+  <!-- Static Assets node -->
+  <g transform="translate(760,20)">
+    <rect x="0" y="0" rx="10" ry="10" width="350" height="70" fill="#ecfeff" stroke="#06b6d4" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="175" y="32" text-anchor="middle" class="node-text" font-weight="700">Static Assets (S3 / R2)</text>
+    <text x="175" y="52" text-anchor="middle" class="small">Long TTL, hashed filenames</text>
+  </g>
+
+  <!-- CSR route node -->
+  <g transform="translate(760,110)">
+    <rect x="0" y="0" rx="10" ry="10" width="350" height="70" fill="#fff1f2" stroke="#ef4444" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="175" y="32" text-anchor="middle" class="node-text" font-weight="700">CSR Routes</text>
+    <text x="175" y="52" text-anchor="middle" class="small">Return index.html → Client renders</text>
+  </g>
+
+  <!-- SSR route node -->
+  <g transform="translate(760,200)">
+    <rect x="0" y="0" rx="10" ry="10" width="350" height="90" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="175" y="34" text-anchor="middle" class="node-text" font-weight="700">SSR / Hybrid Routes</text>
+    <text x="175" y="56" text-anchor="middle" class="small">Forward to SSR origin → Render HTML</text>
+  </g>
+
+  <!-- Arrows from Decision to three nodes -->
+  <line x1="730" y1="110" x2="760" y2="55" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+  <line x1="730" y1="135" x2="760" y2="145" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+  <line x1="730" y1="160" x2="760" y2="235" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+
+  <!-- SSR Server -->
+  <g transform="translate(420,320)">
+    <rect x="0" y="0" rx="14" ry="14" width="320" height="120" fill="#ecfdf5" stroke="#10b981" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="160" y="34" text-anchor="middle" class="node-text" font-weight="700">Angular SSR Server (Node)</text>
+    <text x="160" y="56" text-anchor="middle" class="small">Route &amp; component render decisions, data fetch</text>
+    <text x="160" y="76" text-anchor="middle" class="small">Returns full HTML + hydration markers</text>
+  </g>
+
+  <!-- Arrow SSR node to SSR Server -->
+  <line x1="885" y1="245" x2="740" y2="320" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+
+  <!-- CDN Edge Cache near SSR Server -->
+  <g transform="translate(760,320)">
+    <rect x="0" y="0" rx="10" ry="10" width="320" height="80" fill="#fffbeb" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="160" y="36" text-anchor="middle" class="node-text" font-weight="700">CDN Edge Cache</text>
+    <text x="160" y="56" text-anchor="middle" class="small">Cache SSR HTML (s-maxage ~300s)</text>
+  </g>
+
+  <!-- Arrow SSR Server -> CDN Edge Cache -->
+  <line x1="740" y1="380" x2="760" y2="360" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+
+  <!-- Browser receives HTML -->
+  <g transform="translate(240,470)">
+    <rect x="0" y="0" rx="12" ry="12" width="340" height="80" fill="#fff7ed" stroke="#fb923c" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="170" y="34" text-anchor="middle" class="node-text" font-weight="700">Browser Receives HTML</text>
+    <text x="170" y="54" text-anchor="middle" class="small">Immediate content (SEO-friendly)</text>
+  </g>
+
+  <!-- Hydration -->
+  <g transform="translate(640,470)">
+    <rect x="0" y="0" rx="12" ry="12" width="320" height="80" fill="#fff1f2" stroke="#ef4444" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="160" y="34" text-anchor="middle" class="node-text" font-weight="700">Hydration</text>
+    <text x="160" y="54" text-anchor="middle" class="small">Attach event listeners; reuse DOM</text>
+  </g>
+
+  <!-- Arrows from CDN Edge / Browser -->
+  <line x1="820" y1="360" x2="600" y2="470" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+  <line x1="560" y1="440" x2="640" y2="470" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+
+  <!-- CSR Islands box -->
+  <g transform="translate(240,580)">
+    <rect x="0" y="0" rx="12" ry="12" width="720" height="120" fill="#f0f9ff" stroke="#0284c7" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="360" y="28" text-anchor="middle" class="node-text" font-weight="700">CSR Islands (Client-Only Components)</text>
+    <text x="360" y="50" text-anchor="middle" class="small">Add-to-cart | Recommendations | Chat | Live inventory</text>
+
+    <!-- small island boxes -->
+    <rect x="60" y="70" rx="8" ry="8" width="160" height="36" fill="#fff" stroke="#60a5fa" stroke-width="1"></rect>
+    <text x="140" y="95" class="small">Add to Cart (client)</text>
+
+    <rect x="260" y="70" rx="8" ry="8" width="180" height="36" fill="#fff" stroke="#60a5fa" stroke-width="1"></rect>
+    <text x="350" y="95" class="small">Recommendations (client)</text>
+
+    <rect x="470" y="70" rx="8" ry="8" width="140" height="36" fill="#fff" stroke="#60a5fa" stroke-width="1"></rect>
+    <text x="540" y="95" class="small">Chat widget</text>
+  </g>
+
+  <!-- Final interactive page -->
+  <g transform="translate(100,720)">
+    <text x="60" y="-10" class="small" fill="#374151">Result →</text>
+    <rect x="120" y="-42" rx="12" ry="12" width="360" height="56" fill="#ecfdf5" stroke="#10b981" stroke-width="2" filter="url(#shadow)"></rect>
+    <text x="300" y="-8" class="node-text" font-weight="700">Fully Interactive Page (SSR + CSR)</text>
+  </g>
+
+  <!-- connectors from hydration to CSR islands -->
+  <line x1="800" y1="510" x2="640" y2="620" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+  <line x1="520" y1="550" x2="320" y2="620" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"></line>
+</svg>
