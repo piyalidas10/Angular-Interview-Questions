@@ -535,6 +535,35 @@ You can use it:
 
 <summary><strong>Angular Hydration & SSR</strong></summary>
 
+### What is Hydration ?
+Ans. 
+Hydration is the process of taking a pre-rendered HTML page sent to the client and making it interactive by attaching event listeners, usually after rebuilding framework and app state on the client.  
+During hydration, Angular reconstructs the component tree and connects signals and listeners; in zone-less mode it manually runs the initial change detection once, then hands over all further UI updates to fine-grained signal reactivity instead of Zone.js.  
+Hydration reconstructs Angular's internal component tree without touching DOM. In zone-less apps, Angular runs a single initial change detection tick after hydration and then delegates all reactivity to signals without Zone.js.
+  -  Zoned: Change Detection = Global
+  -  Zone-less: Change Detection = Signals only (fine-grained)
+![angular hydration](https://cdn-images-1.medium.com/v2/resize:fit:1080/1*BczWp1TKAZe5uQ4_O622gg.png)
+
+### When you should use Hydration ?
+Ans. When you want to have interactive client-side apps rendered on the server. Usefull for Ecommerce, social media & big content websites.
+
+### Pros & Cons of Hydration
+**Pros :**
+  -  Improved Performance and User Experience: Hydration reuses the server-rendered DOM, eliminating the need to destroy and re-render it on the client side. This prevents UI flicker, reduces layout shifts (CLS), and significantly improves metrics like First Input Delay (FID) and Largest Contentful Paint (LCP), leading to a smoother and faster user experience.
+  -  Enhanced SEO: By providing fully rendered HTML from the server, search engines can easily crawl and index the content, improving search engine optimization (SEO) and visibility.
+  -  Faster Time-to-Interactive (TTI): Users can see and interact with the application more quickly because the initial content is already present and becomes interactive without a full client-side re-render.
+  -  Reduced Initial Bundle Size (with Incremental Hydration): Incremental hydration allows for deferring the loading of non-critical JavaScript, reducing the initial bundle size and speeding up the initial page load.
+  -  Better Error Tracking and Debugging: Tools like hydration visualization can help identify and fix hydration-related issues, leading to more robust and stable applications.
+
+**Cons:**
+  -  execute all app logics twice — once on the server & once on the client
+  -  Strict DOM Structure Requirements: Hydration requires a precise match between the server-rendered HTML and the client-side generated DOM. Any discrepancies, including whitespace or comment nodes, can lead to hydration errors and DOM mismatch issues. This necessitates careful attention to valid HTML structure and avoiding direct DOM manipulation outside of Angular’s control.
+  -  Challenges with Third-Party Libraries and Direct DOM Manipulation: Libraries or components that directly manipulate the DOM using native APIs (e.g., document.appendChild, innerHTML) or rely on browser-specific APIs unavailable on the server (e.g., window object) can cause hydration failures. Refactoring to use Angular APIs or selectively disabling hydration for such components becomes necessary.
+  -  Potential for Delayed Interactivity: While SSR improves initial page load, the hydration process itself can introduce a delay before the application becomes fully interactive. This is because the client-side Angular app needs to load, parse, and execute to reattach event listeners and enable dynamic behavior.
+  -  Increased JavaScript Payload: Hydration requires the client-side Angular application to be loaded. If the JavaScript bundle is large, it can negatively impact performance, although techniques like lazy loading, tree-shaking, and code-splitting can mitigate this.
+  -  Complexity in Handling Dynamic Content and State Transfer: Ensuring consistency between server-rendered dynamic content and the client’s state after hydration can be complex. This often requires specific strategies for data fetching and state management to prevent mismatches.
+  -  Debugging Challenges: Identifying the root cause of hydration errors can be challenging due to the interplay between server-rendered and client-side code. Debugging tools and a thorough understanding of the hydration process are crucial.
+
 ### Angular 19 SSR → Hydration → Reactivity Pipeline
 ```
 SERVER
