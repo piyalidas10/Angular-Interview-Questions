@@ -547,6 +547,12 @@ Hydration reconstructs Angular's internal component tree without touching DOM. I
 ### When you should use Hydration ?
 Ans. When you want to have interactive client-side apps rendered on the server. Usefull for Ecommerce, social media & big content websites.
 
+### Does hydration fix SSR errors with window, document, localStorage?
+Ans.❌ No. SSR renders on the server where these objects don’t exist.
+
+### What does hydration fix?
+Ans. ✔ DOM event listeners, ✔ interaction, ✔ signals, ✔ zone-less reactivation
+
 ### Pros & Cons of Hydration
 **Pros :**
   -  Improved Performance and User Experience: Hydration reuses the server-rendered DOM, eliminating the need to destroy and re-render it on the client side. This prevents UI flicker, reduces layout shifts (CLS), and significantly improves metrics like First Input Delay (FID) and Largest Contentful Paint (LCP), leading to a smoother and faster user experience.
