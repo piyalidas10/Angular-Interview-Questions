@@ -544,6 +544,26 @@ Hydration reconstructs Angular's internal component tree without touching DOM. I
   -  Zone-less: Change Detection = Signals only (fine-grained)
 ![angular hydration](https://cdn-images-1.medium.com/v2/resize:fit:1080/1*BczWp1TKAZe5uQ4_O622gg.png)
 
+### Why hydration matters?
+Ans. SSR gives you fast HTML, but without hydration, Angular throws it away and re-renders. Hydration transforms SSR from a static SEO tool into a full performance optimization strategy by connecting server output with client reactivity. It reduces work, avoids DOM replacement, speeds up TTI, and integrates seamlessly with signals and zoneless mode.  
+Hydration is not just a feature — it is foundational to Angular’s new rendering architecture.
+
+### SSR Security Considerations
+Ans. Hydration or SSR must handle:
+  -  Protecting cookies on server (HttpOnly)
+  -  Not leaking tokens in HTML
+  -  Avoid using browser-only APIs in SSR paths
+  -  Conditional logic (isPlatformBrowser)
+  -  Avoiding memory leaks in long-lived SSR workers
+
+### Why Hydration Enables Zone-less Angular ?
+Ans. Zone.js is no longer required because:
+  -  Angular knows exactly where events are attached during hydration
+  -  No need for monkey-patching browser APIs
+  -  Signals provide synchronous, fine-grained reactivity
+  -  CD can run only for components touched by signals
+Hydration is a key part of Angular’s zoneless future.
+
 ### When you should use Hydration ?
 Ans. When you want to have interactive client-side apps rendered on the server. Usefull for Ecommerce, social media & big content websites.
 
@@ -569,6 +589,33 @@ Ans. ✔ DOM event listeners, ✔ interaction, ✔ signals, ✔ zone-less reacti
   -  Increased JavaScript Payload: Hydration requires the client-side Angular application to be loaded. If the JavaScript bundle is large, it can negatively impact performance, although techniques like lazy loading, tree-shaking, and code-splitting can mitigate this.
   -  Complexity in Handling Dynamic Content and State Transfer: Ensuring consistency between server-rendered dynamic content and the client’s state after hydration can be complex. This often requires specific strategies for data fetching and state management to prevent mismatches.
   -  Debugging Challenges: Identifying the root cause of hydration errors can be challenging due to the interplay between server-rendered and client-side code. Debugging tools and a thorough understanding of the hydration process are crucial.
+
+### Hydration Pipeline (Deep)
+  -  Server Rendering
+    Angular compiles components into:
+      -  TView (static blueprint)
+      -  LView (runtime state)
+        During SSR, Angular creates a DOM tree and serializes it into HTML.
+  - Client Boot
+    Client loads JS and creates the same TView structure.
+  -  DOM Scanning
+    Hydration engine walks the existing server DOM:
+      -  Matches nodes to TNodes in the TView
+      -  Verifies structural directives (*ngIf, loops) align
+      -  Restores input properties to LView
+  -  Event Listener Restoration
+    Angular attaches event listeners for:
+      -  Host listeners
+      -  Template events (click, input, change, etc.)
+      -  Custom event streams
+  -  Signals Resume
+    Signal-based component state is resumed:
+      -  Input signals
+      -  Model signals
+      -  Computed signals
+      -  Writable signals
+  - Cleanup
+    Any DOM mismatch forces a fallback to client rendering, not hydration.
 
 ### Angular 19 SSR → Hydration → Reactivity Pipeline
 ```
