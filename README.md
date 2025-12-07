@@ -573,6 +573,39 @@ Ans.❌ No. SSR renders on the server where these objects don’t exist.
 ### What does hydration fix?
 Ans. ✔ DOM event listeners, ✔ interaction, ✔ signals, ✔ zone-less reactivation
 
+### Hydration constraints?
+  -  Should avoid direct DOM manipulation like appendchild, innerHTML, outerHTML
+  -  Hydration runs after SSR, on the client. Therefore Angular hydration does not make these available on the server: window, document, localStorage, sessionStorage, navigator, ResizeObserver, IntersectionObserver, DOM queries (querySelector, etc.), matchMedia, History API, Canvas, WebGL
+  -  SHould have valid HTML structure
+  -  Hydration requires: SSR DOM ≈ Client DOM. Angular hydration diffs the DOM rendered by SSR against what the client expects. If the structure differs, hydration fails.
+  -  Hydration must finish before user interaction.  SSR HTML is static until hydration attaches event listeners. Hydration must finish quickly.
+  -   Long-running initialization blocks Hydration. If components run heavy logic during: constructors, ngOnInit, module initializers, APP_INITIALIZER, inject() etc. … hydration will be slow or stuck.
+  -   Hydration cannot attach events to removed or changed nodes : If elements change or disappear during loading (before hydration), Angular cannot bind them.
+  -   Hydration cannot handle custom elements that upgrade late. If you use Web Components: If they upgrade too late Or manipulate DOM before hydration. Hydration cannot match the expected structure.
+  -   Hydration cannot work with DOM manipulation libraries like jQuery, D3, Chart.js, Any library that adds/removes nodes. Hydration fails because the DOM differs from the SSR HTML snapshot.
+  -   If SSR rendered based on server-only info (cookies, IP, geolocation), but client sees different state, DOM mismatch occurs. Examples: User authentication, A/B testing, Region-based UI, Feature flags. Solution: use universal-safe state transfer.
+  -   Hydration does NOT run on routes using RenderMode.Client
+  -    Some components are still opt-out only (hydration disabled). Examples: Video players, Canvas-based components, Map components (Leaflet/Google Maps), DOM-heavy charts. These should be marked “client only”:
+      ```
+      @Component({
+        hydration: { skip: true }
+  
+      })
+      ```
+      So Angular doesn’t try to hydrate them.
+  -  Hydration breaks when:
+      -  The DOM is mutated during SSR (e.g., random IDs, timestamps)
+      -  Client-side code produces different DOM (e.g., Math.random() in template)
+      -  Third-party widgets inject dynamic DOM during SSR
+      -  Server-rendered images load differently on client before hydration
+      -  Conditional UI differs between server and client
+      Examples that BREAK hydration:
+      ```
+            <div>{{ Math.random() }}</div>
+            <img [src]="getRandomImageUrl()" />
+      ```
+
+
 ### Pros & Cons of Hydration
 **Pros :**
   -  Improved Performance and User Experience: Hydration reuses the server-rendered DOM, eliminating the need to destroy and re-render it on the client side. This prevents UI flicker, reduces layout shifts (CLS), and significantly improves metrics like First Input Delay (FID) and Largest Contentful Paint (LCP), leading to a smoother and faster user experience.
