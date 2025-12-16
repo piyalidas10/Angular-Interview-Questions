@@ -2,6 +2,22 @@
 
 <details>
 
+<summary><strong>Angular Micro frontend</strong></summary>
+
+### What is Micro frontend?
+Ans. Micro frontends are a way of designing  frontend web applications by breaking them into smaller, independent, and  self-contained modules or "mini-apps." Each micro frontend can be built, tested,  and deployed separately by different teams, and they can even use different  technologies or frameworks. These individual frontends are then combined to  create the full user interface of the application.
+
+### Why needs Micro frontend ?
+As our applications grow in size and complexity, maintaining a monolithic frontend  becomes increasingly difficult. Micro frontends offer a powerful solution to break down the complexity and scale  your frontend architecture. So, because of Scalability, Maintainability,  Faster Development, Technology Diversity, and Code Reusability, using  micro frontends makes sense.
+
+### What is Module Federation ?
+Ans. Module Federation is a feature in Webpack 5  that lets different frontend apps or modules, built and deployed separately, share  and load code dynamically while running. It’s an important tool for creating Micro Frontends. Each remote app shares specific parts, like components or services, that the host app can use whenever needed without bundling everything upfront. Module Federation helps create  scalable micro frontend setups with faster releases and easier maintenance. Starting with Angular 13 and newer versions, using  Native Module Federation, mainly with libraries like @angular-architects/native-federation, brings many advantages over older Module Federation setups that depended  more on Webpack-specific settings.
+https://www.youtube.com/watch?v=ZlJ__9bYHxs
+
+</details>
+
+<details>
+
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
 ### What is Angular architecture?
