@@ -268,15 +268,6 @@ Runs only after defer instantiation.
   -  WebSockets
   -  Heavy computations
 
-### 
-
-
-</details>
-
-<details>
-
-<summary><strong>Angular HTTP Caching for Server-Side Rendering (SSR)</strong></summary>
-
 ### What is Angular SSR HTTP Caching?
 Ans. Angular provides built-in HTTP caching for Server-Side Rendering (SSR) using the withHttpTransferCache() function as part of its hydration process. This mechanism automatically transfers data fetched on the server to the client, preventing duplicate API calls and improving performance. 
 Angular SSR HTTP caching uses TransferState to reuse server-fetched HTTP responses during browser hydration, preventing duplicate API calls and improving performance.
