@@ -2,6 +2,408 @@
 
 <details>
 
+<summary><strong>Angular HTTP Caching for Server-Side Rendering (SSR)</strong></summary>
+
+### What is Angular SSR HTTP Caching?
+Ans. Angular provides built-in HTTP caching for Server-Side Rendering (SSR) using the withHttpTransferCache() function as part of its hydration process. This mechanism automatically transfers data fetched on the server to the client, preventing duplicate API calls and improving performance. 
+Angular SSR HTTP caching uses TransferState to reuse server-fetched HTTP responses during browser hydration, preventing duplicate API calls and improving performance.
+**This works only when the component is rendered during SSR.**
+**If the API response depends on headers, it must not use Angular SSR transfer cache.**
+
+### How Angular SSR HTTP Caching Works?
+  -  Server-side Fetching: When the Angular application is rendered on the server, the HttpClient intercepts and executes the necessary HTTP requests (by default, all GET and HEAD requests that don't have Authorization or Proxy-Authorization headers).
+  -  Data Serialization: The responses to these requests are automatically cached and serialized into a JSON format using Angular's TransferState API. This data is then embedded within the initial HTML payload sent to the browser.
+  -  Client-side Reuse: In the browser, during the hydration process, the HttpClient checks this cache. If a matching cached response is found, it reuses the data instead of initiating a new network request.
+  -  Cache Invalidation: Once the application becomes fully stable and interactive in the browser, the HttpClient stops using this transfer cache and reverts to normal behavior (making fresh network calls). 
+| Piece               | Role                                       |
+| ------------------- | ------------------------------------------ |
+| `HttpClient`        | Makes HTTP calls                           |
+| `HttpTransferCache` | Transfers server HTTP responses to browser |
+| Node.js SSR server  | Executes Angular app                       |
+| Browser             | Reuses cached responses after hydration    |
+| Backend API         | Actual data source                         |
+
+### High-level flow (step by step)
+1. Browser requests a page
+2. Angular SSR server boots the app
+3. Components/services make HttpClient calls
+4. Server:
+  -  Fetches data from APIs
+  -  Stores responses in TransferState
+5. Server sends:
+  -  Rendered HTML
+  -  Serialized HTTP cache
+6. Browser:
+  -  Hydrates Angular
+  -  Reuses cached HTTP responses
+  -  ❌ No duplicate API calls
+
+### SSR Cache vs Browser HTTP Cache
+| SSR Transfer Cache         | Browser HTTP Cache   |
+| -------------------------- | -------------------- |
+| In-memory                  | Disk / memory        |
+| Per request                | Persistent           |
+| Avoids duplicate SSR calls | Avoids network calls |
+| Angular-managed            | Browser-managed      |
+
+### Where caching actually happens
+✅ Cached
+  -  GET requests
+  -  Requests without side effects
+  -  Requests executed during SSR render
+❌ Not cached by default
+  -  POST, PUT, DELETE
+  -  Requests with changing headers (auth tokens, cookies)
+  -  Deferred components (@defer)
+  -  Requests made after hydration
+
+### What breaks when headers / queryParams change
+| Change                   | Cache behavior | Defect            |
+| ------------------------ | -------------- | ----------------- |
+| QueryParams change       | New cache key  | ✅ Safe            |
+| QueryParams order change | New cache key  | ⚠ Duplicate calls |
+| Auth header change       | Same cache key | 🔴 Data leak      |
+| Tenant header change     | Same cache key | 🔴 Wrong tenant   |
+| Locale header change     | Same cache key | 🔴 Wrong language |
+| ETag / If-None-Match     | Ignored        | 🔴 Stale data     |
+| Cookies                  | Ignored        | 🔴 User mix-up    |
+
+### Why Angular disables caching for @defer
+**Deferred components:**
+  -  Render after initial HTML
+  -  Often run only in browser
+  -  Data may be user-specific or dynamic
+**➡️ Caching them during SSR would cause:**
+  -  Incorrect data
+  -  Memory leaks
+  -  Stale responses
+That’s why HttpTransferCache is skipped for deferred blocks
+
+### Why is SSR used in Banking applications?
+Answer: SSR is used mainly for performance, SEO, and perceived speed, not for real-time financial data.
+
+In banking apps, SSR:
+  -  Improves TTFB for public and semi-public pages
+  -  Ensures consistent first paint
+  -  Helps SEO and compliance pages
+  -  Provides a fast application shell
+
+However, critical financial data is never trusted from SSR.
+
+### What data should NEVER be SSR-cached in Banking?
+Answer: Any user-specific or time-sensitive data must not be cached.
+
+Examples:
+  -  Account balances
+  -  Transactions
+  -  Market prices
+  -  Trade orders
+  -  Authentication tokens
+
+Caching such data risks:
+  -  Data leakage
+  -  Stale financial information
+  -  Regulatory violations
+
+### How does Angular prevent duplicate API calls between SSR and browser?
+Answer: Angular uses HttpTransferCache (TransferState).
+
+Flow:
+  -  HTTP call runs on the server
+  -  Response is stored in TransferState
+  -  During hydration, the browser reuses it
+  -  No second network call is made
+This is safe only for idempotent, public GET requests.
+
+### Why are real-time components excluded from SSR?
+Answer:
+**Because real-time data:**
+  -  Changes continuously
+  -  Depends on authenticated sessions
+  -  Uses WebSocket/SSE
+  -  Must reflect the current state only
+**SSR would:**
+  -  Render stale data
+  -  Create invalid streams
+  -  Increase server load
+Hence, real-time components are client-only using @defer.
+
+### How do you combine SSR with real-time streaming?
+Answer: By using a hybrid rendering model:
+  -  SSR renders:
+      -  App shell
+      -  Layout
+      -  Static reference data
+  -  Browser:
+      -  Authenticates user
+      -  Opens real-time streams
+      -  Replaces placeholders
+This ensures freshness without sacrificing performance.
+
+### What role does @defer play in Banking SSR?
+Answer: 
+**@defer ensures:**
+  -  Sensitive components are not rendered on the server
+  -  Heavy components load after hydration
+  -  Real-time widgets initialize only in browser
+**It is essential for:**
+  -  Dashboards
+  -  Live charts
+  -  Streaming tickers
+
+### How do you prevent SSR data leakage between users?
+Answer: By enforcing request isolation:
+  -  One SSR render per request
+  -  No shared in-memory caches
+  -  No global singleton state
+  -  Short-lived SSR context
+In banking, SSR must be stateless.
+
+### What SSR caching strategy do you recommend for Banking apps?
+Answer:
+| Data Type             | Strategy            |
+| --------------------- | ------------------- |
+| Public content        | SSR + TransferCache |
+| Static reference data | SSR cached          |
+| User metadata         | SSR, no cache       |
+| Financial data        | Client only         |
+| Market data           | Streaming           |
+This avoids both stale data and security risks.
+
+### Why not rely on browser HTTP cache instead of SSR cache?
+Answer:
+**Browser cache:**
+  -  Is persistent
+  -  Can be reused across users (shared devices)
+  -  Harder to control securely
+
+**SSR TransferState:**
+  -  Exists per request
+  -  Is destroyed after hydration
+  -  Fully controlled by Angular
+For banking, SSR cache is safer.
+
+### How does Angular Signals help SSR + Real-Time apps?
+Answer:
+Signals:
+  -  Provide synchronous state updates
+  -  Work seamlessly after hydration
+  -  Replace RxJS-heavy stores for live data
+
+They are ideal for:
+  -  Streaming updates
+  -  Fine-grained UI refresh
+  -  Real-time dashboards
+
+### What happens if SSR fails in production?
+Answer: A banking-grade app must:
+  -  Gracefully fall back to CSR
+  -  Never block user access
+  -  Log SSR failures centrally
+SSR is a performance optimization, not a dependency.
+
+### What is the biggest mistake teams make with SSR in Banking?
+Answer: Trying to SSR everything.
+**This leads to:**
+  -  Stale balances
+  -  Data leaks
+  -  Performance degradation
+  -  Regulatory risks
+Correct approach: Selective SSR only.
+
+### How would you explain Banking SSR in one sentence?
+Answer: SSR in banking apps renders structure and static data for speed, while all sensitive and real-time financial data is loaded client-side to ensure security and correctness.
+
+### What SSR should and should NOT do
+**✅ SSR SHOULD handle**
+  -  Public / semi-public pages
+  -  Static reference data
+  -  Layout & shell rendering
+  -  SEO pages (marketing, product info)
+
+**❌ SSR SHOULD NOT handle**
+  -  Live balances
+  -  Orders / trades
+  -  Streaming prices
+  -  User-specific secrets
+
+### How Banking / Real-Time App use SSR Strategy ?
+Ans. Banking systems are not normal content websites. SSR must be selective, not aggressive. 
+In banking real-time apps, Angular SSR is used only for shell and static data, while user-specific and live financial data is loaded client-side using deferred rendering and streaming to guarantee freshness and security.
+
+**🟢 SSR Cacheable (Safe)**
+  -  Bank products
+  -  Exchange holidays
+  -  Static limits
+  -  Reference master data
+➡️ Use HttpTransferCache
+
+**🟡 SSR Rendered but NOT Cached**
+  -  User profile (name only)
+  -  Last login timestamp
+  -  Account list metadata
+➡️ Use SSR fetch without TransferState
+
+**🔴 Client-Only (Real-Time)**
+  -  Account balances
+  -  Market prices
+  -  Trade status
+  -  Notifications
+➡️ Load via:
+  -  @defer
+  -  WebSocket / SSE
+  -  Signals
+
+**Recommended stack**
+| Layer     | Technology              |
+| --------- | ----------------------- |
+| Transport | WebSocket / SSE         |
+| State     | Signals                 |
+| Streaming | Lightstreamer / AppSync |
+| Fallback  | REST polling            |
+| Security  | Short-lived JWT         |
+
+### Which components of an application should and should not use SSR Cache
+| Area        | Strategy                   |
+| ----------- | -------------------------- |
+| Market open | Disable SSR for dashboards |
+| SEO pages   | Full SSR                   |
+| Dashboards  | Hybrid                     |
+| Charts      | Client only                |
+| Tables      | SSR skeleton               |
+
+### Would you SSR a trading dashboard?
+Ans. Only the shell and layout. Charts, prices, and trades are client-only and streaming-based.
+
+### Can SSR be used for real-time stock prices?
+Ans. No. Real-time prices:
+  -  Change continuously
+  -  Require live streams
+  -  Must reflect current user session
+SSR is unsuitable; use WebSocket/SSE after hydration.
+
+### Is TransferState the same as browser cache?
+Ans. No.
+| TransferState      | Browser Cache            |
+| ------------------ | ------------------------ |
+| Per SSR request    | Persistent               |
+| In-memory          | Disk/memory              |
+| Angular-controlled | Browser-controlled       |
+| Safer for banking  | Risky for sensitive data |
+
+### Does SSR reduce backend load?
+Ans. SSR often increases backend load because:
+  -  Servers execute HTTP calls
+  -  Rendering happens per request
+SSR improves perceived performance, not backend efficiency.
+
+### Can SSR cache authenticated API responses?
+Ans. Generally no. 
+Authenticated responses:
+  -  Are user-specific
+  -  Risk accidental reuse
+  -  Increase memory footprint
+Best practice: Client-only fetch after hydration.
+
+### What happens if SSR HTML and client data differ?
+Ans. Angular may:
+  -  Throw hydration warnings
+  -  Drop DOM reuse
+  -  Fall back to CSR
+In banking, hydration mismatch = critical defect.
+
+### Is SSR mandatory for SEO in banking?
+Ans. Only for:
+  -  Marketing pages
+  -  Public product pages
+  -  Compliance content
+Logged-in dashboards do not need SEO SSR.
+
+### Can WebSockets run during SSR?
+Ans. Technically yes, architecturally no.
+SSR must be:
+  -  Stateless
+  -  Short-lived
+  -  Request-scoped
+Streaming belongs to the browser only.
+
+### Is SSR a security feature?
+Ans. No. SSR can increase risk if misused.
+Security depends on:
+  -  Proper cache isolation
+  -  No shared memory
+  -  Strict data classification
+
+### What’s the biggest SSR risk in finance apps?
+Ans. Incorrect caching of sensitive data leading to:
+  -  Data leaks
+  -  Regulatory violations
+  -  Financial loss
+
+### Should each microfrontend have its own SSR?
+Ans. It depends.
+| Scenario       | SSR Strategy |
+| -------------- | ------------ |
+| Shell / Host   | SSR          |
+| Marketing MFEs | SSR          |
+| Trading MFEs   | CSR only     |
+| Admin tools    | CSR          |
+**Most banking platforms use SSR at shell level only.**
+
+### How do you prevent SSR cache leaks across MFEs?
+Ans. 
+-  Isolate TransferState per MFE
+-  No shared in-memory stores
+-  No global singletons
+-  One SSR request = one render tree
+
+### Can multiple MFEs share HTTP TransferCache?
+Ans. No. Each MFE must:
+  -  Control its own caching
+  -  Disable transfer cache for sensitive data
+
+### How do MFEs hydrate independently?
+Ans.
+  -  Shell hydrates first
+  -  MFEs hydrate lazily
+  -  Real-time MFEs use @defer
+This avoids blocking the main app.
+
+### SSR in Module Federation – good or bad?
+Ans. Advanced and risky.
+**Pros:**
+  -  Faster first paint
+**Cons:**
+  -  Version mismatch
+  -  Cache poisoning risk
+  -  Complex deployments
+Used only for static MFEs.
+
+### How do you handle auth in SSR MFEs?
+Ans. 
+  -  SSR sees only anonymous context
+  -  Auth happens in browser
+  -  Tokens never stored in SSR memory
+
+### What happens if one MFE SSR fails?
+Ans. 
+  -  Shell renders
+  -  Failed MFE falls back to CSR
+  -  User is not blocked
+Failure isolation is mandatory.
+
+### Can MFEs share real-time connections?
+Ans. Yes — but client-side only.
+**Use:**
+  -  Shared WebSocket service
+  -  Event bus / Signals
+  -  No SSR involvement
+
+
+</details>
+
+<details>
+
 <summary><strong>Angular Micro frontend</strong></summary>
 
 ### What is Micro frontend?
