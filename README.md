@@ -95,6 +95,12 @@ Ans. They allow fine-grained control over execution, cancellation, and schedulin
 ### Promises and change detection?
 Ans. Promises always run as microtasks and trigger change detection, while Observables can be scheduled or run zone-less.
 
+### Are Observables always the best choice?
+Ans. No. For one-time async operations without cancellation or composition needs, Promises or async/await are simpler and sufficient.
+
+### How do Observables help scalability?
+Ans. Observables allow fan-out (multiple subscribers), fan-in (merging streams), lazy execution, and cancellation—making them ideal for scalable, reactive systems.
+
 </details>
 
 <details>
@@ -769,6 +775,7 @@ Ans. Yes — but client-side only.
 
 ### What is Micro frontend?
 Ans. Micro frontends are a way of designing  frontend web applications by breaking them into smaller, independent, and  self-contained modules or "mini-apps." Each micro frontend can be built, tested,  and deployed separately by different teams, and they can even use different  technologies or frameworks. These individual frontends are then combined to  create the full user interface of the application.
+**“Micro-frontends need hot streams, not one-time Promises.”**
 
 ### Why needs Micro frontend ?
 As our applications grow in size and complexity, maintaining a monolithic frontend  becomes increasingly difficult. Micro frontends offer a powerful solution to break down the complexity and scale  your frontend architecture. So, because of Scalability, Maintainability,  Faster Development, Technology Diversity, and Code Reusability, using  micro frontends makes sense.
@@ -776,6 +783,15 @@ As our applications grow in size and complexity, maintaining a monolithic fronte
 ### What is Module Federation ?
 Ans. Module Federation is a feature in Webpack 5  that lets different frontend apps or modules, built and deployed separately, share  and load code dynamically while running. It’s an important tool for creating Micro Frontends. Each remote app shares specific parts, like components or services, that the host app can use whenever needed without bundling everything upfront. Module Federation helps create  scalable micro frontend setups with faster releases and easier maintenance. Starting with Angular 13 and newer versions, using  Native Module Federation, mainly with libraries like @angular-architects/native-federation, brings many advantages over older Module Federation setups that depended  more on Webpack-specific settings.
 https://www.youtube.com/watch?v=ZlJ__9bYHxs
+
+### Why are Promises bad for micro-frontend communication?
+Ans. Promises deliver a value only once and cannot handle late subscribers or ongoing updates.
+
+### Best way to share data across MFEs?
+Ans. Use a shared Observable (Subject/BehaviorSubject) exposed via a shared library or global event bus.
+
+### BehaviorSubject vs Subject in MFEs?
+Ans. BehaviorSubject is preferred because new micro-frontends receive the latest value immediately.
 
 </details>
 
