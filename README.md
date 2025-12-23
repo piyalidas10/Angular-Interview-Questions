@@ -5,7 +5,7 @@
 
 <summary><strong>Angular System Design (Realtime Scenario based)</strong></summary>
 
-### 1️⃣ Design a Real-Time Dashboard (Stocks / Metrics / Orders)
+### Design a Real-Time Dashboard (Stocks / Metrics / Orders)
 ❓ Problem : Display live data that updates every second for thousands of users.
 Ans. I model real-time data as a hot Observable stream, apply back-pressure and retries using RxJS, and expose it to components as Signals for efficient UI updates. 
 Backend (WebSocket / SSE)
@@ -32,7 +32,7 @@ export class MarketStreamService {
 price = toSignal(this.market.ticks$, { initialValue: null });
 ```
 
-### 2️⃣ Design a Micro-Frontend Communication System
+### Design a Micro-Frontend Communication System
 ❓ Problem : Multiple MFEs need to share auth state and user context.
 Ans. I use a shared hot Observable to propagate state across micro-frontends, ensuring late subscribers receive the latest value and updates are streamed in real time.
 Shell App
@@ -44,7 +44,7 @@ export const authState$ = new BehaviorSubject<Auth | null>(null);
 auth = toSignal(authState$, { initialValue: null });
 ```
 
-### 3️⃣ Design a Search-As-You-Type System
+### Design a Search-As-You-Type System
 ❓ Problem : User types fast, API calls must cancel previous requests.
 Ans. Observables allow me to debounce input and cancel in-flight requests using switchMap, which isn’t possible with Promises.
 Key Events
@@ -62,7 +62,7 @@ search$ = this.searchInput.valueChanges.pipe(
 );
 ```
 
-### 4️⃣ Design a Notification System
+### Design a Notification System
 ❓ Problem : Push notifications from multiple sources (API, WebSocket, user actions).
 Ans. I merge multiple async sources into a single Observable stream, enabling a unified and scalable notification pipeline.
 WebSocket$  API$  UI$
@@ -80,7 +80,7 @@ notifications$ = merge(
 );
 ```
 
-### 5️⃣ Design an API Aggregation Layer (Frontend BFF)
+### Design an API Aggregation Layer (Frontend BFF)
 ❓ Problem : Page depends on multiple APIs and should load once all are ready.
 Ans. I aggregate multiple API calls using forkJoin, emitting a single view model once all data is available.
 User$   Orders$   Settings$
@@ -96,7 +96,7 @@ vm$ = forkJoin({
 });
 ```
 
-### 6️⃣ Design a Rate-Limited System
+### Design a Rate-Limited System
 ❓ Problem : Prevent API overload from frequent events.
 Ans. Observables provide built-in back-pressure mechanisms like throttle and buffer, which are essential for system stability.
 ```
@@ -106,7 +106,7 @@ events$.pipe(
 );
 ```
 
-### 7️⃣ Design for Error Handling & Recovery
+### Design for Error Handling & Recovery
 ❓ Problem : System must recover from transient failures.
 Ans. I treat errors as part of the stream and apply retry and fallback strategies declaratively.
 ```
@@ -126,6 +126,15 @@ Ans: I consume WebSocket/SSE data as hot Observables, apply back-pressure operat
 
 ### How would you build a real-time trading dashboard?
 Ans. I model price feeds as hot Observables via WebSockets, batch updates using auditTime, cache latest values using shareReplay(1), and expose state to UI via Signals.
+
+### Why is debouncing important?
+Ans. It limits excessive function calls during rapid events like scroll or input.
+
+### Microtask vs macrotask, why does it matter?
+Ans. Microtasks (Promises) run before rendering. Macrotasks (setTimeout) run after rendering, impacting UI timing.
+
+### What causes frontend memory leaks?
+Ans. Uncleared timers, event listeners, detached DOM nodes, and global references.
 
 
 
