@@ -939,6 +939,22 @@ Ans. BehaviorSubject is preferred because new micro-frontends receive the latest
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
+### How initiate class inside a component in Angular ?
+Ans. When using Angular, you’ll often define classes which are NEVER instantiated by you! You never call new SomeComponent() anywhere in your code. In Angular, classes are instantiated using Dependency Injection via the constructor.
+
+### How app component class is initialized in angular ?
+Ans. Angular never uses new AppComponent() directly in your code. It is created by Angular’s runtime during bootstrap using Dependency Injection. inside main.ts,
+platformBrowserDynamic() .bootstrapModule(AppModule); or bootstrapApplication(AppComponent);
+
+### Why shouldn’t we put logic in constructor?
+Ans. ✔ Constructor is only for DI  ✔ View not initialized yet
+
+### Can AppComponent have multiple instances?
+Ans. ❌ No — it is a singleton root component
+
+### Who destroys AppComponent?
+Ans. ✔ Angular destroys it when the platform is destroyed
+
 ### What is Angular architecture?
 Ans. Angular follows a component-based architecture where the UI is split into components, each with its own template, logic, and styles. These components are organized into a dependency-injection-based system and connected using routing, services, and reactive patterns (RxJS, Reactive Forms, Signals).
 
