@@ -3,7 +3,7 @@
 
 <details>
 
-<summary><strong>System Design Using Observables</strong></summary>
+<summary><strong>Angular System Design (Realtime Scenario based)</strong></summary>
 
 ### 1️⃣ Design a Real-Time Dashboard (Stocks / Metrics / Orders)
 ❓ Problem : Display live data that updates every second for thousands of users.
@@ -118,6 +118,15 @@ data$.pipe(
   catchError(() => EMPTY)
 );
 ```
+### How would you design a scalable Angular app for millions of users?
+Ans. I split the app by feature boundaries, use lazy loading, model async flows using Observables, manage UI state with Signals, and optimize rendering using OnPush or zone-less Angular.
+
+### How do you handle real-time updates efficiently?
+Ans: I consume WebSocket/SSE data as hot Observables, apply back-pressure operators like auditTime, and expose data to components as Signals to avoid unnecessary change detection.
+
+### How would you build a real-time trading dashboard?
+Ans. I model price feeds as hot Observables via WebSockets, batch updates using auditTime, cache latest values using shareReplay(1), and expose state to UI via Signals.
+
 
 
 </details>
