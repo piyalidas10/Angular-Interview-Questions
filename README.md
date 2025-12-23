@@ -2,6 +2,103 @@
 
 <details>
 
+<summary><strong>Angular Promise and Observable</strong></summary>
+
+### What is the difference between Promise and Observable?
+Ans. A Promise resolves once and cannot be cancelled, whereas an Observable can emit multiple values over time, supports cancellation, and provides powerful operators for async streams.
+| Feature          | Promise | Observable |
+| ---------------- | ------- | ---------- |
+| Values           | Single  | Multiple   |
+| Cancellation     | ❌       | ✅          |
+| Lazy             | ❌       | ✅          |
+| Retry / debounce | ❌       | ✅          |
+
+### Why does Angular use Observables instead of Promises?
+Ans. Angular applications are stream-based—HTTP, user events, WebSockets—so Observables naturally model these scenarios with cancellation, retries, and better change-detection control.
+
+### How do you convert a Promise into an Observable?
+``
+from(promise);
+defer(() => from(promise)); // lazy execution
+``
+
+### How do you convert an Observable to a Promise?
+```
+firstValueFrom(obs$);
+lastValueFrom(obs$);
+```
+Interview note: toPromise() is deprecated ❌
+
+### Promise.all equivalent in RxJS?
+Ans. forkJoin waits for all Observables to complete and emits once
+```
+forkJoin([obs1$, obs2$]);
+```
+
+### Sequential async calls in Angular?
+Ans. switchMap will cancels previous request if a new one starts.
+```
+obs1$.pipe(
+  switchMap(res => obs2$(res))
+);
+```
+
+### Why are Observables safer than Promises in Angular?
+Ans. Observables can be unsubscribed when a component is destroyed, preventing memory leaks. Promises cannot be cancelled once started.
+
+### How does Angular auto-cancel HTTP calls?
+Ans. Angular’s HttpClient returns Observables, and when a subscription is unsubscribed (e.g., component destroyed), the underlying HTTP request is aborted.
+
+### What is a cold Observable? 
+Ans. Each subscription triggers a new execution (e.g., HTTP call).
+
+### What is a hot Observable?
+Ans. Shares the same execution across subscribers (e.g., Subject, WebSocket).
+
+### Difference between Signal and Observable?
+Ans. Signals are synchronous state containers used for UI reactivity, while Observables handle asynchronous streams.
+|            | Signal | Observable |
+| ---------- | ------ | ---------- |
+| Sync       | ✅      | ❌          |
+| Async      | ❌      | ✅          |
+| UI binding | ✅      | ❌          |
+| Streams    | ❌      | ✅          |
+
+### Can Signals replace Observables?
+Ans. No. Signals replace component state management, not async streams like HTTP or WebSockets.
+
+### Convert Observable to Signal?
+```
+toSignal(obs$, { initialValue: null });
+```
+✔ Auto unsubscribe
+✔ Zone-less friendly
+
+### Convert Signal to Observable?
+```
+toObservable(signal);
+```
+
+### How do you handle errors in Observables?
+```
+obs$.pipe(
+  catchError(err => of(fallback))
+);
+```
+
+### How is error handling different from Promises?
+Ans. Observables centralize error handling via operators, while Promises rely on chained .catch() blocks.
+
+### How do Observables help performance?
+Ans. They allow fine-grained control over execution, cancellation, and scheduling, reducing unnecessary change detection.
+
+### Promises and change detection?
+Ans. Promises always run as microtasks and trigger change detection, while Observables can be scheduled or run zone-less.
+
+</details>
+
+<details>
+
 <summary><strong>Angular HTTP Caching for Server-Side Rendering (SSR)</strong></summary>
 
 ### Why disable HttpClient transfer/cache for deferred components ?
