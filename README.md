@@ -2697,7 +2697,7 @@ constructor(
           ```
 | No.  | Questions                                                                                                                                                         |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 48   |  useClass vs useValue   
+| 48   |  Why are Observables safer than Promises in Angular? Ans. Observables can be unsubscribed when a component is destroyed, preventing memory leaks. Promises cannot be cancelled once started. <br/> <br/> How does Angular auto-cancel HTTP calls? Ans. Angular’s HttpClient returns Observables, and when a subscription is unsubscribed (e.g., component destroyed), the underlying HTTP request is aborted. 
 | 49   |  When you will use ngOnChanges
 | 50   |  Suppose you have a component, inside it you have another child component like the following <br> app.compont.html <br> <app-child></app-child> <br> You want to access the DOM of that child component. Which life cycle hook will give you the access of that child component ?
 | 51   |  What is the starting point of angular application ?
@@ -2719,9 +2719,18 @@ latest	        Obtains latest release
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 53   |  What is the use of view encapsulation?
 | 54   |  Explain the @Component Decorator. <br> TypeScript class is one that is used to create components. This genre of class is then decorated with the "@Component" decorator. The decorato’s purpose is to accept a metadata object that provides relevant information about the component.  
-| 55   |  Promises vs Observables
+| 55   |  Promises vs Observables ? Why does Angular use Observables instead of Promises? <br><br> A Promise resolves once and cannot be cancelled, whereas an Observable can emit multiple values over time, supports cancellation, and provides powerful operators for async streams. <br> Angular applications are stream-based—HTTP, user events, WebSockets—so Observables naturally model these scenarios with cancellation, retries, and better change-detection control.
+| Feature          | Promise | Observable |
+| ---------------- | ------- | ---------- |
+| Values           | Single  | Multiple   |
+| Cancellation     | ❌       | ✅          |
+| Lazy             | ❌       | ✅          |
+| Retry / debounce | ❌       | ✅          |
+
+| No.  | Questions                                                                                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 56   |  Subject vs BehaviorSubject
-| 57   |  What are the advantages of Reactive forms over Template driven forms
+| 57   |  What are the advantages of Reactive forms over Template driven forms ?
 | 58   |  Why need Lazy loading ?
 | 59   |  How can you share data between components?
 | 60   |  What is Two way data binding?
@@ -2955,4 +2964,49 @@ class man implements Person {
         Can We Bypass CORS? 
         -----------------------------------------------------
         Short answer—No. Any hacky workaround, like disabling CORS in the browser or using extensions, won’t work in production. Fix it properly by configuring the server. That’s the only scalable solution.
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 107 |  Converting a Promise into an Observable ?
+Ans. In Angular / RxJS, converting a Promise → Observable is very common—especially when integrating APIs, async SDKs, or legacy code.
+  -  Promise executes immediately
+  -  Observable is cold but Promise is already running
+  -  Multiple subscriptions share the same Promise result
+**✅ Best Practice: from() (Recommended)**
+🔹 Basic conversion
+```
+import { from } from 'rxjs';
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  getUser(): Observable<User> {
+    return from(fetch('/api/user').then(res => res.json()));
+  }
+}
+```
+🔹 Subscribe
+```
+this.userService.getUser().subscribe(user => {
+  console.log(user.name);
+});
+```
+**✅ Why from() is preferred**
+  -  Emits resolved value
+  -  Properly handles rejection
+  -  Works seamlessly with RxJS operators
+  -  Standard in Angular services
+**✅ If you need lazy execution**
+```
+import { defer } from 'rxjs';
+const lazy$ = defer(() => from(fetch('/api/data')));
+```
+**📊 Quick Comparison**
+| Method                       | Emits          | Handles Errors   | Recommended |
+| ---------------------------- | -------------- | --------------   | ----------- |
+| `from(promise)`              | Resolved value | ✅              | ⭐⭐⭐⭐⭐|
+| `of(promise)`                | Promise object | ❌              | ❌          |
+| `defer(() => from(promise))` | Lazy execution | ✅              | ⭐⭐⭐⭐  |
+
+| No. | Questions                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 108 |  What is a cold Observable? Ans. Each subscription triggers a new execution (e.g., HTTP call).
+| 109 |  What is a hot Observable? Ans. Shares the same execution across subscribers (e.g., Subject, WebSocket).
 
