@@ -1,5 +1,127 @@
 ## Interview questions from Angular 16 to 19 versions
 
+
+<details>
+
+<summary><strong>System Design Using Observables</strong></summary>
+
+### 1️⃣ Design a Real-Time Dashboard (Stocks / Metrics / Orders)
+❓ Problem : Display live data that updates every second for thousands of users.
+Ans. I model real-time data as a hot Observable stream, apply back-pressure and retries using RxJS, and expose it to components as Signals for efficient UI updates. 
+Backend (WebSocket / SSE)
+        ↓
+   Observable Stream
+        ↓
+   RxJS Operators
+ (buffer, debounce, retry)
+        ↓
+  Shared Service (Hot)
+        ↓
+ Components → Signals → UI
+```
+@Injectable({ providedIn: 'root' })
+export class MarketStreamService {
+  private socket$ = webSocket<MarketTick>('ws://market');
+
+  ticks$ = this.socket$.pipe(
+    retry({ delay: 3000 }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+}
+
+price = toSignal(this.market.ticks$, { initialValue: null });
+```
+
+### 2️⃣ Design a Micro-Frontend Communication System
+❓ Problem : Multiple MFEs need to share auth state and user context.
+Ans. I use a shared hot Observable to propagate state across micro-frontends, ensuring late subscribers receive the latest value and updates are streamed in real time.
+Shell App
+ └── AuthState$ (BehaviorSubject)
+       ↓
+   MFE-A   MFE-B   MFE-C
+```
+export const authState$ = new BehaviorSubject<Auth | null>(null);
+auth = toSignal(authState$, { initialValue: null });
+```
+
+### 3️⃣ Design a Search-As-You-Type System
+❓ Problem : User types fast, API calls must cancel previous requests.
+Ans. Observables allow me to debounce input and cancel in-flight requests using switchMap, which isn’t possible with Promises.
+Key Events
+   ↓
+ debounceTime
+   ↓
+ switchMap (cancel)
+   ↓
+ HTTP Observable
+```
+search$ = this.searchInput.valueChanges.pipe(
+  debounceTime(300),
+  distinctUntilChanged(),
+  switchMap(query => this.api.search(query))
+);
+```
+
+### 4️⃣ Design a Notification System
+❓ Problem : Push notifications from multiple sources (API, WebSocket, user actions).
+Ans. I merge multiple async sources into a single Observable stream, enabling a unified and scalable notification pipeline.
+WebSocket$  API$  UI$
+      \      |     /
+       merge()
+         ↓
+   Notification$
+```
+notifications$ = merge(
+  socketNotifications$,
+  apiNotifications$,
+  uiNotifications$
+).pipe(
+  scan((acc, curr) => [...acc, curr], [])
+);
+```
+
+### 5️⃣ Design an API Aggregation Layer (Frontend BFF)
+❓ Problem : Page depends on multiple APIs and should load once all are ready.
+Ans. I aggregate multiple API calls using forkJoin, emitting a single view model once all data is available.
+User$   Orders$   Settings$
+    \      |        /
+        forkJoin
+            ↓
+        ViewModel
+```
+vm$ = forkJoin({
+  user: this.api.user(),
+  orders: this.api.orders(),
+  settings: this.api.settings()
+});
+```
+
+### 6️⃣ Design a Rate-Limited System
+❓ Problem : Prevent API overload from frequent events.
+Ans. Observables provide built-in back-pressure mechanisms like throttle and buffer, which are essential for system stability.
+```
+events$.pipe(
+  throttleTime(1000),
+  switchMap(e => this.api.send(e))
+);
+```
+
+### 7️⃣ Design for Error Handling & Recovery
+❓ Problem : System must recover from transient failures.
+Ans. I treat errors as part of the stream and apply retry and fallback strategies declaratively.
+```
+data$.pipe(
+  retry({
+    count: 3,
+    delay: (err, i) => timer(i * 1000)
+  }),
+  catchError(() => EMPTY)
+);
+```
+
+
+</details>
+
 <details>
 
 <summary><strong>Angular Promise and Observable</strong></summary>
