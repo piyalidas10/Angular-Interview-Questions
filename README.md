@@ -1,5 +1,712 @@
 ## Interview questions from Angular 16 to 19 versions
 
+<details>
+
+<summary><strong>Angular Architectural Questions & Answers</strong></summary>
+
+### How do you architect runtime route injection using custom route loaders?
+Ans. Fetch a route manifest (JSON) at startup, then dynamically router.addRoutes() with loadComponent factories that call your remote loader (MFE loader).
+```
+const manifest = await fetch('/routes.json').then(r=>r.json());
+router.resetConfig([...router.config, ...manifest.map(m=>({
+  path: m.path,
+  loadComponent: () => loadRemote(m.url, m.scope, m.module)
+}))]);
+```
+
+
+### How do you handle cross-feature navigation events in distributed MFEs?
+Ans. Use a host-managed event-bus or NavigationService in the shell. MFEs emit high-level events; the host mediates actual router navigation.
+**Use DOM Events or Window Bus**
+```
+window.dispatchEvent(
+  new CustomEvent('NAVIGATE', {
+    detail: { type: 'OPEN_ORDER', orderId: '123' }
+  })
+);
+Shell listens:
+window.addEventListener('NAVIGATE', e => {
+  const intent = (e as CustomEvent).detail;
+  resolveIntent(intent);
+});
+```
+**Cross-MFE navigation should be expressed as a navigation intent event, not a URL.**
+```
+┌────────────┐      intent       ┌───────────────┐
+│ Orders MFE │ ───────────────▶ │ Event Contract │
+└────────────┘                   └───────────────┘
+                                         │
+                                         ▼
+                                ┌─────────────────┐
+                                │ Shell Router     │
+                                │ (or Host)        │
+                                └─────────────────┘
+                                         │
+                                         ▼
+                                ┌─────────────────┐
+                                │ Details MFE     │
+                                └─────────────────┘
+```
+**Shared library (versioned!)**
+```
+// @org/navigation-contracts
+export type NavigationIntent =
+  | { type: 'OPEN_ORDER'; orderId: string }
+  | { type: 'OPEN_USER'; userId: string };
+
+👉 MFEs depend on contracts only, never routers.
+```
+**Emit Navigation Intent (Feature MFE)**
+```
+@Injectable({ providedIn: 'root' })
+export class NavigationBus {
+  private bus = new Subject<NavigationIntent>();
+  intents$ = this.bus.asObservable();
+
+  emit(intent: NavigationIntent) {
+    this.bus.next(intent);
+  }
+}
+
+this.navBus.emit({
+  type: 'OPEN_ORDER',
+  orderId: 'ORD-991'
+});
+```
+**The Shell / Host listens and maps intents to routes.**
+```
+this.navBus.intents$.subscribe(intent => {
+  switch (intent.type) {
+    case 'OPEN_ORDER':
+      this.router.navigate(['/orders', intent.orderId]);
+      break;
+
+    case 'OPEN_USER':
+      this.router.navigate(['/users', intent.userId]);
+      break;
+  }
+});
+📌 Only the shell knows routing topology
+```
+**Lazy-Load or Remote Activate Target MFE**
+```
+{
+  path: 'orders/:id',
+  loadChildren: () =>
+    loadRemoteModule({
+      remoteName: 'ordersMfe',
+      exposedModule: './Routes'
+    }).then(m => m.ORDERS_ROUTES)
+}
+```
+**If MFEs must support direct URL entry:**
+```
+/app?action=OPEN_ORDER&orderId=123
+```
+
+### How do you architect route-based caching with RouteReuseStrategy (modern standalone)?
+Ans. Implement RouteReuseStrategy that caches DetachedRouteHandle keyed by route + params; optionally serialize state for persistent caches.
+```
+class MyReuse implements RouteReuseStrategy {
+  store = new Map<string, DetachedRouteHandle>();
+  shouldDetach(route){ return route.data?.cache; }
+  store(route, handle){ this.store.set(route.path, handle); }
+  shouldAttach(route){ return this.store.has(route.path); }
+  retrieve(route){ return this.store.get(route.path); }
+}
+```
+Notes: Use for heavy pages where rebuild is costly.
+
+### How do you handle authentication in SSR without leaking cookies?
+Ans. SSR receives cookies server-side (HttpOnly) and uses them to fetch user data; only minimal safe user info is serialized to client. Client later obtains tokens via secure endpoint or silent refresh.
+
+### How do you architect partial hydration strategies using defer blocks?
+Ans. Server renders skeleton + critical content; defer interactive islands (widgets) to hydrate on viewport or interaction. Use @defer directive patterns or component-level hydrate triggers. Render <app-map data-defer></app-map> and hydrate when visible.
+
+### How do you architect SSR with caching layers for high-traffic apps?
+Ans. CDN edge cache → origin cache (Redis) → SSR renderer (stateless). Cache HTML per route variant (auth vs anon), use stale-while-revalidate, and tag-based invalidation.  Keep SSR server stateless, use BFF for personalization.
+
+### How do you architect a multi-tab state sync (storage events + signals)?
+Ans. Use BroadcastChannel to broadcast compact diffs; receivers apply to signals with a deterministic merge strategy (CRDT or last-write-wins).
+Code:
+```
+const bc = new BroadcastChannel('app-state');
+bc.onmessage = e => applyDiffToSignals(e.data);
+```
+Notes: Avoid sending secrets; use server reconciliation for critical state.
+
+### When do you choose global vs feature vs UI-local state?
+Ans. Global = auth, settings; Feature = domain data shared across a feature; UI-local = ephemeral controls & modals. Keep scope as narrow as possible.
+
+### How do you architect large tables (10k+ rows) with minimal re-render?
+Ans. Use server-side pagination for queries. If need to inpmelement in CLient Side then use Virtualization (CDK Virtual Scroll), row-level components with OnPush/signals, memoize renderers, and avoid large DOM. 
+
+### How do you design SSR fallback architecture for API failures?
+ans. Use cached data, show graceful degraded UI, schedule client revalidation. SSR should fail soft (return skeleton + client fetch).
+
+### How do you architect hybrid state: Signals + RxJS together?
+Ans. Signals for UI-local & computed state; RxJS for streaming external events (websockets). Provide adapters toSignal(obs) and toObservable(signal) for interop.
+Code:
+```
+ws$ = webSocket(url).pipe(shareReplay(1));
+streamSignal = toSignal(ws$);
+```
+Notes: Clear ownership: signals for derived UI, RxJS for streams.
+
+### How do you architect SSG for 100k+ dynamic pages?
+Ans. Incremental Static Regeneration (on-demand page generation + cache), prebuild high-priority pages, and generate others on first request with background regeneration. Use sharding/pagination to parallelize builds.
+
+### How do you minimize server load in SSR apps with island hydration?
+Ans. Server-render only necessary DOM; defer interactive islands; cache pages aggressively and use CDN. Offload heavy computations to client when safe.
+
+### How initiate class inside a component in Angular ?
+Ans. When using Angular, you’ll often define classes which are NEVER instantiated by you! You never call new SomeComponent() anywhere in your code. In Angular, classes are instantiated using Dependency Injection via the constructor.
+
+### How app component class is initialized in angular ?
+Ans. Angular never uses new AppComponent() directly in your code. It is created by Angular’s runtime during bootstrap using Dependency Injection. inside main.ts,
+platformBrowserDynamic() .bootstrapModule(AppModule); or bootstrapApplication(AppComponent);
+
+### Why shouldn’t we put logic in constructor?
+Ans. ✔ Constructor is only for DI  ✔ View not initialized yet
+
+### Can AppComponent have multiple instances?
+Ans. ❌ No — it is a singleton root component
+
+### Who destroys AppComponent?
+Ans. ✔ Angular destroys it when the platform is destroyed
+
+### What is Angular architecture?
+Ans. Angular follows a component-based architecture where the UI is split into components, each with its own template, logic, and styles. These components are organized into a dependency-injection-based system and connected using routing, services, and reactive patterns (RxJS, Reactive Forms, Signals).
+
+### What are standalone components? Why did Angular adopt them?
+Ans. Standalone components remove NgModules. They make Angular more lightweight and modular. 
+**Benefits:**
+  -  Less boilerplate
+  -  Tree-shakeable
+  -  Faster build & better performance
+  -  Simplified folder structure
+  -  Clear and direct imports
+
+### How does Change Detection work in Angular?
+Ans. Angular runs change detection using zone.js (or zone-less mode), executing a check cycle to update DOM whenever model changes.
+**Modes:**
+  -  Default – checks entire tree
+  -  OnPush – checks only for @Input change, event emission, or Observable async pipe change
+  -  Signal-based reactivity (v16+) uses fine-grained reactivity
+
+### How Many Dependency Injectors Does Angular Have?
+Ans. Angular provides two main types of injectors:
+```
+                         ┌──────────────────────────┐
+                         │      Null Injector       │
+                         └────────────┬─────────────┘
+                                      │
+                         ┌────────────▼─────────────┐
+                         │      Root Injector        │
+                         │ (providedIn: 'root')      │
+                         └────────────┬─────────────┘
+                                      │
+                       ┌──────────────┴──────────────┐
+                       │                             │
+        ┌──────────────▼──────────────┐   ┌──────────▼───────────┐
+        │   Root Environment Injector  │   │   Router Env Injector│
+        │ (bootstrapApplication())     │   │  (route-level DI)    │
+        └──────────────┬──────────────┘   └──────────┬───────────┘
+                       │                             │
+                       │                  ┌──────────▼───────────┐
+                       │                  │   Lazy Route Injector │
+                       │                  │ (Lazy-loaded modules) │
+                       │                  └──────────┬───────────┘
+                       │                             │
+         ┌─────────────▼─────────────┐   ┌───────────▼────────────┐
+         │  Component Injectors       │   │ Component Injectors     │
+         │ (providers/viewProviders) │   │ for Lazy Loaded Components│
+         └─────────────┬─────────────┘   └───────────┬────────────┘
+                       │                             │
+             ┌─────────▼─────────┐          ┌────────▼─────────┐
+             │ Directive Injectors│          │ Directive Injectors│
+             └────────────────────┘          └────────────────────┘
+```
+
+**1. Module Injector (a.k.a. Root Injector)**
+This is created when the application starts. It holds:
+  -  Services provided in @Injectable({ providedIn: 'root' })
+  -  Providers listed in AppModule or other NgModules
+👉 There is exactly one root/module injector per Angular app.
+
+**2. Element Injectors (a.k.a. Node/Component Injectors)**
+Angular creates one injector for every component and directive instance if they have providers. Examples that create element injectors:
+  -  providers: [...] in a component
+  -  viewProviders: [...]
+  -  providers on a directive
+📌 So the number of element injectors = number of component/directive instances that define providers.
+You may have hundreds or thousands of element injectors depending on the DOM.
+```
+@Component({
+  selector: 'my-cmp',
+  providers: [AService],
+  viewProviders: [BService]
+})
+
+                            ┌─────────────────────┐
+                            │  Parent Injector     │
+                            └──────────┬───────────┘
+                                       │
+                     ┌─────────────────▼─────────────────┐
+                     │     Component Injector             │
+                     │  provides: AService               │
+                     │  viewProviders: BService          │
+                     └───────────────┬───────────────────┘
+                                     │
+               ┌─────────────────────▼─────────────────────┐
+               │ Directive Injectors inside template        │
+               │ (can access AService but not BService)     │
+               └────────────────────────────────────────────┘
+
+```
+
+**3. Environment Injector**
+Introduced with standalone APIs. Created for:
+  -  bootstrapApplication()
+  -  Providers passed via provide*() functions
+  -  Route-level providers (providers: [...] in route config)
+👉 There may be multiple environment injectors (e.g., root environment + route-based environments).
+```
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZoneChangeDetection(),
+    provideHttpClient(),
+    ...
+  ]
+})
+
+                  ┌─────────────────────────────────────────┐
+                  │     Root Environment Injector           │
+                  │  (from bootstrapApplication())          │
+                  └───────────────┬─────────────────────────┘
+                                  │
+                    ┌─────────────▼──────────────┐
+                    │      Root Injector          │
+                    │ (providedIn: 'root')        │
+                    └─────────────┬──────────────┘
+                                  │
+                     ┌────────────▼────────────┐
+                     │   AppComponent Injector │
+                     │  (if component has DI)  │
+                     └────────────┬────────────┘
+                                  │
+               ┌──────────────────▼──────────────────┐
+               │ Child Components → Their Injectors  │
+               │ Directives → Their Injectors        │
+               └─────────────────────────────────────┘
+```
+
+**4. Router Injectors**
+Angular router creates:
+  -  A Router Environment Injector for route-level providers
+  -  A Component Route Injector for lazy-loaded routes
+  -  These injectors form child nodes in the injector hierarchy.
+Lazy-loaded routes introduce a lazy route injector, isolating providers.
+```
+{
+  path: 'products',
+  loadComponent: () => import('./products.component'),
+  providers: [ProductsApi]
+}
+```
+### How do you structure a large Angular application folder?
+Ans. 
+```
+src/
+ ├─ app/
+ │   ├─ core/  ← Global, singleton, app-wide services & features
+ │   │     ├── guards/
+ │   │     |           ├── auth.guard.ts
+ │   │     |           ├── role.guard.ts
+ │   │     |           └── admin.guard.ts
+ │   │     ├── interceptors/
+ │   │     |           ├── auth.interceptor.ts
+ │   │     |           ├── error.interceptor.ts
+ │   │     |           └── logging.interceptor.ts
+ │   │     ├── services/
+ │   │     |           ├── auth.service.ts
+ │   │     |           ├── api.service.ts
+ │   │     |           ├── logger.service.ts
+ │   │     |           └── storage.service.ts
+ │   │     ├── layout/     (header/footer/navbar)
+ │   │     |           ├── header/
+ │   │     |           ├── footer/
+ │   │     |           └── sidebar/
+ │   │     ├── state/      (global app state)
+ │   │     |           ├── app-state.service.ts
+ │   │     |           └── app-store.ts
+ │   │     ├── config/     (env, tokens, constants)
+ │   │     |           ├── app.config.ts
+ │   │     |           ├── environment.tokens.ts
+ │   │     |           ├── error-messages.ts
+ │   │     |           └── constants.ts
+ │   │     └── core.module.ts (ONLY if using NgModules; optional in standalone)
+ │   ├─ shared/ (reusable directives/components)
+ │   │    ├── components/
+ │   │    ├── ui/         (buttons, modals, form controls)
+ │   │    ├─ models/
+ │   │    ├─ pipes/
+ │   │    ├─ services/
+ │   │    ├─ guards/
+ │   ├─ features/  ← App business modules
+ │   │    ├─ auth/
+ │   │    │      ├─ login/
+ │   │    │      │       ├─ models/
+ │   │    │      │       ├─ pipes/
+ │   │    │      │       ├─ services/
+ │   │    │      │       ├─ guards/
+ │   │    │      ├─ register/
+ │   │    │      │       ├─ models/
+ │   │    │      │       ├─ pipes/
+ │   │    │      │       ├─ services/
+ │   │    │      │       ├─ guards/
+ │   │    ├─ users/
+ │   │    │      ├─ models/
+ │   │    │      ├─ pipes/
+ │   │    │      ├─ services/
+ │   │    │      ├─ guards/
+ │   │    ├─ products/
+ │   │    │      ├─ models/
+ │   │    │      ├─ pipes/
+ │   │    │      ├─ services/
+ │   │    │      ├─ guards/
+ │   │    └─ dashboard/
+ │   │    │      ├─ models/
+ │   │    │      ├─ pipes/
+ │   │    │      ├─ services/
+ │   │    │      ├─ guards/
+ │   ├─ state/
+ │   ├─ app.routes.ts
+ │   └─ app.config.ts
+ ├─ assets/
+ ├─ environments/
+ └── main.ts
+```
+
+### How do large-scale Angular apps manage state?
+Ans. Options:
+  -  Signals + ComponentStore (recommended)
+  -  NgRx (Redux pattern)
+  -  Akita (domain-specific alternatives)
+  -  NgXS (domain-specific alternatives)
+  -  Services with RxJS behaviour subjects
+**Modern recommendation:**
+➡ Signals Store + RxJS Streams for backend events.
+
+### How should you architect a scalable Angular monorepo?
+Ans. 
+**Tools:**
+  -  Nx
+  -  Turborepo
+  -  Angular CLI workspace (small teams)
+**Rules:**
+  -  Separation by domain → features → UI → shared → core
+  -  Use libraries for:
+      -  Shared UI
+      -  Services
+      -  Models
+      -  Utils
+  -  Enforce boundaries using tagging (Nx)
+
+### How do interceptors fit into Angular architecture?
+Ans. Intercept HTTP requests/responses for: auth, caching, retry, headers.
+
+### What is an InjectionToken and why use it?
+Ans. A unique DI key used for non-class values, configuration objects, or multi-providers.
+
+### What is the role of schemas (NO_ERRORS_SCHEMA)?
+Ans. To allow non-Angular elements without compiler errors.
+
+### What are functional guards?
+Ans. Route guards written as simple functions instead of classes.
+
+### What is a content projection?
+Ans. Mechanism using <ng-content> to inject DOM content into components.
+
+### What is deferred loading (v17+)?
+Ans. A directive @defer that loads components lazily in templates.
+
+### What is the role of ViewContainerRef?
+Ans. Create, insert, destroy dynamic components programmatically.
+
+### How do you share data between routes?
+Ans. via Router params, query params, state, or a global service.
+
+### How do you disable change detection temporarily?
+Ans. ChangeDetectorRef.detach().
+
+### What architectural problem do Signals solve?
+Ans. Inefficient dirty-checking and inconsistent reactive state flows.
+
+### How does Angular’s rendering pipeline work?
+Ans. Template → Ivy compiler → instructions → DOM operations.
+
+### What is the difference between APP_INITIALIZER and PROVIDE_APP_INITIALIZER?
+Ans. One is module-based; the other is functional-config based for standalone apps.
+
+### How do Signals interop with RxJS?
+Ans. Using toSignal(), toObservable().
+
+### What is the difference between injector.runInContext and runInInjectionContext?
+Ans. Both execute functions inside DI context; second is preferred for standalone.
+
+### How do you choose Monorepo or Polyrepo for Angular?
+Ans.
+Monorepo → shared libs, synchronized versions.
+Polyrepo → independent deployments.
+
+### What is a BFF (Backend for Frontend) pattern for Angular?
+Ans. API gateway optimized for frontend UI (aggregates + transforms data).
+
+### What is the role of a facade service?
+Ans. Encapsulate business logic + state to keep components lean.
+
+### What is the difference between library and application in Angular workspace?
+Ans. Library is reusable and has no bootstrap logic.
+
+### How do you share environment configuration across apps?
+Ans. Use workspace libs or injection tokens with dynamic values.
+
+### What is SSR cache invalidation strategy?
+Ans. Based on stale-while-revalidate, TTL, or tag-based.
+
+### How does Angular prevent memory leaks?
+Ans. Destroy hooks, takeUntil, signals auto-dispose, RxJS finalize.
+
+### How do you implement API versioning in Angular architecture?
+Ans. Separate service classes per version or dynamic injection.
+
+### How do you structure a multilingual Angular app?
+Ans. Use i18n + translation service + content libs.
+
+### What caching layer should be used in Angular SSR?
+Ans. Memory cache, Redis, edge CDN, and TransferState.
+
+### What is the role of Route Config Loaders?
+Ans. Load routes dynamically at runtime.
+
+### How do you design multi-tenant Angular apps?
+Ans. Tenant-aware services, theme service, dynamic config.
+
+### How do you secure Angular architecture?
+Ans. Auth guards, interceptors, sanitization, CSP, JWT rotation.
+  -  Route guards (auth, roles, permission)
+  -  JWT rotation + silent refresh
+  -  DOM Sanitization (built-in)
+  -  CSP headers
+  -  Avoid innerHTML unless sanitized
+  -  Disable debug info in prod
+
+### How do you organize reusable business logic?
+Ans. Domain libs + core services + facade layer.
+
+### What is API aggregation in Angular?
+Ans. Combining multiple backend calls into single service.
+
+### How do you measure architectural performance?
+Ans. Use Profiler, Angular DevTools, Lighthouse, Web Vitals.
+
+### What is enterprise theming architecture?
+Ans. CSS variables + theme service + dynamic theme injection.
+
+### What is multi-zone SSR (edge rendering)?
+Ans. Running hydratable Angular apps across edge nodes.
+
+### How do you design offline-first Angular apps?
+Ans. Service Worker + background sync + caching strategies.
+
+### How do you design an event-bus architecture?
+Ans. Use RxJS Subjects/ReplaySubjects or Signals.
+
+### What is route-based analytics architecture?
+Ans. Listen to NavigationEnd and log metadata.
+
+### What is progressive hydration?
+Ans. Hydrate parts of the page based on viewport or user actions.
+
+### What is preboot and its role?
+Ans. Capture user events before hydration begins (SSR).
+
+### How do you protect large Angular apps from regressions?
+Ans. Component tests + E2E + visual regression tests.
+**Unit Tests**
+  -  Jasmine/Jest
+  -  TestBed for DI
+  -  Shallow component testing
+**E2E**
+  -  Playwright or Cypress
+**Contract Testing**
+  -  Pact or OpenAPI mock server
+
+### What is a universal DI container?
+Ans. A DI that works across server + client contexts.
+
+### How do you handle huge forms across domains?
+Ans. Dynamic forms via JSON schema + custom CVA.
+
+### How do you enforce API typing?
+Ans. OpenAPI codegen → strict typed models.
+
+### How do you design dashboards in Angular?
+Ans. Lazy load widgets + embed portal components.
+
+### How do you isolate feature team code?
+Ans. Feature libs with strict boundaries + local ownership.
+
+### How do you architect SEO in Angular?
+Ans. SSR + meta tags + pre-render + clean URLs.
+
+### How do you design real-time UI architecture?
+Ans. WebSockets + RxJS merge + signal stores.
+
+### What is the command pattern applied in Angular?
+Ans. Encapsulating actions into command classes/services.
+
+### How do you handle domain-level error mapping?
+Ans. Map HTTP errors to domain error types.
+
+### How to architect large table grids?
+Ans. Pagination + virtualization + caching layers.
+
+### How do you implement UI-level access control?
+Ans. Structural directives like *hasPermission.
+
+### How do you design analytics architecture in Angular?
+Ans. Event tracker service + dataLayer + route-based events.
+
+### How do you load configuration at runtime?
+Ans. APP_INITIALIZER + fetch config.json + provideConfig token.
+
+### What is feature toggle architecture?
+Ans. Dynamic flags that enable/disable components or routes.
+
+### Enterprise Architecture Patterns
+Ans. 
+  -  Domain-Driven Design (DDD)
+  -  Facade services
+  -  Presenter components
+  -  Clean architecture (UI → Domain → API)
+  -  Plugin architecture (CDK Portals + DI)
+  -  Micro-frontends (Module Federation or Web Components)
+  -  Multi-tenant theming
+
+### How do you ensure maintainability in Angular architecture?
+Ans. 
+  -  Clean folder structure
+  -  Shared UI libraries
+  -  Typed API
+  -  Strict mode
+  -  Component isolation
+  -  Consistent patterns
+  -  Automated testing
+
+### How do you model breadcrumb architecture at a global level?
+Ans. Each route sets data.breadcrumb (static) or provides a breadcrumb fragment via a service. A global BreadcrumbService composes fragments from activated route tree.
+Each route declares breadcrumb intent, never UI logic.
+```
+// app.routes.ts
+export const routes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./home.component'),
+    data: { breadcrumb: 'Home' }
+  },
+  {
+    path: 'products',
+    data: { breadcrumb: 'Products' },
+    loadChildren: () => import('./products/routes')
+  },
+  {
+    path: 'products/:id',
+    resolve: { product: productResolver },
+    loadComponent: () => import('./product-detail.component'),
+    data: {
+      breadcrumb: (ctx: RouteContext) => ctx.product.name
+    }
+  }
+];
+```
+**Why this works**
+✔ Centralized
+✔ Lazy-load friendly
+✔ Resolver-driven
+✔ Tree-structured
+**Angular 19 favors typed functional contracts.**
+```
+export interface RouteContext {
+  [key: string]: unknown;
+}
+```
+**Global Breadcrumb Service (Signal-Based)**
+```
+@Injectable({ providedIn: 'root' })
+export class BreadcrumbService {
+
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  breadcrumbs = signal<Breadcrumb[]>([]);
+
+  constructor() {
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => this.build());
+  }
+
+  private build() {
+    const crumbs: Breadcrumb[] = [];
+    let route = this.route.root;
+
+    while (route) {
+      const data = route.snapshot.data['breadcrumb'];
+      if (data) {
+        crumbs.push({
+          label: typeof data === 'function'
+            ? data(route.snapshot.data)
+            : data,
+          url: this.getUrl(route)
+        });
+      }
+      route = route.firstChild!;
+    }
+
+    this.breadcrumbs.set(crumbs);
+  }
+
+  private getUrl(route: ActivatedRoute): string {
+    return route.pathFromRoot
+      .flatMap(r => r.snapshot.url)
+      .map(s => s.path)
+      .join('/');
+  }
+}
+```
+**Dumb Breadcrumb Component**
+```
+@Component({
+  selector: 'app-breadcrumbs',
+  standalone: true,
+  template: `
+    <nav>
+      <a *ngFor="let b of crumbs()" [routerLink]="b.url">
+        {{ b.label }}
+      </a>
+    </nav>
+  `
+})
+export class BreadcrumbsComponent {
+  crumbs = inject(BreadcrumbService).breadcrumbs;
+}
+```
+
+
+</details>
+
 
 <details>
 
@@ -932,458 +1639,6 @@ Ans. Use a shared Observable (Subject/BehaviorSubject) exposed via a shared libr
 
 ### BehaviorSubject vs Subject in MFEs?
 Ans. BehaviorSubject is preferred because new micro-frontends receive the latest value immediately.
-
-</details>
-
-<details>
-
-<summary><strong>Angular Architectural Questions & Answers</strong></summary>
-
-### How initiate class inside a component in Angular ?
-Ans. When using Angular, you’ll often define classes which are NEVER instantiated by you! You never call new SomeComponent() anywhere in your code. In Angular, classes are instantiated using Dependency Injection via the constructor.
-
-### How app component class is initialized in angular ?
-Ans. Angular never uses new AppComponent() directly in your code. It is created by Angular’s runtime during bootstrap using Dependency Injection. inside main.ts,
-platformBrowserDynamic() .bootstrapModule(AppModule); or bootstrapApplication(AppComponent);
-
-### Why shouldn’t we put logic in constructor?
-Ans. ✔ Constructor is only for DI  ✔ View not initialized yet
-
-### Can AppComponent have multiple instances?
-Ans. ❌ No — it is a singleton root component
-
-### Who destroys AppComponent?
-Ans. ✔ Angular destroys it when the platform is destroyed
-
-### What is Angular architecture?
-Ans. Angular follows a component-based architecture where the UI is split into components, each with its own template, logic, and styles. These components are organized into a dependency-injection-based system and connected using routing, services, and reactive patterns (RxJS, Reactive Forms, Signals).
-
-### What are standalone components? Why did Angular adopt them?
-Ans. Standalone components remove NgModules. They make Angular more lightweight and modular. 
-**Benefits:**
-  -  Less boilerplate
-  -  Tree-shakeable
-  -  Faster build & better performance
-  -  Simplified folder structure
-  -  Clear and direct imports
-
-### How does Change Detection work in Angular?
-Ans. Angular runs change detection using zone.js (or zone-less mode), executing a check cycle to update DOM whenever model changes.
-**Modes:**
-  -  Default – checks entire tree
-  -  OnPush – checks only for @Input change, event emission, or Observable async pipe change
-  -  Signal-based reactivity (v16+) uses fine-grained reactivity
-
-### How Many Dependency Injectors Does Angular Have?
-Ans. Angular provides two main types of injectors:
-```
-                         ┌──────────────────────────┐
-                         │      Null Injector       │
-                         └────────────┬─────────────┘
-                                      │
-                         ┌────────────▼─────────────┐
-                         │      Root Injector        │
-                         │ (providedIn: 'root')      │
-                         └────────────┬─────────────┘
-                                      │
-                       ┌──────────────┴──────────────┐
-                       │                             │
-        ┌──────────────▼──────────────┐   ┌──────────▼───────────┐
-        │   Root Environment Injector  │   │   Router Env Injector│
-        │ (bootstrapApplication())     │   │  (route-level DI)    │
-        └──────────────┬──────────────┘   └──────────┬───────────┘
-                       │                             │
-                       │                  ┌──────────▼───────────┐
-                       │                  │   Lazy Route Injector │
-                       │                  │ (Lazy-loaded modules) │
-                       │                  └──────────┬───────────┘
-                       │                             │
-         ┌─────────────▼─────────────┐   ┌───────────▼────────────┐
-         │  Component Injectors       │   │ Component Injectors     │
-         │ (providers/viewProviders) │   │ for Lazy Loaded Components│
-         └─────────────┬─────────────┘   └───────────┬────────────┘
-                       │                             │
-             ┌─────────▼─────────┐          ┌────────▼─────────┐
-             │ Directive Injectors│          │ Directive Injectors│
-             └────────────────────┘          └────────────────────┘
-```
-
-**1. Module Injector (a.k.a. Root Injector)**
-This is created when the application starts. It holds:
-  -  Services provided in @Injectable({ providedIn: 'root' })
-  -  Providers listed in AppModule or other NgModules
-👉 There is exactly one root/module injector per Angular app.
-
-**2. Element Injectors (a.k.a. Node/Component Injectors)**
-Angular creates one injector for every component and directive instance if they have providers. Examples that create element injectors:
-  -  providers: [...] in a component
-  -  viewProviders: [...]
-  -  providers on a directive
-📌 So the number of element injectors = number of component/directive instances that define providers.
-You may have hundreds or thousands of element injectors depending on the DOM.
-```
-@Component({
-  selector: 'my-cmp',
-  providers: [AService],
-  viewProviders: [BService]
-})
-
-                            ┌─────────────────────┐
-                            │  Parent Injector     │
-                            └──────────┬───────────┘
-                                       │
-                     ┌─────────────────▼─────────────────┐
-                     │     Component Injector             │
-                     │  provides: AService               │
-                     │  viewProviders: BService          │
-                     └───────────────┬───────────────────┘
-                                     │
-               ┌─────────────────────▼─────────────────────┐
-               │ Directive Injectors inside template        │
-               │ (can access AService but not BService)     │
-               └────────────────────────────────────────────┘
-
-```
-
-**3. Environment Injector**
-Introduced with standalone APIs. Created for:
-  -  bootstrapApplication()
-  -  Providers passed via provide*() functions
-  -  Route-level providers (providers: [...] in route config)
-👉 There may be multiple environment injectors (e.g., root environment + route-based environments).
-```
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideZoneChangeDetection(),
-    provideHttpClient(),
-    ...
-  ]
-})
-
-                  ┌─────────────────────────────────────────┐
-                  │     Root Environment Injector           │
-                  │  (from bootstrapApplication())          │
-                  └───────────────┬─────────────────────────┘
-                                  │
-                    ┌─────────────▼──────────────┐
-                    │      Root Injector          │
-                    │ (providedIn: 'root')        │
-                    └─────────────┬──────────────┘
-                                  │
-                     ┌────────────▼────────────┐
-                     │   AppComponent Injector │
-                     │  (if component has DI)  │
-                     └────────────┬────────────┘
-                                  │
-               ┌──────────────────▼──────────────────┐
-               │ Child Components → Their Injectors  │
-               │ Directives → Their Injectors        │
-               └─────────────────────────────────────┘
-```
-
-**4. Router Injectors**
-Angular router creates:
-  -  A Router Environment Injector for route-level providers
-  -  A Component Route Injector for lazy-loaded routes
-  -  These injectors form child nodes in the injector hierarchy.
-Lazy-loaded routes introduce a lazy route injector, isolating providers.
-```
-{
-  path: 'products',
-  loadComponent: () => import('./products.component'),
-  providers: [ProductsApi]
-}
-```
-### How do you structure a large Angular application folder?
-Ans. 
-```
-src/
- ├─ app/
- │   ├─ core/  ← Global, singleton, app-wide services & features
- │   │     ├── guards/
- │   │     |           ├── auth.guard.ts
- │   │     |           ├── role.guard.ts
- │   │     |           └── admin.guard.ts
- │   │     ├── interceptors/
- │   │     |           ├── auth.interceptor.ts
- │   │     |           ├── error.interceptor.ts
- │   │     |           └── logging.interceptor.ts
- │   │     ├── services/
- │   │     |           ├── auth.service.ts
- │   │     |           ├── api.service.ts
- │   │     |           ├── logger.service.ts
- │   │     |           └── storage.service.ts
- │   │     ├── layout/     (header/footer/navbar)
- │   │     |           ├── header/
- │   │     |           ├── footer/
- │   │     |           └── sidebar/
- │   │     ├── state/      (global app state)
- │   │     |           ├── app-state.service.ts
- │   │     |           └── app-store.ts
- │   │     ├── config/     (env, tokens, constants)
- │   │     |           ├── app.config.ts
- │   │     |           ├── environment.tokens.ts
- │   │     |           ├── error-messages.ts
- │   │     |           └── constants.ts
- │   │     └── core.module.ts (ONLY if using NgModules; optional in standalone)
- │   ├─ shared/ (reusable directives/components)
- │   │    ├── components/
- │   │    ├── ui/         (buttons, modals, form controls)
- │   │    ├─ models/
- │   │    ├─ pipes/
- │   │    ├─ services/
- │   │    ├─ guards/
- │   ├─ features/  ← App business modules
- │   │    ├─ auth/
- │   │    │      ├─ login/
- │   │    │      │       ├─ models/
- │   │    │      │       ├─ pipes/
- │   │    │      │       ├─ services/
- │   │    │      │       ├─ guards/
- │   │    │      ├─ register/
- │   │    │      │       ├─ models/
- │   │    │      │       ├─ pipes/
- │   │    │      │       ├─ services/
- │   │    │      │       ├─ guards/
- │   │    ├─ users/
- │   │    │      ├─ models/
- │   │    │      ├─ pipes/
- │   │    │      ├─ services/
- │   │    │      ├─ guards/
- │   │    ├─ products/
- │   │    │      ├─ models/
- │   │    │      ├─ pipes/
- │   │    │      ├─ services/
- │   │    │      ├─ guards/
- │   │    └─ dashboard/
- │   │    │      ├─ models/
- │   │    │      ├─ pipes/
- │   │    │      ├─ services/
- │   │    │      ├─ guards/
- │   ├─ state/
- │   ├─ app.routes.ts
- │   └─ app.config.ts
- ├─ assets/
- ├─ environments/
- └── main.ts
-```
-
-### How do large-scale Angular apps manage state?
-Ans. Options:
-  -  Signals + ComponentStore (recommended)
-  -  NgRx (Redux pattern)
-  -  Akita (domain-specific alternatives)
-  -  NgXS (domain-specific alternatives)
-  -  Services with RxJS behaviour subjects
-**Modern recommendation:**
-➡ Signals Store + RxJS Streams for backend events.
-
-### How should you architect a scalable Angular monorepo?
-Ans. 
-**Tools:**
-  -  Nx
-  -  Turborepo
-  -  Angular CLI workspace (small teams)
-**Rules:**
-  -  Separation by domain → features → UI → shared → core
-  -  Use libraries for:
-      -  Shared UI
-      -  Services
-      -  Models
-      -  Utils
-  -  Enforce boundaries using tagging (Nx)
-
-### How do interceptors fit into Angular architecture?
-Ans. Intercept HTTP requests/responses for: auth, caching, retry, headers.
-
-### What is an InjectionToken and why use it?
-Ans. A unique DI key used for non-class values, configuration objects, or multi-providers.
-
-### What is the role of schemas (NO_ERRORS_SCHEMA)?
-Ans. To allow non-Angular elements without compiler errors.
-
-### What are functional guards?
-Ans. Route guards written as simple functions instead of classes.
-
-### What is a content projection?
-Ans. Mechanism using <ng-content> to inject DOM content into components.
-
-### What is deferred loading (v17+)?
-Ans. A directive @defer that loads components lazily in templates.
-
-### What is the role of ViewContainerRef?
-Ans. Create, insert, destroy dynamic components programmatically.
-
-### How do you share data between routes?
-Ans. via Router params, query params, state, or a global service.
-
-### How do you disable change detection temporarily?
-Ans. ChangeDetectorRef.detach().
-
-### What architectural problem do Signals solve?
-Ans. Inefficient dirty-checking and inconsistent reactive state flows.
-
-### How does Angular’s rendering pipeline work?
-Ans. Template → Ivy compiler → instructions → DOM operations.
-
-### What is the difference between APP_INITIALIZER and PROVIDE_APP_INITIALIZER?
-Ans. One is module-based; the other is functional-config based for standalone apps.
-
-### How do Signals interop with RxJS?
-Ans. Using toSignal(), toObservable().
-
-### What is the difference between injector.runInContext and runInInjectionContext?
-Ans. Both execute functions inside DI context; second is preferred for standalone.
-
-### How do you choose Monorepo or Polyrepo for Angular?
-Ans.
-Monorepo → shared libs, synchronized versions.
-Polyrepo → independent deployments.
-
-### What is a BFF (Backend for Frontend) pattern for Angular?
-Ans. API gateway optimized for frontend UI (aggregates + transforms data).
-
-### What is the role of a facade service?
-Ans. Encapsulate business logic + state to keep components lean.
-
-### What is the difference between library and application in Angular workspace?
-Ans. Library is reusable and has no bootstrap logic.
-
-### How do you share environment configuration across apps?
-Ans. Use workspace libs or injection tokens with dynamic values.
-
-### What is SSR cache invalidation strategy?
-Ans. Based on stale-while-revalidate, TTL, or tag-based.
-
-### How does Angular prevent memory leaks?
-Ans. Destroy hooks, takeUntil, signals auto-dispose, RxJS finalize.
-
-### How do you implement API versioning in Angular architecture?
-Ans. Separate service classes per version or dynamic injection.
-
-### How do you structure a multilingual Angular app?
-Ans. Use i18n + translation service + content libs.
-
-### What caching layer should be used in Angular SSR?
-Ans. Memory cache, Redis, edge CDN, and TransferState.
-
-### What is the role of Route Config Loaders?
-Ans. Load routes dynamically at runtime.
-
-### How do you design multi-tenant Angular apps?
-Ans. Tenant-aware services, theme service, dynamic config.
-
-### How do you secure Angular architecture?
-Ans. Auth guards, interceptors, sanitization, CSP, JWT rotation.
-  -  Route guards (auth, roles, permission)
-  -  JWT rotation + silent refresh
-  -  DOM Sanitization (built-in)
-  -  CSP headers
-  -  Avoid innerHTML unless sanitized
-  -  Disable debug info in prod
-
-### How do you organize reusable business logic?
-Ans. Domain libs + core services + facade layer.
-
-### What is API aggregation in Angular?
-Ans. Combining multiple backend calls into single service.
-
-### How do you measure architectural performance?
-Ans. Use Profiler, Angular DevTools, Lighthouse, Web Vitals.
-
-### What is enterprise theming architecture?
-Ans. CSS variables + theme service + dynamic theme injection.
-
-### What is multi-zone SSR (edge rendering)?
-Ans. Running hydratable Angular apps across edge nodes.
-
-### How do you design offline-first Angular apps?
-Ans. Service Worker + background sync + caching strategies.
-
-### How do you design an event-bus architecture?
-Ans. Use RxJS Subjects/ReplaySubjects or Signals.
-
-### What is route-based analytics architecture?
-Ans. Listen to NavigationEnd and log metadata.
-
-### What is progressive hydration?
-Ans. Hydrate parts of the page based on viewport or user actions.
-
-### What is preboot and its role?
-Ans. Capture user events before hydration begins (SSR).
-
-### How do you protect large Angular apps from regressions?
-Ans. Component tests + E2E + visual regression tests.
-**Unit Tests**
-  -  Jasmine/Jest
-  -  TestBed for DI
-  -  Shallow component testing
-**E2E**
-  -  Playwright or Cypress
-**Contract Testing**
-  -  Pact or OpenAPI mock server
-
-### What is a universal DI container?
-Ans. A DI that works across server + client contexts.
-
-### How do you handle huge forms across domains?
-Ans. Dynamic forms via JSON schema + custom CVA.
-
-### How do you enforce API typing?
-Ans. OpenAPI codegen → strict typed models.
-
-### How do you design dashboards in Angular?
-Ans. Lazy load widgets + embed portal components.
-
-### How do you isolate feature team code?
-Ans. Feature libs with strict boundaries + local ownership.
-
-### How do you architect SEO in Angular?
-Ans. SSR + meta tags + pre-render + clean URLs.
-
-### How do you design real-time UI architecture?
-Ans. WebSockets + RxJS merge + signal stores.
-
-### What is the command pattern applied in Angular?
-Ans. Encapsulating actions into command classes/services.
-
-### How do you handle domain-level error mapping?
-Ans. Map HTTP errors to domain error types.
-
-### How to architect large table grids?
-Ans. Pagination + virtualization + caching layers.
-
-### How do you implement UI-level access control?
-Ans. Structural directives like *hasPermission.
-
-### How do you design analytics architecture in Angular?
-Ans. Event tracker service + dataLayer + route-based events.
-
-### How do you load configuration at runtime?
-Ans. APP_INITIALIZER + fetch config.json + provideConfig token.
-
-### What is feature toggle architecture?
-Ans. Dynamic flags that enable/disable components or routes.
-
-### Enterprise Architecture Patterns
-Ans. 
-  -  Domain-Driven Design (DDD)
-  -  Facade services
-  -  Presenter components
-  -  Clean architecture (UI → Domain → API)
-  -  Plugin architecture (CDK Portals + DI)
-  -  Micro-frontends (Module Federation or Web Components)
-  -  Multi-tenant theming
-
-### How do you ensure maintainability in Angular architecture?
-Ans. 
-Clean folder structure
-Shared UI libraries
-Typed API
-Strict mode
-Component isolation
-Consistent patterns
-Automated testing
 
 </details>
 
