@@ -13,6 +13,28 @@ router.resetConfig([...router.config, ...manifest.map(m=>({
   loadComponent: () => loadRemote(m.url, m.scope, m.module)
 }))]);
 ```
+```
+User / Browser            Angular App             Auth API            Risk Engine            MFA Service            Token Service            DB
+      |                        |                       |                    |                     |                        |                  |
+1.    |-- enter username ----->|                       |                    |                     |                        |                  |
+2.    |-- enter password ----->|                       |                    |                     |                        |                  |
+3.    |                        |-- HTTPS /login ------>|                    |                     |                        |                  |
+      |                        |   (password)          |                    |                     |                        |                  |
+4.    |                        |                       |-- lookup user ---->|                     |                        |-- fetch salt+hash|
+5.    |                        |                       |-- Argon2 verify -->|                     |                        |                  |
+6.    |                        |                       |-- risk check ----->|-- analyze context -->|                        |                  |
+7.    |                        |                       |<-- risk score -----|                     |                        |                  |
+8a.   |                        |                       |-- issue token ---->|                     |-- create session ---->|                  |
+      |                        |<-- success ----------|                    |                     |                        |                  |
+      |                        |                       |                    |                     |                        |                  |
+8b.   |                        |                       |-- MFA required ---------------------------->|-- send OTP --------->|
+      |                        |<-- challenge --------|                    |                     |                        |                  |
+9.    |-- enter OTP ---------->|-- HTTPS /mfa -------->|                    |                     |-- verify OTP -------->|
+10.   |                        |                       |<-- MFA OK ---------|                    |                        |
+11.   |                        |                       |-- issue token ----------------------------->|-- create session ---->|
+12.   |                        |<-- success ----------|                    |                     |                        |
+
+```
 
 
 ### How do you handle cross-feature navigation events in distributed MFEs?
