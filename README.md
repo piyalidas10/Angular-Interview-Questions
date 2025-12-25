@@ -13,7 +13,6 @@ router.resetConfig([...router.config, ...manifest.map(m=>({
   loadComponent: () => loadRemote(m.url, m.scope, m.module)
 }))]);
 ```
-```
 User / Browser            Angular App             Auth API            Risk Engine            MFA Service            Token Service            DB
       |                        |                       |                    |                     |                        |                  |
 1.    |-- enter username ----->|                       |                    |                     |                        |                  |
@@ -34,7 +33,6 @@ User / Browser            Angular App             Auth API            Risk Engin
 11.   |                        |                       |-- issue token ----------------------------->|-- create session ---->|
 12.   |                        |<-- success ----------|                    |                     |                        |
 
-```
 
 
 ### How do you handle cross-feature navigation events in distributed MFEs?
