@@ -2,6 +2,74 @@
 
 <details>
 
+<summary><strong>Angular RXJS</strong></summary>
+
+###  “How do you handle a 1,000+ events/sec real-time stream in Angular?”
+Ans. “I treat the stream as hot, sample it using auditTime, cache the latest value with shareReplay(1), and bridge it into Signals so UI updates are controlled and predictable.”
+
+###  “What happens if your WebSocket disconnects?”
+Ans. I keep the socket in a singleton service, retry with exponential backoff, and continue rendering the last cached value via shareReplay.
+  -  Retry with backoff
+  -  Don’t reconnect per component
+  -  Preserve last known state
+
+### How do you avoid overwhelming the UI?
+Ans. Sampling with auditTime and pushing heavy calculations into Web Workers.
+Key words Amazon listens for
+  -  Sampling
+  -  Backpressure
+  -  Rate limiting
+  -  Observability
+
+### Would you debounce real-time data?
+Ans. No — infinite streams don’t pause. Debounce can starve the UI.
+
+### Difference between throttleTime and auditTime?
+Ans. Throttle emits the first value in a window; audit emits the latest. Audit is safer for real-time dashboards.
+
+### Why not use Signals alone for real-time data?
+Ans. Signals are synchronous state containers. RxJS handles async time-based streams.
+
+### How do you test real-time streams?
+Ans. They want:
+  -  Marble testing
+  -  Deterministic time
+```
+expectObservable(stream$).toBe('300ms a 300ms b', {
+  a: tick1,
+  b: tick2
+});
+```
+### How does Angular avoid re-rendering everything?
+  -  OnPush
+  -  Signals
+  -  Fine-grained reactivity
+
+### How do you guarantee latest price accuracy?
+Ans. We always emit the latest tick using auditTime, never throttle, and cache the most recent value centrally.
+
+### What if two components read different prices?
+Ans. All components consume the same signal backed by a shared replayed stream.
+
+### Design a real-time trading dashboard
+Ans. What ALL companies expect:
+```
+WebSocket (HOT)
+   ↓
+Stream control (auditTime)
+   ↓
+State cache (shareReplay)
+   ↓
+Signals
+   ↓
+OnPush UI
+```
+
+
+</details>
+
+<details>
+
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
 ### How do you architect runtime route injection using custom route loaders?
