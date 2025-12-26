@@ -706,7 +706,7 @@ export class BreadcrumbsComponent {
 
 </details>
 
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular System Design (Realtime Scenario based)</strong></summary>
@@ -845,7 +845,7 @@ Ans. Uncleared timers, event listeners, detached DOM nodes, and global reference
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Promise and Observable</strong></summary>
@@ -948,7 +948,7 @@ Ans. No. For one-time async operations without cancellation or composition needs
 Ans. Observables allow fan-out (multiple subscribers), fan-in (merging streams), lazy execution, and cancellation—making them ideal for scalable, reactive systems.
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular HTTP Caching for Server-Side Rendering (SSR)</strong></summary>
@@ -1614,7 +1614,7 @@ Ans. Yes — but client-side only.
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Micro frontend</strong></summary>
@@ -1640,7 +1640,7 @@ Ans. Use a shared Observable (Subject/BehaviorSubject) exposed via a shared libr
 Ans. BehaviorSubject is preferred because new micro-frontends receive the latest value immediately.
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Core Architecture Deep Dive</strong></summary>
@@ -1701,12 +1701,11 @@ Zone-less: Change Detection = Signals only (fine-grained)
 
 ```
 
-
 ### 
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Dependency Injection</strong></summary>
@@ -1735,7 +1734,7 @@ You can use it:
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Hydration & SSR</strong></summary>
@@ -2104,7 +2103,7 @@ All of those steps don’t need Zone.js, so hydration works the same with or wit
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Why Angular 17–19 Moved to ESBuild + Vite</strong></summary>
@@ -2158,7 +2157,7 @@ Some frameworks do this:
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>How performace is increased from Angular 2 to Latest</strong></summary>
@@ -2252,7 +2251,7 @@ We’ll break this into five key dimensions of performance:
 | **Startup memory**     | High                             | Low                               | 💾 ~50% less memory      |
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Build Architecture Evolution</strong></summary>
@@ -2272,7 +2271,7 @@ We’ll break this into five key dimensions of performance:
 | **19.x (Nov 2024 – 2025)**  | **Vite + esbuild (mature)**                                   | **Ivy (final) / Preparations for Angular “Next” compiler** | - Unified build + SSR + prerender architecture.<br>- New `"outputMode": "server"` & `"renderMode"` APIs.<br>- `"@angular/ssr"` fully integrated.<br>- `@angular/build` is now official and stable.<br>- Angular CLI config simplified for hybrid rendering. |
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Evolution of Angular Manual Configuration (2 → 19)</strong></summary>
@@ -2293,7 +2292,7 @@ We’ll break this into five key dimensions of performance:
 | **Angular 19 (2025)**           | • `angular.json`  (minimal, unified) <br>• `tsconfig.json` (simplified)                                                                        | - **Full Vite + esbuild architecture.** <br>- Manual config minimal: only `"main"`, `"index"`, `"tsConfig"`, `"renderMode"`. <br>- Automatic polyfill injection, environment loading. <br>- SSR and CSR merged; no need for separate server builds.                          |
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Versions Upgradation</strong></summary>
@@ -2422,7 +2421,7 @@ Note : Angular 19 fully embraces esbuild + Vite by default through the new build
 ```
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Security improves with Angular 16 to 19 versions</strong></summary>
@@ -2459,7 +2458,7 @@ iFlair Web Technologies
 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Location service</strong></summary>
@@ -2590,8 +2589,7 @@ Ans. this.router.navigate(['/settings']);
 ➡ Use Router — because this is a true navigation event that should trigger route lifecycle hooks.
 
 </details>
-
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Signals</strong></summary>
@@ -2806,8 +2804,7 @@ Complex Orchestration: When you need powerful operators to filter, map, debounce
 In short: Think of Signals for state (the "what") and RxJS for events (the "when"). They work very well together; you can easily convert between them using functions like toSignal (from RxJS) and toObservable (from Angular).
 
 </details>
-
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Zone.js & Zoneless Concepts</strong></summary>
@@ -2998,7 +2995,7 @@ Answer: ✅ Yes, absolutely. Angular allows hybrid use — signals handle local 
 👉 Hydration knows it cannot rely on Zones to trigger the first detection cycle. 
 
 </details>
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Image Optimization</strong></summary>
