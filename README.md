@@ -72,6 +72,15 @@ OnPush UI
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
+### Standalone apps don’t support lazy loading. True or False.
+Ans. False. Lazy loading works better with standalone using route-level imports. 
+```
+loadComponent: () =>  import('./admin.component').then(m => m.AdminComponent)
+```
+
+### NgModules are deprecated. True or False.
+Ans. False. NgModules are still supported but no longer required. Angular 19 still fully supports NgModules.
+
 ### How do you architect runtime route injection using custom route loaders?
 Ans. Fetch a route manifest (JSON) at startup, then dynamically router.addRoutes() with loadComponent factories that call your remote loader (MFE loader).
 ```
@@ -1694,9 +1703,163 @@ Ans. Micro frontends are a way of designing  frontend web applications by breaki
 ### Why needs Micro frontend ?
 As our applications grow in size and complexity, maintaining a monolithic frontend  becomes increasingly difficult. Micro frontends offer a powerful solution to break down the complexity and scale  your frontend architecture. So, because of Scalability, Maintainability,  Faster Development, Technology Diversity, and Code Reusability, using  micro frontends makes sense.
 
+### Why in Angular?
+  -  Large teams with independent release cycles
+  -  Domain-driven ownership (Checkout, Orders, Portfolio)
+  -  Reduce blast radius of changes
+  -  Scale Angular apps beyond monorepos
+
+### When NOT to use Micro frontend ?
+  -  Small teams
+  -  Simple CRUD apps
+  -  Tight UX coupling
+
 ### What is Module Federation ?
 Ans. Module Federation is a feature in Webpack 5  that lets different frontend apps or modules, built and deployed separately, share  and load code dynamically while running. It’s an important tool for creating Micro Frontends. Each remote app shares specific parts, like components or services, that the host app can use whenever needed without bundling everything upfront. Module Federation helps create  scalable micro frontend setups with faster releases and easier maintenance. Starting with Angular 13 and newer versions, using  Native Module Federation, mainly with libraries like @angular-architects/native-federation, brings many advantages over older Module Federation setups that depended  more on Webpack-specific settings.
 https://www.youtube.com/watch?v=ZlJ__9bYHxs
+
+### Explain Module Federation in Angular
+Ans. Module Federation allows runtime loading of remote Angular modules from other builds.
+**Key Concepts**
+  -  Host → shell app
+  -  Remote → independently deployed app
+  -  Shared dependencies → singleton Angular core
+```
+loadRemoteModule({
+  remoteEntry: 'https://orders.app/remoteEntry.js',
+  exposedModule: './Routes'
+});
+```
+
+### How do you share dependencies safely across MFEs?
+Ans. Use singleton + strictVersion for Angular core libraries.
+```
+shared: {
+  '@angular/core': { singleton: true, strictVersion: true },
+  '@angular/router': { singleton: true }
+}
+```
+**Avoid sharing:**
+  -  Feature services
+  -  App-level state
+  -  Side-effectful libraries
+
+### How do MFEs communicate with each other?
+| Approach                        | Use Case       |
+| ------------------------------- | -------------- |
+| **CustomEvent / Window events** | Cross-app      |
+| **Signal-based event bus**      | Angular-native |
+| **Shared RxJS Subject**         | Legacy         |
+| **URL as state**                | Navigation     |
+```
+window.dispatchEvent(new CustomEvent('order:selected', { detail: order }));
+```
+
+### How do you handle routing across Micro-Frontends?
+Ans. Use route delegation, not route merging.
+**Host owns:**
+  -  Top-level routes
+  -  Layout
+  -  Guards
+**Remote owns:**
+  -  Feature routes
+```
+{
+  path: 'orders',
+  loadChildren: () =>
+    loadRemoteModule({
+      remoteName: 'orders',
+      exposedModule: './Routes'
+    }).then(m => m.routes)
+}
+```
+### How do you handle authentication in MFEs?
+Ans. 
+  -  Shell owns auth
+  -  Token shared via:
+      -  HTTP-only cookies
+      -  In-memory auth facade
+```
+Auth → Shell → Token → HTTP Interceptor
+```
+### How do you share global state between MFEs?
+Ans.
+  -  Avoid global state if possible
+  -  Prefer event-driven architecture
+**If required:**
+| Option             | Notes       |
+| ------------------ | ----------- |
+| URL                | Best        |
+| Shell Signal Store | Controlled  |
+| Browser storage    | Carefully   |
+| NgRx global store  | Last resort |
+
+### How do Angular Signals improve MFEs?
+Ans. Signals provide pull-based, local reactivity, ideal for MFEs.
+**Benefits**
+  -  No global store dependency
+  -  Less change detection
+  -  Explicit data flow
+```
+const selectedOrder = signal<Order | null>(null);
+```
+
+### How do you prevent version conflicts between MFEs?
+Ans. One Angular version per runtime.
+  -  Strict singleton sharing
+  -  Version policy governance
+  -  Independent build pipelines
+  -  CI checks on package.json
+
+### How do you handle SSR and Hydration with MFEs?
+Ans. 
+**Challenges**
+  -  Remote not available at build time
+  -  Hydration mismatch
+**Solutions**
+  -  Shell handles SSR
+  -  MFEs loaded client-side only
+  -  Progressive hydration
+```
+if (isPlatformBrowser) {
+  loadRemoteModule(...)
+}
+```
+
+### How do you deploy Micro-Frontends?
+**Typical Setup**
+```
+Shell → CDN
+Orders → CDN
+Payments → CDN
+```
+  -  Independent pipelines
+  -  Remote URLs via env config
+  -  Canary releases per MFE
+### How do you test Micro-Frontends?
+| Level       | Strategy          |
+| ----------- | ----------------- |
+| Unit        | Isolated          |
+| Integration | Contract tests    |
+| E2E         | Shell-level       |
+| Visual      | Storybook per MFE |
+
+### What are common Micro-Frontend anti-patterns?
+❌ Sharing business logic
+❌ Deep linking between MFEs
+❌ Global NgRx store
+❌ MFEs controlling layout
+❌ Too many MFEs
+
+### Real-world production example?
+Ans. **Trading platform / E-commerce / Banking**
+| MFE       | Ownership     |
+| --------- | ------------- |
+| Shell     | Platform team |
+| Portfolio | Wealth team   |
+| Orders    | Trading team  |
+| KYC       | Compliance    |
+Each deploys independently, coordinated via shell.
 
 ### Why are Promises bad for micro-frontend communication?
 Ans. Promises deliver a value only once and cannot handle late subscribers or ongoing updates.
@@ -1706,6 +1869,17 @@ Ans. Use a shared Observable (Subject/BehaviorSubject) exposed via a shared libr
 
 ### BehaviorSubject vs Subject in MFEs?
 Ans. BehaviorSubject is preferred because new micro-frontends receive the latest value immediately.
+
+### How do multiple MFEs share state?
+  -  Shared shell exposes signal store
+  -  MFEs inject it
+```
+@Injectable({ providedIn: 'platform' })
+export class SharedStore {
+  theme = signal('light');
+}
+```
+
 
 </details>
 -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2671,6 +2845,27 @@ const counter = signal(0);
 console.log(counter()); // 0
 counter.set(1);
 console.log(counter()); // 1
+```
+
+### Effects run only once. True or False.
+Ans. False. Effects re-run whenever dependent signals change.
+
+### Zoneless means no change detection. True or False.
+Ans. False. Change detection still exists, but is explicit and signal-driven.
+
+### Effects are destroyed automatically. True or False.
+Ans. Effects must be tied to an injection context or manually cleaned.
+```
+effect(() => {}, { injector: this.injector });
+```
+
+### Where do side effects go in a signal system?
+```
+effect(() => {
+  if (this.isLoggedIn()) {
+    analytics.track('login');
+  }
+});
 ```
 
 #### 2. How do you create and update a Signal?
