@@ -706,7 +706,7 @@ export class BreadcrumbsComponent {
 
 </details>
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular System Design (Realtime Scenario based)</strong></summary>
@@ -845,7 +845,7 @@ Ans. Uncleared timers, event listeners, detached DOM nodes, and global reference
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Promise and Observable</strong></summary>
@@ -948,7 +948,7 @@ Ans. No. For one-time async operations without cancellation or composition needs
 Ans. Observables allow fan-out (multiple subscribers), fan-in (merging streams), lazy execution, and cancellation—making them ideal for scalable, reactive systems.
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular HTTP Caching for Server-Side Rendering (SSR)</strong></summary>
@@ -1614,7 +1614,7 @@ Ans. Yes — but client-side only.
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Micro frontend</strong></summary>
@@ -1640,7 +1640,7 @@ Ans. Use a shared Observable (Subject/BehaviorSubject) exposed via a shared libr
 Ans. BehaviorSubject is preferred because new micro-frontends receive the latest value immediately.
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Core Architecture Deep Dive</strong></summary>
@@ -1705,7 +1705,7 @@ Zone-less: Change Detection = Signals only (fine-grained)
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Dependency Injection</strong></summary>
@@ -1734,7 +1734,7 @@ You can use it:
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Hydration & SSR</strong></summary>
@@ -2103,7 +2103,7 @@ All of those steps don’t need Zone.js, so hydration works the same with or wit
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Why Angular 17–19 Moved to ESBuild + Vite</strong></summary>
@@ -2157,7 +2157,7 @@ Some frameworks do this:
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>How performace is increased from Angular 2 to Latest</strong></summary>
@@ -2174,7 +2174,7 @@ We’ll break this into five key dimensions of performance:
 
 ### 🧩 1. Rendering Engine Evolution
 | Version           | Engine                               | Key Performance Improvements                                                                                                                                                                                                                                    |
-| ----------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Angular 2–7**   | **View Engine**                      | - Heavy factory generation per component.<br>- Larger bundle sizes (no tree-shaking).<br>- Change detection runs globally (Zone.js).<br>- DOM diffing inefficient for nested trees.                                                                             |
 | **Angular 9–14**  | **Ivy Renderer**                     | - Introduced **incremental DOM** — updates only the affected nodes.<br>- Eliminated factories → smaller bundles.<br>- Better tree-shaking & dead code removal.<br>- Lazy loading more efficient.<br>- Faster template instantiation.                            |
 | **Angular 15–16** | **Ivy + Standalone Components**      | - Removes NgModule overhead → less runtime memory.<br>- Bootstraps directly using `bootstrapApplication()`.<br>- Reduced dependency graph complexity.                                                                                                           |
@@ -2186,7 +2186,7 @@ We’ll break this into five key dimensions of performance:
 
 ### ⚙️ 2. Compilation & Build Performance
 | Version   | Compiler                            | Build System            | Impact                                                                                                                                                                                       |
-| --------- | ----------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------- | ----------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **2–4**   | Template compiler (View Engine JIT) | Manual / SystemJS       | - JIT builds were very slow.<br>- No caching, huge rebuild times.                                                                                                                            |
 | **5–8**   | ngc (AOT) + Webpack                 | Angular CLI             | - AOT introduced (precompiled templates).<br>- Faster runtime, smaller bundles.<br>- But still slow incremental builds (Webpack).                                                            |
 | **9–14**  | Ivy Compiler                        | Angular CLI + Webpack 5 | - Compiles templates at instruction level.<br>- 30–40% smaller bundles.<br>- Improved incremental rebuilds.<br>- Better caching.                                                             |
@@ -2200,7 +2200,7 @@ We’ll break this into five key dimensions of performance:
 
 ### 🧠 3. Change Detection & Memory Efficiency
 | Version   | Strategy                         | Details                                                                                                                                                                                              |
-| --------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **2–8**   | **Zone.js + full tree re-check** | - Each async event re-checks *entire component tree*.<br>- Memory heavy.<br>- Difficult to fine-tune.                                                                                                |
 | **9–15**  | **Ivy fine-grained diffing**     | - Change detection is instruction-level.<br>- Reduced memory footprint per component.<br>- MarkForCheck / OnPush strategies improved.                                                                |
 | **16–19** | **Signals (Reactive Core)**      | - **Zone-less reactivity.**<br>- Components react only to signal changes.<br>- Eliminates full-tree checks.<br>- Enables SSR hydration reactivity.<br>- Up to **95% fewer change detection cycles.** |
@@ -2251,14 +2251,14 @@ We’ll break this into five key dimensions of performance:
 | **Startup memory**     | High                             | Low                               | 💾 ~50% less memory      |
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Build Architecture Evolution</strong></summary>
 
 ### 🧱 Angular Build Architecture Evolution
 | Angular Version             | Build Tool / Architecture                                     | Compiler                                                   | Key Features / Notes                                                                                                                                                                                                                                        |
-| --------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **2.x – 4.x (2016–2017)**   | **SystemJS / Webpack (manual setup)**                         | **View Engine (JIT / AOT)**                                | - Used `@angular/compiler` for JIT.<br>- Optional AOT (Ahead-of-Time) compiler.<br>- Manual Webpack or SystemJS setups.<br>- No CLI bundler yet.                                                                                                            |
 | **5.x – 7.x (2017–2018)**   | **Angular CLI + Webpack (via @angular-devkit/build-angular)** | **View Engine (AOT default)**                              | - Angular CLI standardizes builds.<br>- Introduced `angular.json` for build configuration.<br>- Builds used Webpack internally.<br>- Differential loading (modern + legacy JS).                                                                             |
 | **8.x (2019)**              | **Angular CLI + Webpack (View Engine + Ivy preview)**         | **Ivy (opt-in)**                                           | - Ivy compiler introduced as preview.<br>- Still uses Webpack-based CLI builder.<br>- Faster incremental builds (still early).                                                                                                                              |
@@ -2271,14 +2271,14 @@ We’ll break this into five key dimensions of performance:
 | **19.x (Nov 2024 – 2025)**  | **Vite + esbuild (mature)**                                   | **Ivy (final) / Preparations for Angular “Next” compiler** | - Unified build + SSR + prerender architecture.<br>- New `"outputMode": "server"` & `"renderMode"` APIs.<br>- `"@angular/ssr"` fully integrated.<br>- `@angular/build` is now official and stable.<br>- Angular CLI config simplified for hybrid rendering. |
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Evolution of Angular Manual Configuration (2 → 19)</strong></summary>
 
 ### 🧭 Evolution of Angular Manual Configuration (2 → 19)
 | Era                             | Main Config Files                                                                                                                              | Key Changes / Purpose                                                                                                                                                                                                                                                        |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Angular 2 (2016)**            | • `systemjs.config.js`  <br>• `tsconfig.json`  <br>• `main.ts` bootstrap                                                                       | - No CLI yet; setup done manually. <br>- Developers configured SystemJS loader manually. <br>- `tsconfig.json` had custom `module: system` or `commonjs`. <br>- No `angular.json`, no build system abstraction.                                                              |
 | **Angular 4 (2017)**            | • `angular-cli.json` (early CLI)  <br>• `tsconfig.json`  <br>• `environments/*.ts`                                                             | - Angular CLI introduced! <br>- CLI generated `angular-cli.json` for build & environment configs. <br>- Developers no longer had to manage Webpack/SystemJS manually.                                                                                                        |
 | **Angular 5 – 7 (2017–2018)**   | • `angular.json` *(replaced angular-cli.json)*  <br>• `tsconfig.app.json`, `tsconfig.spec.json`  <br>• `polyfills.ts`  <br>• `.browserslistrc` | - **`angular.json` schema introduced** for all project settings (build, serve, test, lint). <br>- Split `tsconfig.*` files for app/test. <br>- Introduced **AOT** and build configurations (`production`, `development`). <br>- Polyfills separated into `src/polyfills.ts`. |
@@ -2292,7 +2292,7 @@ We’ll break this into five key dimensions of performance:
 | **Angular 19 (2025)**           | • `angular.json`  (minimal, unified) <br>• `tsconfig.json` (simplified)                                                                        | - **Full Vite + esbuild architecture.** <br>- Manual config minimal: only `"main"`, `"index"`, `"tsConfig"`, `"renderMode"`. <br>- Automatic polyfill injection, environment loading. <br>- SSR and CSR merged; no need for separate server builds.                          |
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Versions Upgradation</strong></summary>
@@ -2421,7 +2421,7 @@ Note : Angular 19 fully embraces esbuild + Vite by default through the new build
 ```
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Security improves with Angular 16 to 19 versions</strong></summary>
@@ -2458,7 +2458,7 @@ iFlair Web Technologies
 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Location service</strong></summary>
@@ -2589,7 +2589,7 @@ Ans. this.router.navigate(['/settings']);
 ➡ Use Router — because this is a true navigation event that should trigger route lifecycle hooks.
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Signals</strong></summary>
@@ -2804,7 +2804,7 @@ Complex Orchestration: When you need powerful operators to filter, map, debounce
 In short: Think of Signals for state (the "what") and RxJS for events (the "when"). They work very well together; you can easily convert between them using functions like toSignal (from RxJS) and toObservable (from Angular).
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Zone.js & Zoneless Concepts</strong></summary>
@@ -2995,7 +2995,7 @@ Answer: ✅ Yes, absolutely. Angular allows hybrid use — signals handle local 
 👉 Hydration knows it cannot rely on Zones to trigger the first detection cycle. 
 
 </details>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Image Optimization</strong></summary>
