@@ -1880,6 +1880,11 @@ export class SharedStore {
 }
 ```
 
+### What challenges do you face with Micro-Frontends?
+Ans. The biggest challenges are dependency drift, performance overhead, cross-MFE communication, and governance.
+MFEs work only when team autonomy is worth the added system complexity.
+https://medium.com/@piyalidas.it/angular-micro-frontend-challenges-recoveries-acd43388ee6c
+
 
 </details>
 -------------------------------------------------------------------------------------------------------------------------------------------------------
