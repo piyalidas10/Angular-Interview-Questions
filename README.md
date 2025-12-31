@@ -2851,6 +2851,7 @@ console.log(counter()); // 0
 counter.set(1);
 console.log(counter()); // 1
 ```
+![signal_revolution](https://github.com/piyalidas10/Angular-Interview-Questions/blob/2db3b2a743962a91f9fe47b85363924610529eda/imgs/signal_revolution.jpg)
 
 ### Effects run only once. True or False.
 Ans. False. Effects re-run whenever dependent signals change.
