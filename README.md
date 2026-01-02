@@ -70,6 +70,244 @@ OnPush UI
 
 <details>
 
+<summary><strong>Angular Realtime Transport (GraphQL / WebSocket / Streaming)</strong></summary>
+
+### How Real-Time Works in Angular
+```
+Backend emits events
+        ↓
+Realtime Transport (GraphQL / WebSocket / Streaming)
+        ↓
+Angular Service (Observable / Signal)
+        ↓
+Change Detection / Signals
+        ↓
+UI updates instantly
+```
+
+### Angular + AWS AppSync (GraphQL Subscriptions)
+**✅ Best for**
+  -  Enterprise / Banking / Regulated systems
+  -  Event-driven microservices
+  -  Strong schema & auth (IAM, Cognito)
+
+**🔁 Transport**
+  -  WebSocket
+  -  GraphQL subscriptions
+
+**Architecture**
+```
+Angular MFE
+   ↓
+Apollo Client
+   ↓
+AWS AppSync
+   ↓
+DynamoDB / Lambda
+```
+
+**Setup in Angular**
+-------------------------------------
+**Install**
+```
+npm install aws-amplify @apollo/client graphql
+```
+
+**Configure AppSync**
+```
+import { ApolloClient, InMemoryCache } from '@apollo/client/core';
+import { createAuthLink } from 'aws-appsync-auth-link';
+import { createSubscriptionHandshakeLink } from 'aws-appsync-subscription-link';
+
+const client = new ApolloClient({
+  link: createAuthLink({
+    url: 'APPSYNC_URL',
+    region: 'REGION',
+    auth: { type: 'API_KEY', apiKey: 'KEY' }
+  }).concat(
+    createSubscriptionHandshakeLink(
+      { url: 'APPSYNC_URL', region: 'REGION' }
+    )
+  ),
+  cache: new InMemoryCache()
+});
+GraphQL Subscription
+subscription OnOrderUpdate {
+  onOrderUpdate {
+    id
+    status
+    price
+  }
+}
+```
+
+**Angular Service**
+```
+@Injectable({ providedIn: 'root' })
+export class OrdersRealtimeService {
+  orders$ = new Subject<any>();
+  constructor(private apollo: Apollo) {
+      this.apollo.subscribe({
+        query: gql`subscription OnOrderUpdate {
+          onOrderUpdate { id status price }
+        }`
+      }).subscribe(({ data }) => {
+        this.orders$.next(data.onOrderUpdate);
+      });
+    }
+}
+```
+
+**Angular Component**
+```
+@Component({
+  standalone: true,
+  template: `
+    <h3>Live Orders</h3>
+    <div *ngFor="let o of orders">
+      #{{ o.id }} - {{ o.status }}
+    </div>
+  `
+})
+export class OrdersComponent {
+  orders: any[] = [];
+
+ constructor(service: OrdersRealtimeService) {
+    service.orders$.subscribe(o => this.orders.unshift(o));
+  }
+}
+```
+
+### Angular + Firebase (Firestore / RTDB)
+**✅ Best for**
+  -  Rapid development
+  -  Dashboards
+  -  MVPs / Admin panels
+
+**🔁 Transport**
+  -  WebSocket (managed)
+  -  Realtime sync
+
+**Architecture**
+```
+Angular App
+   ↓
+AngularFire
+   ↓
+Firebase Firestore
+```
+
+**Install**
+```
+npm install firebase @angular/fire
+```
+
+**Firebase Init**
+```
+provideFirebaseApp(() => initializeApp(environment.firebase)),
+provideFirestore(() => getFirestore())
+```
+
+**Real-Time Service**
+```
+@Injectable({ providedIn: 'root' })
+export class OrdersService {
+  orders$ = collectionData(
+    collection(this.firestore, 'orders'),
+    { idField: 'id' }
+  );
+  constructor(private firestore: Firestore) {}
+}
+```
+
+**Component**
+```
+@Component({
+  standalone: true,
+  template: `
+    <h3>Live Orders</h3>
+    <div *ngFor="let o of orders$ | async">
+      {{ o.id }} - {{ o.status }}
+    </div>
+  `
+})
+export class OrdersComponent {
+  orders$ = this.service.orders$;
+  constructor(private service: OrdersService) {}
+```
+
+### Angular + Lightstreamer (FINTECH / Trading Grade)
+**✅ Best for**
+  -  Stock trading
+  -  Market data
+  -  Banking dashboards
+  -  Massive real-time scale (millions of updates/sec)
+
+**🔁 Transport**
+  -  Streaming over WebSocket / HTTP
+
+**Architecture**
+```
+Market Feed
+   ↓
+Lightstreamer Server
+   ↓
+Angular Client
+```
+
+**Install Client**
+```
+npm install lightstreamer-client-web
+```
+
+**Angular Service**
+```
+import { LightstreamerClient, Subscription } from 'lightstreamer-client-web';
+@Injectable({ providedIn: 'root' })
+export class MarketStreamService {
+  ticks$ = new Subject<any>();
+  client = new LightstreamerClient(
+    'http://localhost:8080',
+    'MARKET_ADAPTER'
+  );
+  constructor() {
+    this.client.connect();
+    const sub = new Subscription(
+      'MERGE',
+      ['EURUSD'],
+      ['price', 'time']
+    );
+    sub.addListener({
+      onItemUpdate: update => {
+        this.ticks$.next(update.getValue('price'));
+      }
+    });
+    this.client.subscribe(sub);
+  }
+}
+```
+
+**Component**
+```
+@Component({
+  standalone: true,
+  template: `
+    <h3>Live Market Price</h3>
+    <div *ngFor="let t of ticks">{{ t }}</div>
+  `
+})
+export class MarketComponent {
+  ticks: number[] = [];
+  constructor(service: MarketStreamService) {
+      service.ticks$.subscribe(t => this.ticks.unshift(t));
+    }
+}
+```
+
+</details>
+
+<details>
+
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
 ### Standalone apps don’t support lazy loading. True or False.
