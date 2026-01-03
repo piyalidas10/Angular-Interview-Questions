@@ -70,6 +70,51 @@ OnPush UI
 
 <details>
 
+<summary><strong>Angular Security</strong></summary>
+
+### What is CSRF or XSRF?
+Ans. In a cross-site request forgery (CSRF or XSRF), an attacker tricks the user into visiting a different web page (such as evil.com) with malignant code. This web page secretly sends a malicious request to the application's web server (such as example-bank.com). 
+**How CSRF or XSRF attacks work (quick flow)**
+  -  User logs into example-bank.com → session cookie stored in browser
+  -  User opens an email and clicks a link to evil.com, which opens in a new tab.
+  -  The evil.com page immediately sends a malicious request to example-bank.com. Perhaps it's a request to transfer money from the user's account to the attacker's account.
+  -  The browser automatically sends the example-bank.com cookies, including the authentication cookie, with this request.
+  -  If the example-bank.com server lacks XSRF protection, it can't tell the difference between a legitimate request from the application and the forged request from evil.com.
+  -  Server thinks request is legitimate ❌
+Toprevent CSRF attacks, an application must verify that a request truly originates from its own client and not from a malicious third-party site. This requires cooperation between the client and the server. 
+**A common anti-CSRF technique works as follows:**
+  -  The server generates a random CSRF token and sends it to the browser in a cookie.
+  -  The client application reads this cookie and includes the token in a custom HTTP request header for all state-changing requests.
+  -  When the server receives a request, it compares the token in the cookie with the token in the request header.
+  -  If the token is missing or the values do not match, the server rejects the request.
+This approach is effective because of the browser’s Same-Origin Policy (SOP). Only scripts running on the same origin that set the cookie can read it and attach custom headers to requests. Malicious code running on another site (such as evil.com) cannot read your site’s cookies or set custom headers for requests to your domain. As a result, only legitimate requests from your application are accepted.
+
+> [!NOTE] CSRF is prevented by ensuring that state-changing requests are cryptographically bound to the real application and user session. Frameworks like Angular use a double-submit cookie pattern, while large platforms such as Amazon, Google, Stripe, and GitHub rely on SameSite cookies, fetch metadata validation, and signed, session-bound request payloads. The goal is not to expose a CSRF token, but to prove request origin and intent.
+
+### Amazon POST requests don’t have CSRF tokens — is that insecure?
+Ans. No. Amazon embeds CSRF protection in signed, session-bound request payloads and enforces SameSite cookies and Fetch Metadata validation.
+
+### Why does Angular send CSRF tokens in headers but Amazon doesn’t?
+Ans. Angular is a client framework and must support generic backends, whereas Amazon controls both client and server and can use cryptographic request signing instead.
+
+### Is SameSite=Lax enough to prevent CSRF?
+Ans. It prevents most CSRF attacks but is not sufficient alone for high-risk operations; additional server-side validation is required.
+
+### Can CSRF happen with JWT?
+Ans. CSRF is possible only if JWT is stored in cookies. JWT in Authorization headers is not vulnerable to CSRF.
+
+### Why doesn’t CSRF protection apply to GET requests?
+Ans. CSRF protection is only needed for requests that change server state. GET requests must be safe and idempotent; browsers block cross-origin reads, so CSRF on GET cannot cause data corruption.
+**GET requests:**
+  -  Should be safe and idempotent
+  -  Do not modify data
+  -  Even if triggered by an attacker, no damage should occur
+
+
+</details>
+
+<details>
+
 <summary><strong>Angular Realtime Transport (GraphQL / WebSocket / Streaming)</strong></summary>
 
 ### How Real-Time Works in Angular
