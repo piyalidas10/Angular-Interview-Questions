@@ -65,7 +65,6 @@ Signals
 OnPush UI
 ```
 
-
 </details>
 
 <details>
@@ -89,7 +88,68 @@ Toprevent CSRF attacks, an application must verify that a request truly originat
   -  If the token is missing or the values do not match, the server rejects the request.
 This approach is effective because of the browser’s Same-Origin Policy (SOP). Only scripts running on the same origin that set the cookie can read it and attach custom headers to requests. Malicious code running on another site (such as evil.com) cannot read your site’s cookies or set custom headers for requests to your domain. As a result, only legitimate requests from your application are accepted.
 
-> [!NOTE] CSRF is prevented by ensuring that state-changing requests are cryptographically bound to the real application and user session. Frameworks like Angular use a double-submit cookie pattern, while large platforms such as Amazon, Google, Stripe, and GitHub rely on SameSite cookies, fetch metadata validation, and signed, session-bound request payloads. The goal is not to expose a CSRF token, but to prove request origin and intent.
+> CSRF is prevented by ensuring that state-changing requests are cryptographically bound to the real application and user session. Frameworks like Angular use a double-submit cookie pattern, while large platforms such as Amazon, Google, Stripe, and GitHub rely on SameSite cookies, fetch metadata validation, and signed, session-bound request payloads. The goal is not to expose a CSRF token, but to prove request origin and intent.
+> CSRF occurs because browsers automatically attach authentication cookies to cross-site requests. The standard defense is to require an unguessable token that only same-origin JavaScript can send.
+
+### How Angular use CSRF Protection?
+
+> In Angular, this is implemented via an HTTP interceptor that reads an XSRF token from a cookie and sends it in a custom header for mutating requests.
+
+### How Google, Amazon handles CSRF Protection?
+Ans. At enterprise scale, companies rarely rely on headers alone. They enforce SameSite cookies, validate Fetch Metadata headers, and cryptographically sign requests using session-bound secrets, timestamps, and nonces. This approach not only prevents CSRF but also protects against replay and request tampering. 
+
+**🟦 Google (Gmail, Drive, Admin)**
+Techniques used:
+  -  SameSite=Lax / Strict cookies
+  -  Hidden CSRF tokens in forms
+  -  Session-bound tokens
+  -  Fetch Metadata validation
+**What you’ll see**
+  -  Tokens embedded in:
+      -  Hidden form inputs
+      -  JSON payloads
+  -  Rarely exposed as headers
+  -  Token often named generically (at, xsrf, token)
+**Why**
+Google supports:
+  -  Server-rendered pages
+  -  SPAs
+  -  Legacy browsers
+  -  Native apps
+So CSRF tokens must work everywhere.
+
+**🟪 Stripe (Dashboards & APIs)**
+Browser Dashboard
+  -  CSRF tokens embedded in POST bodies
+  -  Strict SameSite cookies
+  -  Origin & Referer validation
+**APIs**
+  -  NO CSRF risk
+  -  Uses:   Authorization: Bearer sk_live_...
+  -  Custom headers → not forgeable cross-site
+Key insight
+> Stripe separates browser security (CSRF) from API security (auth headers).
+
+**🟩 GitHub**
+Techniques used
+  -  Hidden CSRF tokens in all mutating forms
+  -  Meta tag tokens for JS: <meta name="csrf-token" content="...">
+  -  SameSite cookies
+  -  Origin / Referer checks
+What’s interesting
+GitHub rotates tokens frequently and ties them tightly to:
+  -  Session
+  -  User
+  -  Request intent
+
+### Compare CSRF Token Location
+| Platform    | CSRF Token Location  | Headers?  | Signing   | SameSite | Fetch Metadata |
+| ----------- | -------------------- | --------- | --------- | -------- | -------------- |
+| Angular     | Cookie + Header      | ✅        | ❌       | Optional | ❌              |
+| Amazon      | Signed payload       | ❌        | ✅       | ✅        | ✅              |
+| Google      | Hidden inputs / JSON | ❌        | Partial  | ✅        | ✅              |
+| Stripe (UI) | Request body         | ❌        | Partial  | ✅        | ✅              |
+| GitHub      | Hidden inputs / meta | ❌        | ❌       | ✅        | ✅              |
 
 ### Amazon POST requests don’t have CSRF tokens — is that insecure?
 Ans. No. Amazon embeds CSRF protection in signed, session-bound request payloads and enforces SameSite cookies and Fetch Metadata validation.
