@@ -88,11 +88,132 @@ Toprevent CSRF attacks, an application must verify that a request truly originat
   -  If the token is missing or the values do not match, the server rejects the request.
 This approach is effective because of the browser’s Same-Origin Policy (SOP). Only scripts running on the same origin that set the cookie can read it and attach custom headers to requests. Malicious code running on another site (such as evil.com) cannot read your site’s cookies or set custom headers for requests to your domain. As a result, only legitimate requests from your application are accepted.
 
+> CSRF protection ensures that state-changing requests originate from the authenticated client by validating an unguessable token or enforcing same-site cookie policies.
+
 > CSRF is prevented by ensuring that state-changing requests are cryptographically bound to the real application and user session. Frameworks like Angular use a double-submit cookie pattern, while large platforms such as Amazon, Google, Stripe, and GitHub rely on SameSite cookies, fetch metadata validation, and signed, session-bound request payloads. The goal is not to expose a CSRF token, but to prove request origin and intent.
 
 > CSRF occurs because browsers automatically attach authentication cookies to cross-site requests. The standard defense is to require an unguessable token that only same-origin JavaScript can send.
 
 > CSRF attacks work by exploiting the browser’s automatic cookie sending; without XSRF protection, the server cannot distinguish a forged cross-site request from a legitimate one.
+
+### Best-Practice Checklist ✅
+
+✔ Use SameSite=Lax or Strict
+✔ Use CSRF tokens for state-changing requests
+✔ Use Angular’s built-in XSRF support
+✔ Protect POST/PUT/PATCH/DELETE only
+✔ Never disable CSRF blindly
+
+### What Happens During a CSRF Attack Attempt (Angular App)
+🎯 Setup (Before the Attack)  
+----------------------------------------------------------
+  -  User is logged in to:
+```
+https://app.example.com
+```
+  -  Backend uses cookie-based authentication
+  -  Angular HttpClient XSRF protection is enabled (default)
+Backend previously sent:
+```
+Set-Cookie: SESSIONID=...
+Set-Cookie: XSRF-TOKEN=abc123
+```
+**🧨 The Attack Scenario**  
+**Step 1️⃣ User visits a malicious site**
+```
+https://evil.com
+```
+The attacker’s page contains something like:
+```
+<form action="https://app.example.com/api/transfer" method="POST">
+  <input type="hidden" name="amount" value="10000">
+</form>
+<script>document.forms[0].submit()</script>
+```
+**🌐 Step 2️⃣ Browser sends the request**
+Because of browser behavior:
+| Browser action             | Happens? |
+| -------------------------- | -------- |
+| Attaches auth cookies      | ✅ YES    |
+| Attaches XSRF-TOKEN cookie | ✅ YES    |
+| Allows JS to read cookies  | ❌ NO     |
+| Allows custom headers      | ❌ NO     |
+Resulting request:
+```
+POST /api/transfer
+Cookie: SESSIONID=...
+Cookie: XSRF-TOKEN=abc123
+```
+⚠️ No X-XSRF-TOKEN header
+**🧠 Step 3️⃣ Why Angular is NOT involved**  
+Important:
+  -  Angular code is not running
+  -  HttpClient interceptor is not executed
+  -  Browser is doing a plain HTML form submit
+Angular never sees this request.
+**🛑 Step 4️⃣ Backend rejects the request**  
+Backend logic:
+```
+Expected:
+Cookie: XSRF-TOKEN
+Header: X-XSRF-TOKEN
+
+Received:
+Cookie present
+Header missing ❌
+```
+Result:
+```
+403 Forbidden
+```
+🎉 CSRF attack blocked
+**🔐 Why the Attack Fails (Key Security Properties)**  
+  -  1️⃣ Same-Origin Policy
+      -  evil.com cannot read cookies from app.example.com
+      -  Cannot extract the CSRF token
+  -  2️⃣ Custom Headers Are Protected
+      -  Browsers do not allow custom headers in cross-site form submits
+  -  3️⃣ Double-Submit Cookie Pattern
+      -  Cookie alone is not trusted
+      -  Header proves same-origin JavaScript execution
+
+🔁 What a Legitimate Angular Request Looks Like
+-----------------------------------------------------------
+From the real app:
+```
+this.http.post('/api/transfer', { amount: 10000 });
+```
+Angular automatically sends:
+```
+Cookie: XSRF-TOKEN=abc123
+X-XSRF-TOKEN: abc123
+```
+Backend:
+```
+cookie === header → OK
+```
+```
+Legitimate Angular Request
+──────────────────────────
+Angular JS
+   ↓ reads cookie
+POST /api/transfer
+Cookie: XSRF-TOKEN
+Header: X-XSRF-TOKEN
+   ↓
+Backend accepts ✔
+
+
+CSRF Attack Attempt
+───────────────────
+evil.com HTML
+   ↓ cannot read cookie
+POST /api/transfer
+Cookie: XSRF-TOKEN
+(no header)
+   ↓
+Backend rejects ❌
+```
 
 ### How Angular use CSRF Protection?
 
