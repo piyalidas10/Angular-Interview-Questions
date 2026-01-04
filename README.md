@@ -104,6 +104,9 @@ This approach is effective because of the browser’s Same-Origin Policy (SOP). 
 ✔ Protect POST/PUT/PATCH/DELETE only
 ✔ Never disable CSRF blindly
 
+### Amazon Same-Site Cookie Analysis
+[Amazon Same-Site Cookie Analysis](https://medium.com/@piyalidas.it/amazon-same-site-cookie-analysis-e80002507c59)
+
 ### What Happens During a CSRF Attack Attempt (Angular App)
 🎯 Setup (Before the Attack)  
 ----------------------------------------------------------
@@ -377,6 +380,32 @@ Backend rejects ❌
 | Server trusts cookies  | ❌ (mistake) |
 
 > CSRF exists because cookies are sent automatically.
+
+### SameSite (CRITICAL for CSRF)
+**You’ll notice many cookies have: SameSite=Lax or SameSite=None + Secure**    
+What this means:
+| SameSite   | CSRF Protection                        |
+| ---------- | -------------------------------------- |
+| **Strict** | Strongest (not sent cross-site at all) |
+| **Lax**    | Sent only on top-level navigation      |
+| **None**   | Sent cross-site (must be Secure)       |
+👉 Modern browsers block CSRF by default unless SameSite allows it. SameSite = Lax   (by default)
+
+**❌ Old behavior (pre-2019)**
+```
+evil.com → POST amazon.in/transfer
+Browser sends cookies automatically 😱
+```
+**✅ Modern behavior (what you see here)**
+Cookies are:
+  -  SameSite=Lax
+  -  HttpOnly
+  -  Secure
+So:
+  -  ❌ Cookies NOT sent from evil.com
+  -  ❌ JavaScript cannot steal them
+  -  ❌ CSRF request fails
+
 
 ### What is Same-Origin Policy (SOP)?
 Ans. Same-Origin Policy (SOP) means that a web page can only read or modify data from another page if both pages share the same origin. Same-site Cookie is a browser feature similar to HSTS where - similar in spirit anyway, where you can give a browser a cookie and tell it do not ever forward this cookie from across site requests. Only send it to me if it's coming from the same domain that issued it.
