@@ -852,22 +852,74 @@ export class MarketComponent {
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
+### Frontend Architecture for 1M+ Daily Users
+**1. Performance**
+  -  SSR + hydration
+  -  CDN caching
+  -  Brotli compression
+**2. Scalability**
+  -  Micro-frontends / module federation
+  -  Independent deployments
+**3. Resilience**
+  -  Feature flags
+  -  Graceful degradation
+  -  Offline support
+**4. Observability**
+  -  Web Vitals
+  -  Error tracking
+  -  Performance budgets
+**5. Security**
+  -  CSP
+  -  HttpOnly cookies
+  -  XSS sanitization
+
+### Explain the Event Loop and how async tasks are executed in JavaScript
+Answer: JavaScript is single-threaded, so it uses the event loop to handle asynchronous work without blocking the UI.
+Synchronous code runs on the call stack first. Async operations are delegated to Web APIs. When they complete, their callbacks are queued. Microtasks (Promises) run before macrotasks (setTimeout, events). After microtasks finish, the browser can render, then the next macrotask runs.
+This is why Promises resolve before setTimeout and why excessive microtasks can delay rendering.
+
+### How would you optimize Angular rendering performance for large lists (10k+ rows)?
+Answer: I’d combine virtual scrolling, OnPush change detection, and trackBy. CDK Virtual Scroll ensures only visible rows are rendered. OnPush prevents unnecessary change detection cycles, and trackBy avoids DOM recreation. For Angular 16+, I’d prefer signals for fine-grained updates. If data processing is heavy, I’d offload it to Web Workers or chunk work using idle callbacks.
+
+### How do you handle API rate limits gracefully on the frontend?
+Answer: I prevent unnecessary calls using debouncing, throttling, and request deduplication. I cache responses where possible, use retry with exponential backoff, and show partial or cached data instead of blocking the UI. From a UX perspective, I provide clear feedback and avoid aggressive retries that could worsen rate-limit issues.
+
+### How do code splitting and lazy loading improve performance?
+Answer: Code splitting breaks the app into smaller bundles, and lazy loading loads them only when needed. This reduces initial bundle size, improves time-to-interactive, and allows better caching. In Angular, lazy-loading routes or standalone components ensures users only download code for the features they actually use.
+
+### What is hydration in Angular and when can it cause UI mismatches?
+Answer: Hydration is when Angular reuses server-rendered HTML on the client instead of re-rendering it. Mismatches happen when server and client output differ—commonly due to non-deterministic code like Date.now(), Math.random(), browser-only APIs, or conditional rendering that behaves differently on the server. The fix is to keep rendering deterministic and guard browser-specific logic properly.
+
+### How would you build a component library used by multiple teams?
+Answer:  I’d build it as a standalone, versioned library in a monorepo. Components are presentational only, configurable via inputs and outputs, and follow accessibility standards. I’d use design tokens, Storybook for documentation, visual regression tests, and semantic versioning. No business logic or app-specific dependencies go into the library.
+
+### Explain CSR, SSR, and SSG — when would you use each?
+Answer: 
+  -  CSR is best for dashboards and internal tools where SEO isn’t critical.
+  -  SSR is ideal for SEO-sensitive or first-load-critical apps like e-commerce or auth flows.
+  -  SSG works best for static content like blogs or documentation.
+In Angular, I often combine them—SSR with selective SSG for maximum performance.
+
 ### Designing a Scalable Angular Dashboard (100+ Pages)
 For a dashboard of this size, I strongly recommend using Nx. It allows you to break the application into small, independent libraries rather than one giant src/app folder.  
 “I use Nx to structure Angular into domain-driven libraries, enforce boundaries, and enable team scalability. State is managed with scoped signal stores per feature, global signals only for cross-cutting concerns, and the shell lazily loads domains. This keeps 100+ page dashboards fast, maintainable, and micro-frontend ready.”
+
 **✅ Why Nx?**
   -  Enforces module boundaries
   -  Enables independent team ownership
   -  Speeds up CI with affected builds
   -  Perfect for 100+ page dashboards 
+
 **With 100+ pages, the initial bundle must be tiny.**
   -  Lazy Loading everything: Use loadComponent or loadChildren for every major route.
   -  Preloading Strategies: Implement a custom PreloadingStrategy that only loads the most-visited 5 pages in the background after the initial render.
   -  Secondary Outlets: Use named router outlets for complex dashboard panels (e.g., a "Quick View" drawer) that can be opened from any page.
+
 **Angular 19 is heavily "Signal-native." Avoid heavy NgRx boilerplate for every single page.**
   -  Global State (NgRx/SignalStore): Use for truly global data like UserSession, Permissions, or Notifications.
   -  Local State (Signals): Use signal(), computed(), and effect() inside components for UI state (e.g., search filters, toggle states).
   -  Resource API: Utilize the new Angular 19 resource() and rxResource() APIs to handle data fetching with built-in loading and error states.
+
 **users.store.ts (Local Signal Store)**
 ```
 @Injectable()
@@ -3025,6 +3077,14 @@ Ans. Zone.js is no longer required because:
   -  Signals provide synchronous, fine-grained reactivity
   -  CD can run only for components touched by signals
 Hydration is a key part of Angular’s zoneless future.
+
+### CSR vs SSR vs SSG
+| Mode | Best For         | Pros                  | Cons                   |
+| ---- | ---------------- | --------------------- | ---------------------- |
+| CSR  | Dashboards       | Simple, interactive   | SEO, slower first load |
+| SSR  | Auth, e-commerce | SEO, fast first paint | Server cost            |
+| SSG  | Blogs, docs      | Fastest, cheap        | Build-time data        |
+
 
 ### When you should use Hydration ?
 Ans. When you want to have interactive client-side apps rendered on the server. Usefull for Ecommerce, social media & big content websites.
