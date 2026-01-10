@@ -1563,7 +1563,7 @@ export class BreadcrumbsComponent {
 
 </details>
 
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular System Design (Realtime Scenario based)</strong></summary>
@@ -1702,7 +1702,7 @@ Ans. Uncleared timers, event listeners, detached DOM nodes, and global reference
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Promise and Observable</strong></summary>
@@ -1805,7 +1805,7 @@ Ans. No. For one-time async operations without cancellation or composition needs
 Ans. Observables allow fan-out (multiple subscribers), fan-in (merging streams), lazy execution, and cancellation—making them ideal for scalable, reactive systems.
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular HTTP Caching for Server-Side Rendering (SSR)</strong></summary>
@@ -2471,7 +2471,7 @@ Ans. Yes — but client-side only.
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Micro frontend</strong></summary>
@@ -2667,7 +2667,7 @@ https://medium.com/@piyalidas.it/angular-micro-frontend-challenges-recoveries-ac
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Core Architecture Deep Dive</strong></summary>
@@ -2732,7 +2732,7 @@ Zone-less: Change Detection = Signals only (fine-grained)
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Dependency Injection</strong></summary>
@@ -2761,7 +2761,7 @@ You can use it:
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Hydration & SSR</strong></summary>
@@ -3130,7 +3130,7 @@ All of those steps don’t need Zone.js, so hydration works the same with or wit
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Why Angular 17–19 Moved to ESBuild + Vite</strong></summary>
@@ -3184,7 +3184,7 @@ Some frameworks do this:
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>How performace is increased from Angular 2 to Latest</strong></summary>
@@ -3201,7 +3201,7 @@ We’ll break this into five key dimensions of performance:
 
 ### 🧩 1. Rendering Engine Evolution
 | Version           | Engine                               | Key Performance Improvements                                                                                                                                                                                                                                    |
-| ----------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Angular 2–7**   | **View Engine**                      | - Heavy factory generation per component.<br>- Larger bundle sizes (no tree-shaking).<br>- Change detection runs globally (Zone.js).<br>- DOM diffing inefficient for nested trees.                                                                             |
 | **Angular 9–14**  | **Ivy Renderer**                     | - Introduced **incremental DOM** — updates only the affected nodes.<br>- Eliminated factories → smaller bundles.<br>- Better tree-shaking & dead code removal.<br>- Lazy loading more efficient.<br>- Faster template instantiation.                            |
 | **Angular 15–16** | **Ivy + Standalone Components**      | - Removes NgModule overhead → less runtime memory.<br>- Bootstraps directly using `bootstrapApplication()`.<br>- Reduced dependency graph complexity.                                                                                                           |
@@ -3213,7 +3213,7 @@ We’ll break this into five key dimensions of performance:
 
 ### ⚙️ 2. Compilation & Build Performance
 | Version   | Compiler                            | Build System            | Impact                                                                                                                                                                                       |
-| --------- | ----------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --------- | ----------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **2–4**   | Template compiler (View Engine JIT) | Manual / SystemJS       | - JIT builds were very slow.<br>- No caching, huge rebuild times.                                                                                                                            |
 | **5–8**   | ngc (AOT) + Webpack                 | Angular CLI             | - AOT introduced (precompiled templates).<br>- Faster runtime, smaller bundles.<br>- But still slow incremental builds (Webpack).                                                            |
 | **9–14**  | Ivy Compiler                        | Angular CLI + Webpack 5 | - Compiles templates at instruction level.<br>- 30–40% smaller bundles.<br>- Improved incremental rebuilds.<br>- Better caching.                                                             |
@@ -3227,7 +3227,7 @@ We’ll break this into five key dimensions of performance:
 
 ### 🧠 3. Change Detection & Memory Efficiency
 | Version   | Strategy                         | Details                                                                                                                                                                                              |
-| --------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **2–8**   | **Zone.js + full tree re-check** | - Each async event re-checks *entire component tree*.<br>- Memory heavy.<br>- Difficult to fine-tune.                                                                                                |
 | **9–15**  | **Ivy fine-grained diffing**     | - Change detection is instruction-level.<br>- Reduced memory footprint per component.<br>- MarkForCheck / OnPush strategies improved.                                                                |
 | **16–19** | **Signals (Reactive Core)**      | - **Zone-less reactivity.**<br>- Components react only to signal changes.<br>- Eliminates full-tree checks.<br>- Enables SSR hydration reactivity.<br>- Up to **95% fewer change detection cycles.** |
@@ -3278,14 +3278,14 @@ We’ll break this into five key dimensions of performance:
 | **Startup memory**     | High                             | Low                               | 💾 ~50% less memory      |
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Build Architecture Evolution</strong></summary>
 
 ### 🧱 Angular Build Architecture Evolution
 | Angular Version             | Build Tool / Architecture                                     | Compiler                                                   | Key Features / Notes                                                                                                                                                                                                                                        |
-| --------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **2.x – 4.x (2016–2017)**   | **SystemJS / Webpack (manual setup)**                         | **View Engine (JIT / AOT)**                                | - Used `@angular/compiler` for JIT.<br>- Optional AOT (Ahead-of-Time) compiler.<br>- Manual Webpack or SystemJS setups.<br>- No CLI bundler yet.                                                                                                            |
 | **5.x – 7.x (2017–2018)**   | **Angular CLI + Webpack (via @angular-devkit/build-angular)** | **View Engine (AOT default)**                              | - Angular CLI standardizes builds.<br>- Introduced `angular.json` for build configuration.<br>- Builds used Webpack internally.<br>- Differential loading (modern + legacy JS).                                                                             |
 | **8.x (2019)**              | **Angular CLI + Webpack (View Engine + Ivy preview)**         | **Ivy (opt-in)**                                           | - Ivy compiler introduced as preview.<br>- Still uses Webpack-based CLI builder.<br>- Faster incremental builds (still early).                                                                                                                              |
@@ -3298,14 +3298,14 @@ We’ll break this into five key dimensions of performance:
 | **19.x (Nov 2024 – 2025)**  | **Vite + esbuild (mature)**                                   | **Ivy (final) / Preparations for Angular “Next” compiler** | - Unified build + SSR + prerender architecture.<br>- New `"outputMode": "server"` & `"renderMode"` APIs.<br>- `"@angular/ssr"` fully integrated.<br>- `@angular/build` is now official and stable.<br>- Angular CLI config simplified for hybrid rendering. |
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Evolution of Angular Manual Configuration (2 → 19)</strong></summary>
 
 ### 🧭 Evolution of Angular Manual Configuration (2 → 19)
 | Era                             | Main Config Files                                                                                                                              | Key Changes / Purpose                                                                                                                                                                                                                                                        |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Angular 2 (2016)**            | • `systemjs.config.js`  <br>• `tsconfig.json`  <br>• `main.ts` bootstrap                                                                       | - No CLI yet; setup done manually. <br>- Developers configured SystemJS loader manually. <br>- `tsconfig.json` had custom `module: system` or `commonjs`. <br>- No `angular.json`, no build system abstraction.                                                              |
 | **Angular 4 (2017)**            | • `angular-cli.json` (early CLI)  <br>• `tsconfig.json`  <br>• `environments/*.ts`                                                             | - Angular CLI introduced! <br>- CLI generated `angular-cli.json` for build & environment configs. <br>- Developers no longer had to manage Webpack/SystemJS manually.                                                                                                        |
 | **Angular 5 – 7 (2017–2018)**   | • `angular.json` *(replaced angular-cli.json)*  <br>• `tsconfig.app.json`, `tsconfig.spec.json`  <br>• `polyfills.ts`  <br>• `.browserslistrc` | - **`angular.json` schema introduced** for all project settings (build, serve, test, lint). <br>- Split `tsconfig.*` files for app/test. <br>- Introduced **AOT** and build configurations (`production`, `development`). <br>- Polyfills separated into `src/polyfills.ts`. |
@@ -3319,7 +3319,7 @@ We’ll break this into five key dimensions of performance:
 | **Angular 19 (2025)**           | • `angular.json`  (minimal, unified) <br>• `tsconfig.json` (simplified)                                                                        | - **Full Vite + esbuild architecture.** <br>- Manual config minimal: only `"main"`, `"index"`, `"tsConfig"`, `"renderMode"`. <br>- Automatic polyfill injection, environment loading. <br>- SSR and CSR merged; no need for separate server builds.                          |
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Versions Upgradation</strong></summary>
@@ -3448,7 +3448,7 @@ Note : Angular 19 fully embraces esbuild + Vite by default through the new build
 ```
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Security improves with Angular 16 to 19 versions</strong></summary>
@@ -3485,7 +3485,7 @@ iFlair Web Technologies
 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Location service</strong></summary>
@@ -3616,7 +3616,7 @@ Ans. this.router.navigate(['/settings']);
 ➡ Use Router — because this is a true navigation event that should trigger route lifecycle hooks.
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Signals</strong></summary>
@@ -3853,7 +3853,7 @@ Complex Orchestration: When you need powerful operators to filter, map, debounce
 In short: Think of Signals for state (the "what") and RxJS for events (the "when"). They work very well together; you can easily convert between them using functions like toSignal (from RxJS) and toObservable (from Angular).
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Zone.js & Zoneless Concepts</strong></summary>
@@ -4044,7 +4044,7 @@ Answer: ✅ Yes, absolutely. Angular allows hybrid use — signals handle local 
 👉 Hydration knows it cannot rely on Zones to trigger the first detection cycle. 
 
 </details>
--------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
 <details>
 
 <summary><strong>Angular Image Optimization</strong></summary>
@@ -4052,7 +4052,7 @@ Answer: ✅ Yes, absolutely. Angular allows hybrid use — signals handle local 
 ### 🧮 Summary Table: Key Image Optimisation Features by Version
 
 | Version | What you get / upgraded features                                                                                                                                     |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **16**  | Core NgOptimizedImage support: `ngSrc`, width/height or fill, lazy loading by default, `priority` attribute, srcset support, resource hints.                         |
 | **17**  | Expanded performance-guidance (warnings if you don’t use directive), more flexible custom loader support (loaderParams).                                             |
 | **18**  | Configurable `IMAGE_CONFIG` (breakpoints, placeholder resolution, disable warnings), more refined responsive image support, fill mode improvements.                  |
@@ -4094,7 +4094,7 @@ providers: [
 ## Interview Questions upto Angular 15 versions
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   |  What is Pipe ? Pure vs impure pipe ? <br><br> Pipes help you to transform data from one format to another format. There have few inbuilt pipes in angular : DatePipe, CurrencyPipe, UpperCasePipe, LowerCasePipe, JsonPipe. <br><br> An impure pipe is called for every change detection cycle no matter whether the value or parameter(s) changes. A pure pipe is only called when Angular detects a change in the value or the parameters passed to a pipe.
 | 2   |  How will create custom pipes? Have you ever created any custom pipes in your project?
 | 3   |  Observable vs observer
@@ -4137,7 +4137,7 @@ providers: [
 
         }
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 12   |  As we know service is singleton means it will create single instance entire application. How can I create multiple instances of services? Ans. Have to remove providedIn: "root" from the service & import it in the components directly (@Component({inside providers}) or @Inject()) for multiple instances.
 ```
 constructor(
@@ -4146,7 +4146,7 @@ constructor(
   )
 ```
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 13   |  AOT vs JIT compiler <br/><br/> https://www.monarch-innovation.com/aot-vs-jit-compiler-in-angular
 | 14   |  What do you mean by data binding & two way data binding <br><br> Types of Data Binding : 1. Interpolation & Property binding 2. Event binding 3. Two way binding <br><br> Interpolation is used to just display/bind a piece of data in HTML UI element, such as displaying a title or a name. <br><br> Property binding lets us bind a property of a DOM object, for example the hidden property, to some data value. It uses syntax []. <br><br> Event binding is used to handle the events raised by the user actions like button click, mouse movement, keystrokes, etc. It flows from the view to the model when an event is triggered. <br><br> In Two way binding, data flows from model to view and view to model.
 | 15   |  How many ways to share data one component to another ? <br/><br/> 1. <b>Parent-to-Child</b>: Sharing Data via @Input. <br/> 2. <b>Child-to-Parent</b>: Sharing Data via @Output() and EventEmitter. <br/> 3. <b>Unrelated Components</b>: Sharing Data via a Service.  <br/> 4. <b>Child-to-Parent</b>: Sharing Data via ViewChild.
@@ -4165,7 +4165,7 @@ constructor(
           ```
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |  
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |  
 | 22   |  Server side rendering vs Client side rendering ? <br/><br/> Ans. https://v17.angular.io/guide/ssr                                                                
 
 | Sl. No.           | Client-side rendering                                              | Server-side rendering                                         |
@@ -4185,7 +4185,7 @@ constructor(
 | JavaScript dependency | Depends heavily on JavaScript | Minimal JavaScript dependency |
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 23   |  How will prevents unnecessary api calls angular ? <br/><br/> Ans. Debounce should be used. The debounceTime allows to buffer events and only handle the last one after an amount of time. It's useful in the context of inputs but it should be defined on the observable that triggers the event not on the one created for the HTTP request. Here is a example on a control associated with an input that leverages the debounceTime operator: 
         ```@Component({
           (...)
@@ -4213,7 +4213,7 @@ constructor(
         
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 24  |  How many guards are there ? https://raghuvardhankaranam.medium.com/route-guards-in-angular-c2c01fe6167b
 | 25  |  canLoad vs canActivate (which one is better to use) ? <br/> Ans. canActivate is used to prevent unauthorized users from accessing certain routes. canLoad is used to prevent the application from loading entire modules lazily if the user is not authorized to do so.
 | 26   |  How can you combine 2 data streams together and use as one observable? <br/> Ans. Rxjs forkjoin operator & promise.all
@@ -4265,7 +4265,7 @@ constructor(
                 this.buttonLabel = $localize`:Submit|Submit the form@@FEEDBACK.USER_FEEDBACK.submit`
           ```
 | No.  | Questions                                                                                                                                                         |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 48   |  Why are Observables safer than Promises in Angular? Ans. Observables can be unsubscribed when a component is destroyed, preventing memory leaks. Promises cannot be cancelled once started. <br/> <br/> How does Angular auto-cancel HTTP calls? Ans. Angular’s HttpClient returns Observables, and when a subscription is unsubscribed (e.g., component destroyed), the underlying HTTP request is aborted. 
 | 49   |  When you will use ngOnChanges
 | 50   |  Suppose you have a component, inside it you have another child component like the following <br> app.compont.html <br> <app-child></app-child> <br> You want to access the DOM of that child component. Which life cycle hook will give you the access of that child component ?
@@ -4285,7 +4285,7 @@ latest	        Obtains latest release
 ```
 
 | No.  | Questions                                                                                                                                                         |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 53   |  What is the use of view encapsulation?
 | 54   |  Explain the @Component Decorator. <br> TypeScript class is one that is used to create components. This genre of class is then decorated with the "@Component" decorator. The decorato’s purpose is to accept a metadata object that provides relevant information about the component.  
 | 55   |  Promises vs Observables ? Why does Angular use Observables instead of Promises? <br><br> A Promise resolves once and cannot be cancelled, whereas an Observable can emit multiple values over time, supports cancellation, and provides powerful operators for async streams. <br> Angular applications are stream-based—HTTP, user events, WebSockets—so Observables naturally model these scenarios with cancellation, retries, and better change-detection control.
@@ -4297,7 +4297,7 @@ latest	        Obtains latest release
 | Retry / debounce | ❌       | ✅          |
 
 | No.  | Questions                                                                                                                                                         |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 56   |  Subject vs BehaviorSubject
 | 57   |  What are the advantages of Reactive forms over Template driven forms ?
 | 58   |  Why need Lazy loading ?
@@ -4322,7 +4322,7 @@ latest	        Obtains latest release
           9. Can split output file into several files so slow page load due to oversized JS-file is prevented.
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 63   |  Is Webpack needed for Angular? <br><br> While the primary purpose of Webpack is to build multiple modules into a single file, it is not bound to only bundling source files. <br> Usually, webpack is hidden behind the Angular command-line tool. Webpack is used internally by angular application to compile ts files ino a single js file.
 | 64   | What benefits does Webpack 5 bring to Angular 12? <br><br> I understand the build time is increased for you with webpack 5. But if we talk about benefits, Angular has much to offer with webpack 5 and one of them is in terms of modularization using module federation. Webpack 5 is having an important feature of loading remote angular modules and stitching it with angular application at run time and that too without violating rules of zone.js. Its totally a game changer in javascript world. You can read more about it at Module Federation with Webpack 5. With this you can split your codebase with smaller bundle size and during runtime you can dynamically load them on demand, resulting in faster and independent deployments and maintainability. <br/> https://dzone.com/articles/howto-modularize-an-angular-application-by-example
 | 65   | The role of Webpack in Angular <br><br> 
@@ -4337,7 +4337,7 @@ latest	        Obtains latest release
           3. we don’t have any references to our stylesheets or a script file in our code in index.html — the wepack automatically generate stylesheets & script files and integrate them in index.html dynamically at runtime. All the bundles that webpack generated it also injected them in index.html — everything happen dynamically at runtime.
           4. all our Styles are compiled into a Javascript bundle. And webpack is behind to automatically generate these bundles at compile time. It also injected them in index.html at runtime.
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 66   | What is Modularizing ? <br><br> Modularizing the application has helped the startup performance and shows how bigger downloads can be split. In this case, the initial load was more than halved. If the files are gzipped it is below 300 kb. <br/> TypeScript made it easy to split the code into ,odules. Splitting the templates was not as easy. The Angular compiler did not show the missing modules. The errors are shown at run time. It would be nice if Angular would have a feature that checks that all used modules are imported at compile time. <br/> Splitting an existing application into modules is quite easy and takes only a reasonable amount of effort. The better approach is to start the development of an application with modules, placing related components in modules with a common base route and subroutes to the components. The required imports can then be added during the development process. That keeps the startup performance okay, with little extra cost. <br> https://dzone.com/articles/howto-modularize-an-angular-application-by-example
 | 67   | What is NgModule ? <br><br> Inside of the @NgModule operator, we define all the properties of the module. <br> Bootstrap ::=> Defines the root-component of the Application. Only use this in the AppModule. <br> Exports ::=> We define the components, directives or pipes we want to export here. <br> Declarations ::=> Inside of the declarations array, we define all the components, directives and pipes, that are declared and used inside this module. <br> Imports ::=> Your module can import as many sub-modules as you like. For example, if you want to use the HttpClient, you will need to import the HttpClientModule. <br> Providers ::=> We define any @Injectables, required by the module, here. Any sub-components or modules can then get the same instance of that @Injectable via dependency injection. In the case of the AppModule, these @Injectables are application-scoped.
 | 68   | What is Angular CLI? <br><br>  Angular CLI, a command-line interface tool for Angular that you can use to initialize, build, scaffold, and prolong Angular applications directly from a command shell. Hence, we can say it is the official tool for initializing and operating with Angular projects. It helps you from out in the complex configurations and builds tools like TypeScript, Webpack, etc. <br> Although it uses Webpack to have all the packaging, importing, Browser Link, etc., you do not need to know how Webpack functions or how it needs to figure out to run in different environments or on other types of machines.
@@ -4351,7 +4351,7 @@ latest	        Obtains latest release
 ![Tree Shaking Before](Tree_Shaking_before.png)
 ![Tree Shaking After](Tree_Shaking_after.png)
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 70   |  What is fixture? <br><br> A fixture is a wrapper for a component and its element & template. 
           const fixture = TestBed.createComponent(BannerComponent);
           TestBed.createComponent() creates an instance of the BannerComponent, adds a corresponding element to the test-runner DOM, and returns a ComponentFixture.
@@ -4362,7 +4362,7 @@ latest	        Obtains latest release
             expect(p.textContent).toEqual('banner works!');
           });
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 71   |  Web worker vs Service worker in angular ? <br><br> Web worker allows scripts to run in the background in separate threads to prevent scripts from blocking one another on the main thread. Use cases : CPU-intensive tasks such as image processing, video encoding, and audio decoding <br> Service workers are a proxy between the browser and the network. By intercepting requests made by the document, service workers can redirect requests to a cache, enabling offline access. Use cases : Network-related tasks such as caching resources, intercepting requests, and handling push notifications
 | 72   |  How will write testcase for methods in angular ? <br><br> spyOn is used to mock the methods and get dummy return value using .and.returnValue(). You can use spyOn to check like that the particular method is called or not called.
 | 73   |  What is the use of spyOn ? <br><br> 1. spyOn is used to mock the methods and get dummy return value using .and.returnValue() <br> 2. spyOn can call original function using .and.callThrough() <br><br> spyOn is used to mock external dependencies of the code being tested are replaced by dummy implementations so that the code to be tested can be controlled and test runs can be more quick and reliable.  All of the external dependencies like services, pipes, directives should be mocked to provide the expected level of isolation.
@@ -4377,7 +4377,7 @@ Intercepting API calls to return fixed data
 ![Feature module](feature_module.png)
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 80   |  How will test native element in angular ? <br><br> We can access HTML elements using fixture. It is used to get “DebugElement” for a DOM object. DebugElement is an Angular class that contains all kinds of references and methods relevant to investigate an element as well as component. nativeElement returns a reference to the DOM element which can also come under debugElement as stated above.<br>
             It works for querying both class something like (fixture.debugElement.nativeElement.querySelector('.shan')) as well as id.
             
@@ -4390,7 +4390,7 @@ Intercepting API calls to return fixed data
             document.getElementById('#shan')
             ```
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 81   |  How will identify, diagnose and fix memory leaks in the application? <br><br> 
           In javascript, memory should be cleared up automatically using a thing called Garbage collector. Javascript is a language who ha garbage collector meaning you don't have to manage your memory manually. It gets cleared automatically & assigned automatically. 
           
@@ -4424,7 +4424,7 @@ Intercepting API calls to return fixed data
         1. open the Chrome Dev Tools 2. open the panel on the right 3. click on More Tools > Performance Monitor
         
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 82   |  What are Services in Angular? <br><br> Services helps us to share common business logic, data and functions with different components of an Angular application. They are implemented through dependency injection.
 | 83   |  When should I use RxJS in Angular Application? <br><br> RxJS (Reactive Extensions for JavaScript) is a powerful library that allows developers to handle asynchronous data streams in a functional and efficient way. Angular heavily relies on RxJS for handling asynchronous operations, such as handling HTTP requests, event handling, and managing state changes. When working with Angular, you'll frequently use RxJS Observables to manage data streams, especially when interacting with APIs. In addition to its use in Angular development, RxJS is also a popular choice for reactive programming in other JavaScript frameworks and libraries, such as React, Vue. js, and Node.
 | 84   | What is State Management? <br><br> State management refers to the process of managing the state of an application. The state is a representation of the data at a given point in time. In a typical Angular application, the state includes data such as user information, UI elements, and other application-specific data. Effective state management ensures that the state is consistent, predictable, and easy to debug. 
@@ -4452,7 +4452,7 @@ Intercepting API calls to return fixed data
           iv) We can get resolve dependencies using the TestBed injector by using the get function.
           ```
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | 90   |  Where NGRX or Redux stores state data ? <br/><br/> The store doesn't local/session storage, but all of the entities are stored in memory. A Redux/NGRX state is stored in RAM (internal memory) for all data, do not use Cookies or LocalStorage. The redux store is just a JavaScript object so as long as the machine has enough memory it won't run out.
 | 91   |  How would you efficiently handle 5000 records from an API call for a dropdown? <br/><br/> https://medium.com/geekculture/simple-way-to-load-small-chunks-of-data-as-you-scroll-in-angular-6a14ec498989 https://medium.com/coding-in-depth/angular-binding-dropdown-with-huge-data-set-af2ef245e548 https://blog.bitsrc.io/3-ways-to-render-large-lists-in-angular-9f4dcb9b65 https://dev.to/pragativerma18/unlocking-the-power-of-api-pagination-best-practices-and-strategies-4b49 
 | 92   |  NGXS vs NGRX? <br/><br/>In NGXS, the application state is stored in a Store, which is defined as a class. The Store class contains properties that represent different sections or nodes of the application state. These properties are initialized at the start of the application and can be modified by actions to update the state. The NgRx library requires us to create a separate reducer. NGXS doesn't have any reducer. <br/> https://danielszpisjak.com/blog/ngxs-vs-ngrx-a-comprehensive-guide-to-state-management-in-angular/
@@ -4498,14 +4498,43 @@ class man implements Person {
 
 ```
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 103 |  @for vs *ngFor ? <br/><br/> The @for block is part of the new control flow syntax introduced in Angular 17.0. The control flow blocks (@if, @for, @switch) are here to replace the 3 structural directives ngIf, ngFor and ngSwitch. In the case of the @for block, feature wise they serve the same purpse with a few advantages : 1) No need to import the directive in standalone components. The @for syntax is automatically included in templates, no explicit imports are needed. 2) The @for now forces developers to use a tracking function, so performance-wise it's safer 3) If the collection is empty, you can use the @empty block to display something specific. 4) Generate a bit less code in the final bundle
-| 104 |  @if vs *nglf ? <br/><br/> 1) No need to import the directive in standalone components. The @if syntax is automatically included in templates, no explicit imports are needed. 2) @if supports @else if and @else conditions. esle if is not supported by *nglf 3) Generate a bit less code in the final bundle
-| 105 |  Migrate control flow to new angular version ? <br/><br/> Control flow syntax is available from Angular v17. The new syntax is baked into the template, so you don't need to import CommonModule anymore. This schematic migrates all existing code in your application to use new Control Flow Syntax. Run the schematic using the following command: <strong>`ng generate @angular/core:control-flow` </strong>
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 103 |  Optimizing Angular Rendering for Large Lists (10k+ Rows) ? <br/><br/> 
+**1. Virtualization (CDK Virtual Scroll)**  
+Render only visible rows.
+```
+<cdk-virtual-scroll-viewport itemSize="50">
+  <div *cdkVirtualFor="let item of items; trackBy: trackById">{{ item.name }}</div>
+</cdk-virtual-scroll-viewport>
+```
+**2. OnPush Change Detection**  
+Set the changeDetection strategy in your component decorator to Prevents unnecessary re-renders: 
+```
+@Component({
+  selector: 'app-large-list',
+  templateUrl: './large-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush, // Add this line
+})
+export class LargeListComponent {
+  // ... component logic
+}
+```
+**3. Using trackBy function**  
+Define the trackBy function in your component class and reference it in the template:
+```
+<li *ngFor="let item of items; trackBy: trackId"></li>
+```
+
+✔ Reduces DOM nodes from 10k → ~30
+| No. | Questions                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 104 |  @for vs *ngFor ? <br/><br/> The @for block is part of the new control flow syntax introduced in Angular 17.0. The control flow blocks (@if, @for, @switch) are here to replace the 3 structural directives ngIf, ngFor and ngSwitch. In the case of the @for block, feature wise they serve the same purpse with a few advantages : 1) No need to import the directive in standalone components. The @for syntax is automatically included in templates, no explicit imports are needed. 2) The @for now forces developers to use a tracking function, so performance-wise it's safer 3) If the collection is empty, you can use the @empty block to display something specific. 4) Generate a bit less code in the final bundle
+| 105 |  @if vs *nglf ? <br/><br/> 1) No need to import the directive in standalone components. The @if syntax is automatically included in templates, no explicit imports are needed. 2) @if supports @else if and @else conditions. esle if is not supported by *nglf 3) Generate a bit less code in the final bundle
+| 106 |  Migrate control flow to new angular version ? <br/><br/> Control flow syntax is available from Angular v17. The new syntax is baked into the template, so you don't need to import CommonModule anymore. This schematic migrates all existing code in your application to use new Control Flow Syntax. Run the schematic using the following command: <strong>`ng generate @angular/core:control-flow` </strong>
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 106 |  What is a CORS error, why does it arise, and how do you fix it? <br/><br/> CORS stands for Cross-Origin Resource Sharing—a security feature built into browsers. It blocks requests made from one origin (domain, protocol, or port) to another origin unless explicitly allowed by the server. 
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 107 |  What is a CORS error, why does it arise, and how do you fix it? <br/><br/> CORS stands for Cross-Origin Resource Sharing—a security feature built into browsers. It blocks requests made from one origin (domain, protocol, or port) to another origin unless explicitly allowed by the server. 
         For example: 
         - Your frontend is hosted at `frontend.com`.
         - Your backend API is hosted at `api.backend.com`.
@@ -4534,8 +4563,8 @@ class man implements Person {
         -----------------------------------------------------
         Short answer—No. Any hacky workaround, like disabling CORS in the browser or using extensions, won’t work in production. Fix it properly by configuring the server. That’s the only scalable solution.
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 107 |  Converting a Promise into an Observable ?
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 108 |  Converting a Promise into an Observable ?
 Ans. In Angular / RxJS, converting a Promise → Observable is very common—especially when integrating APIs, async SDKs, or legacy code.
   -  Promise executes immediately
   -  Observable is cold but Promise is already running
@@ -4575,7 +4604,7 @@ const lazy$ = defer(() => from(fetch('/api/data')));
 | `defer(() => from(promise))` | Lazy execution | ✅              | ⭐⭐⭐⭐  |
 
 | No. | Questions                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 108 |  What is a cold Observable? Ans. Each subscription triggers a new execution (e.g., HTTP call).
-| 109 |  What is a hot Observable? Ans. Shares the same execution across subscribers (e.g., Subject, WebSocket).
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 109 |  What is a cold Observable? Ans. Each subscription triggers a new execution (e.g., HTTP call).
+| 110 |  What is a hot Observable? Ans. Shares the same execution across subscribers (e.g., Subject, WebSocket).
 
