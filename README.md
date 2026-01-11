@@ -3492,6 +3492,42 @@ Ans. ✔ Hydration does not rely on Zones.Hydration simply:
 
 All of those steps don’t need Zone.js, so hydration works the same with or without zones.
 
+### Progressive Rendering vs Web Workers
+**Progressive Rendering**  
+What it solves
+  -  UI blocking during rendering
+  -  Long main-thread tasks
+What it does NOT solve
+  -  Heavy computation
+  -  JSON parsing
+  -  Sorting / filtering large datasets
+Characteristics
+  -  Still runs on main thread
+  -  DOM grows continuously
+  -  Improves perceived performance
+
+**Web Workers**  
+What they solve
+  -  Heavy computation
+  -  CPU-intensive tasks
+  -  Data transformation
+What they do NOT solve
+  -  DOM rendering
+  -  Change detection cost
+Characteristics
+  -  Runs off main thread
+  -  Ideal for filtering, aggregation
+  -  Must postMessage results back
+| Aspect                    | Progressive Rendering  | Web Workers    |
+| ------------------------- | -----------------------| -------------- |
+| Runs off main thread      | ❌                     | ✅           |
+| Improves initial paint    | ✅                     | ❌           |
+| Handles heavy computation | ❌                     | ✅           |
+| Reduces DOM nodes         | ❌                     | ❌           |
+| Prevents UI freeze        | ✅                     | ✅           |
+| Angular CD impact         | Medium                 | Low           |
+> Use Web Workers to prepare data, then progressive rendering or virtual scroll to display it.
+
 
 </details>
 -----------------------------------------------------------------------------------------------------------------------------------
