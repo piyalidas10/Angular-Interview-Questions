@@ -853,48 +853,114 @@ export class MarketComponent {
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
 ### Frontend Architecture for 1M+ Daily Users
-**1. Performance**
+
+**1. Performance**  
   -  SSR + hydration
   -  CDN caching
   -  Brotli compression
-**2. Scalability**
+**2. Scalability**  
   -  Micro-frontends / module federation
   -  Independent deployments
-**3. Resilience**
+**3. Resilience**  
   -  Feature flags
   -  Graceful degradation
   -  Offline support
-**4. Observability**
+**4. Observability**  
   -  Web Vitals
   -  Error tracking
   -  Performance budgets
-**5. Security**
+**5. Security**  
   -  CSP
   -  HttpOnly cookies
   -  XSS sanitization
 
 ### Explain the Event Loop and how async tasks are executed in JavaScript
-Answer: JavaScript is single-threaded, so it uses the event loop to handle asynchronous work without blocking the UI.
+Ans: JavaScript is single-threaded, so it uses the event loop to handle asynchronous work without blocking the UI.
 Synchronous code runs on the call stack first. Async operations are delegated to Web APIs. When they complete, their callbacks are queued. Microtasks (Promises) run before macrotasks (setTimeout, events). After microtasks finish, the browser can render, then the next macrotask runs.
 This is why Promises resolve before setTimeout and why excessive microtasks can delay rendering.
 
 ### How would you optimize Angular rendering performance for large lists (10k+ rows)?
-Answer: I’d combine virtual scrolling, OnPush change detection, and trackBy. CDK Virtual Scroll ensures only visible rows are rendered. OnPush prevents unnecessary change detection cycles, and trackBy avoids DOM recreation. For Angular 16+, I’d prefer signals for fine-grained updates. If data processing is heavy, I’d offload it to Web Workers or chunk work using idle callbacks.
+Ans: I’d combine virtual scrolling, OnPush change detection, and trackBy. CDK Virtual Scroll ensures only visible rows are rendered. OnPush prevents unnecessary change detection cycles, and trackBy avoids DOM recreation. For Angular 16+, I’d prefer signals for fine-grained updates. If data processing is heavy, I’d offload it to Web Workers or chunk work using idle callbacks.
+
+### Optimizing Angular Rendering for Large Lists (10k+ Rows), Can we use Progressive Rendering?
+Ans. Yes, progressive rendering can be used for large lists, especially when virtualization isn’t possible. It works by rendering items in small batches instead of all at once, which keeps the UI responsive and avoids blocking the main thread. However, for scroll-heavy lists, CDK Virtual Scroll is still the preferred solution, and progressive rendering is best for initial load optimization or non-scroll-based layouts.
+
+**What is Progressive Rendering?**  
+  -  Render a subset of items first
+  -  Defer the rest using:
+      -  requestAnimationFrame
+      -  setTimeout
+      -  requestIdleCallback
+This prevents long rendering blocks and improves Time to First Paint (TTFP).
+
+**When Progressive Rendering Makes Sense**  
+✅ Good fit
+  -  Dashboards where users don’t scroll immediately
+  -  Tables with expandable rows
+  -  Initial render of heavy components
+  -  Server-side rendered content that hydrates gradually
+  -  Lists that must exist fully in the DOM (PDF export, search, Ctrl+F)
+❌ Not ideal
+  -  Infinite scrolling lists
+  -  Fast vertical scrolling
+  -  Mobile-heavy UX (virtual scroll wins)
+```
+ts
+items = signal<Item[]>([]);
+visibleItems = signal<Item[]>([]);
+
+ngOnInit() {
+  this.items.set(this.loadItems());
+  this.renderProgressively();
+}
+
+renderProgressively(batchSize = 50) {
+  let index = 0;
+  const all = this.items();
+
+  const renderBatch = () => {
+    this.visibleItems.update(v => [
+      ...v,
+      ...all.slice(index, index + batchSize)
+    ]);
+
+    index += batchSize;
+
+    if (index < all.length) {
+      requestIdleCallback(renderBatch);
+    }
+  };
+
+  renderBatch();
+}
+```
+```
+html
+<div *ngFor="let item of visibleItems(); trackBy: trackId">
+  {{ item.name }}
+</div>
+```
+**Progressive Rendering vs Virtual Scroll**  
+| Technique             | DOM Size           | Scroll Performance | UX                    |
+| --------------------- | ------------------ | ------------------ | --------------------- |
+| Virtual Scroll        | Small              | Excellent          | Best for lists        |
+| Progressive Rendering | Large (eventually) | Degrades           | Good for initial load |
+| Pagination            | Small              | Good               | Context loss          |
 
 ### How do you handle API rate limits gracefully on the frontend?
-Answer: I prevent unnecessary calls using debouncing, throttling, and request deduplication. I cache responses where possible, use retry with exponential backoff, and show partial or cached data instead of blocking the UI. From a UX perspective, I provide clear feedback and avoid aggressive retries that could worsen rate-limit issues.
+Ans: I prevent unnecessary calls using debouncing, throttling, and request deduplication. I cache responses where possible, use retry with exponential backoff, and show partial or cached data instead of blocking the UI. From a UX perspective, I provide clear feedback and avoid aggressive retries that could worsen rate-limit issues.
 
 ### How do code splitting and lazy loading improve performance?
-Answer: Code splitting breaks the app into smaller bundles, and lazy loading loads them only when needed. This reduces initial bundle size, improves time-to-interactive, and allows better caching. In Angular, lazy-loading routes or standalone components ensures users only download code for the features they actually use.
+Ans: Code splitting breaks the app into smaller bundles, and lazy loading loads them only when needed. This reduces initial bundle size, improves time-to-interactive, and allows better caching. In Angular, lazy-loading routes or standalone components ensures users only download code for the features they actually use.
 
 ### What is hydration in Angular and when can it cause UI mismatches?
 Answer: Hydration is when Angular reuses server-rendered HTML on the client instead of re-rendering it. Mismatches happen when server and client output differ—commonly due to non-deterministic code like Date.now(), Math.random(), browser-only APIs, or conditional rendering that behaves differently on the server. The fix is to keep rendering deterministic and guard browser-specific logic properly.
 
 ### How would you build a component library used by multiple teams?
-Answer:  I’d build it as a standalone, versioned library in a monorepo. Components are presentational only, configurable via inputs and outputs, and follow accessibility standards. I’d use design tokens, Storybook for documentation, visual regression tests, and semantic versioning. No business logic or app-specific dependencies go into the library.
+Ans:  I’d build it as a standalone, versioned library in a monorepo. Components are presentational only, configurable via inputs and outputs, and follow accessibility standards. I’d use design tokens, Storybook for documentation, visual regression tests, and semantic versioning. No business logic or app-specific dependencies go into the library.
 
 ### Explain CSR, SSR, and SSG — when would you use each?
-Answer: 
+Ans: 
   -  CSR is best for dashboards and internal tools where SEO isn’t critical.
   -  SSR is ideal for SEO-sensitive or first-load-critical apps like e-commerce or auth flows.
   -  SSG works best for static content like blogs or documentation.
