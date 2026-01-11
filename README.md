@@ -946,6 +946,11 @@ html
 | Virtual Scroll        | Small              | Excellent          | Best for lists        |
 | Progressive Rendering | Large (eventually) | Degrades           | Good for initial load |
 | Pagination            | Small              | Good               | Context loss          |
+**Use both together when needed:**  
+  -  Progressive rendering for initial data hydration
+  -  Virtual scroll for long-term scrolling
+  -  OnPush + trackBy always
+  -  Signals for fine-grained updates
 
 ### How do you handle API rate limits gracefully on the frontend?
 Ans: I prevent unnecessary calls using debouncing, throttling, and request deduplication. I cache responses where possible, use retry with exponential backoff, and show partial or cached data instead of blocking the UI. From a UX perspective, I provide clear feedback and avoid aggressive retries that could worsen rate-limit issues.
