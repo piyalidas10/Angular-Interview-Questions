@@ -4790,7 +4790,8 @@ class man implements Person {
 ```
 | No. | Questions                                                                                                                                                         |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 103 |  Optimizing Angular Rendering for Large Lists (10k+ Rows) ? <br/><br/> 
+| 103 |  Optimizing Angular Rendering for Large Lists (10k+ Rows) ? <br/><br/>
+
 **1. Virtualization (CDK Virtual Scroll)**  
 Render only visible rows.
 ```
