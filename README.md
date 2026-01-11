@@ -885,6 +885,8 @@ Ans: I’d combine virtual scrolling, OnPush change detection, and trackBy. CDK 
 ### Optimizing Angular Rendering for Large Lists (10k+ Rows), Can we use Progressive Rendering?
 Ans. Yes, progressive rendering can be used for large lists, especially when virtualization isn’t possible. It works by rendering items in small batches instead of all at once, which keeps the UI responsive and avoids blocking the main thread. However, for scroll-heavy lists, CDK Virtual Scroll is still the preferred solution, and progressive rendering is best for initial load optimization or non-scroll-based layouts.
 
+> “Yes, progressive rendering is useful to avoid blocking the main thread when rendering large datasets. I typically use it for initial load or when virtualization isn’t feasible, but for scroll-heavy lists, CDK Virtual Scroll is still the most performant and scalable solution.”
+
 **What is Progressive Rendering?**  
   -  Render a subset of items first
   -  Defer the rest using:
