@@ -874,6 +874,36 @@ export class MarketComponent {
   -  HttpOnly cookies
   -  XSS sanitization
 
+### Can Angular Signal replace NgRX ?
+Ans. Angular Signals can replace NgRx for local and feature-level state, but NgRx is still required for global, enterprise-grade state management where predictability, DevTools, and action-based architecture are critical.
+> Signals manage state but NgRx manages state + behavior + history
+
+**1️⃣ What Angular Signals can replace**  
+| NgRx Feature                      | Can Signals Replace? | Why                                |
+| --------------------------------- | -------------------- | ---------------------------------- |
+| Component Store                   | ✅ Yes                | Signals + effects cover most needs |
+| UI state (tabs, filters, toggles) | ✅ Yes                | No boilerplate                     |
+| Feature-level state               | ✅ Mostly             | If no cross-app coordination       |
+| Derived selectors                 | ✅ Yes                | `computed()`                       |
+| Simple side effects               | ✅ Yes                | `effect()`                         |
+
+**2️⃣ What Signals cannot fully replace (yet)**  
+| Capability                   | Why Signals Fall Short           |
+| ---------------------------- | -------------------------------- |
+| Global app state             | No enforced structure            |
+| Time-travel debugging        | No DevTools history              |
+| Action-based auditing        | No event log                     |
+| Complex async orchestration  | Effects are basic                |
+| Multi-team contracts         | No conventions                   |
+| Micro-frontend state sharing | Signals lack federation patterns |
+
+🟢 Small / Medium Apps : Signals + Services  
+🟡 Large Apps : 1) Signals (local state) 2) NgRx (global / domain state)  
+🔵 Micro-frontends : 1) NgRx (shell) 2) Signals (per MF)  
+👉 This is what Angular teams are actually shipping  
+> Angular team has explicitly stated: Signals are not a replacement for NgRx. They are a reactivity primitive. NgRx is still the recommended solution for large-scale state management.
+
+
 ### Explain the Event Loop and how async tasks are executed in JavaScript
 Ans: JavaScript is single-threaded, so it uses the event loop to handle asynchronous work without blocking the UI.
 Synchronous code runs on the call stack first. Async operations are delegated to Web APIs. When they complete, their callbacks are queued. Microtasks (Promises) run before macrotasks (setTimeout, events). After microtasks finish, the browser can render, then the next macrotask runs.
