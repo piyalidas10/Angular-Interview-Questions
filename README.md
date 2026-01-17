@@ -852,27 +852,147 @@ export class MarketComponent {
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
-### Frontend Architecture for 1M+ Daily Users
+### CORS : Why Postman works but browser fails ?
+Browser security pipeline
+```
+Request → CORS → SameSite → Secure → Credentials → JS
+```
+Postman:
+```
+Request → Server → Response
+```
+No checks.
 
-**1. Performance**  
-  -  SSR + hydration
-  -  CDN caching
-  -  Brotli compression  
-**2. Scalability**  
-  -  Micro-frontends / module federation
-  -  Independent deployments  
-**3. Resilience**  
-  -  Feature flags
-  -  Graceful degradation
-  -  Offline support  
-**4. Observability**  
-  -  Web Vitals
-  -  Error tracking
-  -  Performance budgets  
-**5. Security**  
-  -  CSP
-  -  HttpOnly cookies
-  -  XSS sanitization
+**Common failing case**  
+Cookie:
+```
+SameSite=None   ❌ missing Secure
+```
+> Browser: ❌ Drops cookie
+> Postman: ✅ Sends cookie
+
+### How to debug CORS in Angular (step-by-step) ?
+**Step 1: Network tab (MOST IMPORTANT)**
+  -  Open failed request
+  -  Look at:
+      -  Request headers → Origin
+      -  Response headers → CORS
+**Step 2: Check preflight (OPTIONS)**  
+If you see: 
+```
+OPTIONS → ❌ 403 / missing headers
+```
+Then:
+  -  Fix server CORS config
+  -  NOT Angular
+**Step 3: Verify cookie attributes**  
+In Application → Cookies:
+  -  Secure?
+  -  SameSite=None?
+  -  Correct domain?
+**Step 4: Verify Angular config**
+```
+this.http.get(url, {
+  withCredentials: true
+});
+```
+Missing? → cookies won’t send.  
+**Step 5: Confirm server response**
+For credentialed requests:
+```
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Credentials: true
+```
+❌ * → fail   
+**Step 6: Look for silent failures**
+> ⚠ Browser often shows: “CORS error”
+But the real reason is in:
+  -  Missing header
+  -  Wrong SameSite
+📌 Interview line : “CORS errors are symptoms, not causes.”
+
+### Why Postman not showing CORS error but Browser shows ?
+> CORS is a browser security feature. Postman is not a browser, so it does not enforce CORS.
+> Postman does not show CORS errors because CORS is enforced by browsers, not servers. The browser blocks JavaScript from reading responses that violate cross-origin rules, while Postman communicates directly with the server without any such restrictions.
+Browser Diagram
+```
+Angular JS → Browser Security → Server
+                 ↑
+            CORS happens here
+```
+Postman Diagram
+```
+Postman → Server
+```
+**Why CORS exists (important context)**  
+> CORS protects users, not servers.
+It prevents a malicious website from:
+  -  Reading responses from another origin
+  -  Using your cookies or auth context silently
+So only environments that run untrusted code (browsers) enforce it.  
+
+**Execution environments compared**
+| Environment              | Runs untrusted JS? | Enforces CORS? |
+| ------------------------ | ------------------ | -------------- |
+| Browser (Angular, React) | ✅                  | ✅              |
+| Swagger UI               | ✅                  | ✅              |
+| Postman                  | ❌                  | ❌              |
+| curl                     | ❌                  | ❌              |
+| Backend services         | ❌                  | ❌              |
+> 📌 Interview line : “If there’s no untrusted JavaScript, there’s no CORS.”
+
+**What actually happens in the browser**  
+Angular / browser request flow
+```
+JS makes request
+→ Browser checks Origin
+→ Browser sends OPTIONS (preflight)
+→ Browser validates CORS headers
+→ Browser decides if JS can read response
+```
+If headers are wrong:
+  -  ❌ Browser blocks response
+  -  ❌ Angular sees “CORS error”
+  -  ❌ Backend may still return 200!
+
+**What happens in Postman**  
+Postman request flow
+```
+Postman sends request
+→ Server responds
+→ Postman shows response
+```
+No:
+  -  Origin check
+  -  Preflight
+  -  SameSite enforcement
+  -  Credential restrictions
+> 📌 Interview line : “Postman talks directly to the server; the browser stands in the middle.”
+
+**Key misconception (VERY common)**
+> ❌ “The server threw a CORS error”
+> ❌ Wrong
+> ✔ Correct
+> “The browser blocked the response because CORS rules were violated.”
+The server:
+  -  Often works perfectly
+  -  May not even know CORS failed
+
+**Example that proves it**  
+Server response
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+```
+Browser console
+```
+Access to fetch at 'https://api.com/me' from origin 'https://app.com'
+has been blocked by CORS policy
+```
+Postman
+```
+{ "user": "admin" }
+```
 
 ### Can I expose Set-Cookie using Access-Control-Expose-Headers?
 Ans. Forbidden headers cannot be exposed — even explicitly.
