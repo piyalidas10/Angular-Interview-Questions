@@ -911,7 +911,7 @@ But the real reason is in:
   -  Wrong SameSite
 📌 Interview line : “CORS errors are symptoms, not causes.”
 
-### Why Postman not showing CORS error but Browser shows ?
+### Why Postman not showing CORS error but Browser shows response?
 > CORS is a browser security feature. Postman is not a browser, so it does not enforce CORS.
 > Postman does not show CORS errors because CORS is enforced by browsers, not servers. The browser blocks JavaScript from reading responses that violate cross-origin rules, while Postman communicates directly with the server without any such restrictions.
 Browser Diagram
@@ -993,6 +993,18 @@ Postman
 ```
 { "user": "admin" }
 ```
+**Browser**  
+  -  Enforces:
+      -  SameSite
+      -  Secure
+      -  withCredentials
+      -  ACAO rules
+**Postman**
+  -  Sends cookies freely
+  -  Ignores SameSite
+  -  Ignores Secure
+  -  Ignores CORS
+
 
 ### Can I expose Set-Cookie using Access-Control-Expose-Headers?
 Ans. Forbidden headers cannot be exposed — even explicitly.
