@@ -857,22 +857,242 @@ export class MarketComponent {
 **1. Performance**  
   -  SSR + hydration
   -  CDN caching
-  -  Brotli compression
+  -  Brotli compression  
 **2. Scalability**  
   -  Micro-frontends / module federation
-  -  Independent deployments
+  -  Independent deployments  
 **3. Resilience**  
   -  Feature flags
   -  Graceful degradation
-  -  Offline support
+  -  Offline support  
 **4. Observability**  
   -  Web Vitals
   -  Error tracking
-  -  Performance budgets
+  -  Performance budgets  
 **5. Security**  
   -  CSP
   -  HttpOnly cookies
   -  XSS sanitization
+
+### Can I expose Set-Cookie using Access-Control-Expose-Headers?
+Ans. Forbidden headers cannot be exposed — even explicitly.
+> “Set-Cookie is not accessible via fetch because cookies are protocol-level, security-critical state. Allowing JavaScript to read them would break HttpOnly, enable XSS-based session theft, and collapse server-controlled authentication.”
+> SPAs don’t read cookies — they react to auth outcomes.
+❌ This will NEVER work
+```
+this.http.post('/login', creds).subscribe(res => {
+  console.log(res.headers.get('Set-Cookie')); // null
+});
+```
+✅ Correct pattern
+```
+POST /login → Set-Cookie (HttpOnly)
+GET  /me    → returns user profile
+```
+
+### What will happen "credentials: include" with http ?
+> ✅ What withCredentials: true means
+> “Allow the browser to send and receive cookies for this HTTP request — if browser security rules allow it.
+> “In Angular, withCredentials: true tells the browser to include cookies with the request if—and only if—domain, SameSite, Secure, and CORS rules allow it.”
+
+**📦 What actually happens internally**  
+------------------------------------------------------------------
+```
+this.http.get('/api/user', { withCredentials: true });
+```
+Browser decision flow:
+  -  Request is created
+  -  Browser checks:
+      -  Domain match
+      -  Path
+      -  Secure
+      -  SameSite
+      -  CORS headers
+  -  If all pass → cookies are attached
+  -  If any fail → cookies are silently ignored
+> 📌 Interview line : “withCredentials enables cookies, it doesn’t authorize them.”
+
+**🧪 Same-site request (most common)**
+------------------------------------------------------------------
+```
+Angular app: https://app.example.com
+API:         https://api.example.com
+```
+Cookie: SameSite=Lax
+Angular: withCredentials: true
+  -  ✅ Cookies sent
+  -  ✅ Cookies stored
+  -  ✅ No special CORS headers required
+
+**🌍 Cross-site request (OAuth / microservices)**
+------------------------------------------------------------------
+```
+Angular app: https://app.example.com
+API:         https://auth.otherdomain.com
+```
+ALL must be true 👇  
+Cookie
+```
+SameSite=None; Secure
+```
+Angular
+```
+withCredentials: true
+```
+Server response
+```
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://app.example.com
+```
+> ❌ Miss any one → cookies not sent / not stored
+> 📌 Interview line : “Cross-site cookies are opt-in on both client and server.”
+
+**❌ Common Angular mistakes (interview traps)**
+------------------------------------------------------------------
+**Mistake 1**  
+```
+withCredentials: true
+```
+but server returns:
+```
+Access-Control-Allow-Origin: *
+```
+  -  ❌ Cookies blocked
+  -  ✅ Request still succeeds (confusing!)  
+
+**Mistake 2**  
+Expecting cookies to be readable
+```
+console.log(document.cookie);
+```
+  -  ❌ HttpOnly cookies are invisible
+  -  ✅ Cookies still sent automatically
+
+**Mistake 3**  
+Thinking this affects headers
+```
+Authorization: Bearer token
+```
+  -  ❌ withCredentials has nothing to do with Authorization headers
+
+### Access-Control-Allow-Origin: * vs Access-Control-Allow-Origin: https://app.example.com
+> Access-Control-Allow-Origin: * allows any origin — but completely forbids credentials (cookies, auth).
+
+1️⃣ Access-Control-Allow-Origin: *
+------------------------------------------------------------------------
+**What it means**  
+```
+Access-Control-Allow-Origin: *
+```
+“Any website may read this response.”
+
+**What it cannot do**
+  -  ❌ Cannot be used with cookies
+  -  ❌ Cannot be used with withCredentials: true
+  -  ❌ Cannot be combined with Access-Control-Allow-Credentials: true
+
+**Why**  
+Because:
+  -  Browsers cannot safely expose credentialed responses to any origin
+  -  That would leak private data to malicious sites
+> 📌 Interview line : “Wildcard origin means public data only.”
+
+Angular example (works)
+```
+this.http.get('https://api.example.com/products');
+```
+  -  ✔ Public API
+  -  ✔ No cookies
+  -  ✔ No auth
+
+Angular example (fails silently ❌)
+```
+this.http.get('https://api.example.com/me', {
+  withCredentials: true
+});
+```
+  -  ❌ Cookies not sent
+  -  ❌ Response blocked
+
+2️⃣ Access-Control-Allow-Origin: https://app.example.com
+--------------------------------------------------------------------
+What it means
+```
+Access-Control-Allow-Origin: https://app.example.com
+```
+“Only this specific origin may read the response.”  
+What it enables
+  -  ✅ Cookies
+  -  ✅ HttpOnly sessions
+  -  ✅ Authenticated APIs
+  -  ✅ Secure SPAs
+Required combo for cookies
+```
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Credentials: true
+```
+Angular
+```
+this.http.get('/me', { withCredentials: true });
+```
+  -  ✔ Cookies sent
+  -  ✔ Cookies stored
+  -  ✔ Response accessible
+
+3️⃣ Security reasoning (very important)
+-------------------------------------------------------
+Imagine this were allowed:
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+```
+Then Any malicious site could:
+  -  Call your API
+  -  Receive user’s cookies
+  -  Read private data
+That would completely defeat:
+  -  SameSite
+  -  HttpOnly
+  -  CSRF protections
+
+4️⃣ Preflight impact (OPTIONS)
+---------------------------------------------
+For credentialed requests:
+  -  Browser checks:
+      -  Origin
+      -  Allowed methods
+      -  Allowed headers
+If origin ≠ allowed origin → ❌ blocked
+> 📌 Interview line : “CORS is enforced before the request is trusted.”
+
+5️⃣ Common production patterns
+---------------------------------------------
+🔓 Public APIs
+```
+Access-Control-Allow-Origin: *
+```
+Use when:
+  -  No auth
+  -  No cookies
+  -  CDN / open data
+🔐 Authenticated APIs
+```
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Credentials: true
+```
+Use when:
+  -  SPA + backend
+  -  HttpOnly cookies
+  -  User data
+
+| Feature          | `*`         | Specific Origin |
+| ---------------- | ----------- | --------------- |
+| Public access    | ✅          | ❌             |
+| Cookies          | ❌          | ✅             |
+| withCredentials  | ❌          | ✅             |
+| Secure user data | ❌          | ✅             |
+| Best use         | Public APIs | Auth APIs       |
+
 
 ### Can Angular Signal replace NgRX ?
 Ans. Angular Signals can replace NgRx for local and feature-level state, but NgRx is still required for global, enterprise-grade state management where predictability, DevTools, and action-based architecture are critical.
