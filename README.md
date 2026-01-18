@@ -852,6 +852,26 @@ export class MarketComponent {
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
+### “The API works in Postman, but Angular gets a CORS error. The Network tab shows 200 OK. What’s happening?”
+Ans. “Postman communicates directly with the server and does not enforce browser security.  
+Angular runs inside the browser, which enforces CORS.  
+In this case, the backend successfully returned 200 OK, but the browser blocked JavaScript from accessing the response because the required CORS headers were missing or invalid.
+So the server worked correctly — the browser intentionally discarded the response for security reasons.”  
+"CORS errors are client-side enforcement. I'd inspect the OPTIONS preflight, Access-Control-Allow-Origin, and whether credentials are being used."  
+
+**📌 Why Network shows 200 OK**
+  -  Request reached backend
+  -  Backend returned success
+  -  Browser blocked JS access after response
+  -  Angular sees an error even though server succeeded
+> 📌 One-liner : “The response arrived, but JavaScript wasn’t allowed to see it.”
+
+  -  Cookies: permission to send
+  -  withCredentials: permission to attach
+  -  CORS: permission to read
+  -  Postman: no rules
+  -  Browser: all rules
+
 ### CORS : Why Postman works but browser fails ?
 Browser security pipeline
 ```
@@ -1224,6 +1244,66 @@ Use when:
 | withCredentials  | ❌          | ✅             |
 | Secure user data | ❌          | ✅             |
 | Best use         | Public APIs | Auth APIs       |
+
+### 🔐 Micro-Frontend Authentication Patterns
+Ans. Micro-frontends complicate auth because multiple apps share one user identity.
+🥇 Pattern 1: Shell-managed HttpOnly Cookie (BEST PRACTICE)
+----------------------------------------------------------------------------------
+Architecture
+```
+[ Shell App ]
+     |
+     | Login
+     v
+[ Auth Server ]
+     |
+     | Set HttpOnly Cookie
+     v
+[ MF1 ] [ MF2 ] [ MF3 ]
+```
+How it works : 1) Shell handles login 2) Auth stored in HttpOnly cookie 3) All micro-frontends share session 4) Each MF calls /me to verify auth
+> ✅ Pros : XSS-safe, Simple, Centralized auth, Works with SSR
+> ❌ Cons : Requires shared domain
+> 📌 “Cookies are the safest shared auth mechanism for micro-frontends.”
+
+🥈 Pattern 2: Access Token in Memory + Refresh Cookie
+-------------------------------------------------------------------
+```
+HttpOnly Cookie → Refresh Token
+JS Memory       → Access Token
+```
+> Flow : 1) Shell logs in 2) Backend sets refresh cookie 3) Shell fetches access token 4) Token passed to MFs via runtime config / events
+> ✅ Pros : Short-lived access token, XSS impact minimized
+> ❌ Cons : Token sync complexity, MF reload resets memory
+> “Memory tokens reduce blast radius but increase coordination.”
+
+🥉 Pattern 3: Event Bus / Shared Auth Service
+------------------------------------------------------
+```
+[ Auth MF ]
+     |
+     | emits auth state
+     v
+[ MF1 ] [ MF2 ]
+```
+> Techniques : 1) Custom event bus 2) RxJS / Signals 3) Module Federation shared service
+> ✅ Pros : Decoupled, Dynamic MFs
+> ❌ Cons : Race conditions, Initial load complexity
+> 📌 “Auth becomes eventual consistency.”
+
+❌ Pattern 4: LocalStorage Token (AVOID)
+--------------------------------------------------
+> Why bad :  1) XSS can steal token 2) All MFs compromised 3) No isolation
+> 📌 “One XSS equals total account takeover.”
+
+**🎯 Decision Matrix (quick recall)**
+| Pattern          | Security     | Complexity | Recommended |
+| ---------------- | ------------ | ---------- | ----------- |
+| HttpOnly Cookie  | ⭐⭐⭐⭐⭐| Low        | ✅ YES      |
+| Memory + Refresh | ⭐⭐⭐⭐  | Medium     | ⚠️ Yes      |
+| Event Bus        | ⭐⭐⭐     | High       | ⚠️ Depends |
+| LocalStorage     | ⭐          | Low        | ❌ NO      |
+
 
 
 ### Can Angular Signal replace NgRX ?
