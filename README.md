@@ -3478,6 +3478,57 @@ Ans. Yes — but client-side only.
 
 <summary><strong>Angular Micro frontend</strong></summary>
 
+## 🔴How do you handle authentication in MFE?
+Ans. Authentication is handled by the shell using HttpOnly cookies. Remotes assume an authenticated context and validate permissions via APIs.
+
+## 🔴Can multiple MFEs share NgRx store?
+Ans. No. Shared state tightly couples deployments and breaks independent releases.
+
+## 🔴How do remotes communicate with the shell?
+ans. Through URLs, custom events, or backend APIs — never through shared in-memory state.
+
+## 🔴 What is the role of the Shell application?
+Ans. The shell owns layout, authentication, global store, top-level routing, and cross-cutting concerns like logging and error handling.
+
+## 🔴 How do you handle authentication in MFE?
+Ans. Authentication is handled by the shell using HttpOnly cookies. Remotes assume an authenticated context and validate permissions via APIs.
+
+## 🔴 What security risks do MFEs introduce?
+Ans. Increased attack surface, shared dependency vulnerabilities, and potential privilege escalation if remotes rely on UI-only checks.
+
+## 🔴 How do you prevent version conflicts?
+Ans. By enforcing strict singleton shared dependencies and contract testing between shell and remotes.
+```
+shared: {
+  '@angular/core': { singleton: true, strictVersion: true }
+}
+```
+## 🔴 How do you version and deploy remotes?
+Ans. Each remote is deployed independently with a versioned remoteEntry. The shell references remotes via a manifest for easy rollback.
+
+## 🔴 What happens if a remote fails to load?
+Ans. The shell should handle it gracefully using fallback UI and error boundaries, without breaking the entire app.
+
+## 🔴 How do MFEs impact performance?
+Ans. They can increase initial load due to multiple bundles, which is mitigated by shared dependencies, lazy loading, and preloading critical remotes.
+
+## 🔴 Micro-Frontend Architecture Patterns
+| Pattern                | How it Works              | Pros                | Cons              |
+| ---------------------- | ------------------------- | ------------------- | ----------------- |
+| Build-time integration | Libraries shared at build | Simple              | Tight coupling    |
+| Runtime integration    | Load remotes dynamically  | Independent deploys | Complexity        |
+| iFrame isolation       | Full isolation            | Security            | UX + perf issues  |
+| Web Components         | Framework-agnostic        | Reuse               | Limited ecosystem |
+
+## 🔴 Module Federation vs Native Federation
+| Area           | Module Federation | Native Federation |
+| -------------- | ----------------- | ----------------- |
+| Build tool     | Webpack           | Vite / ES Modules |
+| Runtime        | Webpack runtime   | Browser-native    |
+| Angular future | Legacy            | Future-ready      |
+| Complexity     | Higher            | Lower             |
+
+
 ## 🔴What is Micro frontend?
 Ans. Micro frontends are a way of designing  frontend web applications by breaking them into smaller, independent, and  self-contained modules or "mini-apps." Each micro frontend can be built, tested,  and deployed separately by different teams, and they can even use different  technologies or frameworks. These individual frontends are then combined to  create the full user interface of the application.
 **“Micro-frontends need hot streams, not one-time Promises.”**
