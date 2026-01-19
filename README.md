@@ -71,6 +71,169 @@ OnPush UI
 
 <summary><strong>Angular Security</strong></summary>
 
+## 🔴Angular Security Summary (Interview Gold)
+| Area   | Key Takeaway                             |
+| ------ | ---------------------------------------- |
+| XSS    | Angular is safe **unless you bypass it** |
+| CSRF   | Safe with cookies, not with localStorage |
+| Guards | UX only, not security                    |
+| Tokens | HttpOnly cookies > localStorage          |
+| SSR    | Never leak secrets in HTML               |
+| npm    | Dependencies are attack vectors          |
+
+## 🔴How does Angular prevent XSS?
+Ans. Through automatic template sanitization and contextual escaping.
+
+## 🔴How does Angular prevent XSS?
+Ans. No, real security must be enforced on the backend.
+
+## 🔴Best place to store JWT?
+Ans. HttpOnly cookies with CSRF protection.
+
+## 🔴Angular-Specific Attack Scenarios
+1️⃣ XSS via innerHTML / bypassSecurityTrust*
+--------------------------------------------------------------
+How it happens
+  -  Developer bypasses Angular’s built-in sanitization
+```
+this.html = this.sanitizer.bypassSecurityTrustHtml(userInput);
+```
+Attack
+```
+<img src=x onerror=alert('XSS')>
+```
+Impact
+  -  Session theft
+  -  Token exfiltration
+  -  Account takeover
+Prevention
+  -  Avoid bypassSecurityTrust*
+  -  Use Angular bindings ({{ }})
+  -  Apply CSP headers
+> “Angular prevents XSS by default, but developers re-introduce it by bypassing the sanitizer.”
+
+2️⃣ DOM-based XSS via Third-Party Libraries
+------------------------------------------------------
+How it happens
+  -  Direct DOM manipulation
+```
+element.innerHTML = userInput;
+```
+Impact
+  -  Script execution inside Angular zone
+Prevention
+  -  Never use innerHTML
+  -  Prefer Angular templates & bindings
+  -  Audit UI libraries
+
+3️⃣ CSRF in Cookie-Based Authentication
+--------------------------------------------------
+How it happens
+  -  Cookies sent automatically with requests
+```
+POST /api/transfer
+```
+Attack
+  -  Malicious site triggers request in user’s browser
+Angular Protection
+  -  HttpClientXsrfModule
+  -  Automatic X-XSRF-TOKEN header
+Prevention
+```
+provideHttpClient(withXsrfConfiguration({
+  cookieName: 'XSRF-TOKEN',
+  headerName: 'X-XSRF-TOKEN'
+}));
+```
+> Angular handles CSRF automatically only if cookies are used.
+
+4️⃣ Token Theft via XSS (JWT in LocalStorage)
+--------------------------------------------------
+How it happens
+  -  JWT stored in localStorage
+```
+localStorage.getItem('token');
+```
+Attack
+  -  XSS steals token
+Impact
+  -  Full account takeover
+Prevention
+  -  Use HttpOnly cookies
+  -  Short-lived tokens
+  -  Refresh tokens
+
+5️⃣ Route Guard Bypass (Client-Side Only Security)
+-----------------------------------------------------
+How it happens
+  -  Guards used as sole security
+```
+canActivate: [adminGuard]
+```
+Attack
+  -  API accessed directly
+```
+GET /api/admin
+```
+Impact
+  -  Unauthorized data access
+Prevention
+  -  Backend authorization always
+  -  Guards = UX, not security
+> “Angular guards protect navigation, not APIs.”
+
+6️⃣ IDOR via Client-Controlled Route Params
+--------------------------------------------------
+How it happens
+```
+GET /api/user/123
+```
+Attack
+  -  Change ID → access another user
+Impact
+  -  Data leakage
+Prevention
+  -  Backend ownership validation
+  -  Never trust route params
+
+7️⃣ Clickjacking on Angular Apps
+---------------------------------------
+How it happens
+  -  App embedded in iframe
+Attack
+  -  Hidden buttons trigger actions
+Prevention
+```
+X-Frame-Options: DENY
+Content-Security-Policy: frame-ancestors 'none'
+```
+
+8️⃣ SSR Data Leakage (Angular Universal)
+--------------------------------------------------
+How it happens
+  -  Sensitive data serialized into HTML
+```
+TransferState.set(KEY, userData);
+```
+Impact
+  -  Data exposed in page source
+Prevention
+  -  Do not serialize secrets
+  -  Strip sensitive fields
+
+9️⃣ Supply Chain Attack via npm Packages
+------------------------------------------------
+How it happens
+  -  Compromised Angular dependency
+Impact
+  -  Credential theft
+  -  Build compromise
+Prevention
+  -  npm audit
+  -  Lockfiles
+  -  Version pinning
+
+
 ## 🔴What is CSRF or XSRF?
 Ans. In a cross-site request forgery (CSRF or XSRF), an attacker tricks the user into visiting a different web page (such as evil.com) with malignant code. This web page secretly sends a malicious request to the application's web server (such as example-bank.com). 
 **How CSRF or XSRF attacks work (quick flow)**
