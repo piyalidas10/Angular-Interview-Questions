@@ -1015,6 +1015,15 @@ export class MarketComponent {
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
+## 🔴 Module Federation vs Native Federation
+| Area           | Module Federation | Native Federation |
+| -------------- | ----------------- | ----------------- |
+| Build tool     | Webpack           | Vite / ES Modules |
+| Runtime        | Webpack runtime   | Browser-native    |
+| Angular future | Legacy            | Future-ready      |
+| Complexity     | Higher            | Lower             |
+
+
 ## 🔴How do you enforce consistency across teams?
 Ans. Through shared lint rules, design systems, schematics, and architectural guidelines — not copy-paste.  
 Tools
