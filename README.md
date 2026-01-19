@@ -1015,6 +1015,18 @@ export class MarketComponent {
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
+## 🔴How do you enforce consistency across teams?
+Ans. Through shared lint rules, design systems, schematics, and architectural guidelines — not copy-paste.  
+Tools
+  -  ESLint
+  -  Nx (optional)
+  -  Shared UI libraries
+
+## 🔴How do you approach Micro-Frontends?
+Ans. I only adopt micro-frontends when teams need independent deployments. I prefer Module Federation with strict contracts and shared version control.  
+Trade-off : Complexity vs autonomy  
+Lead-level line : “Micro-frontends solve org problems, not tech problems.”  
+
 ## 🔴“The API works in Postman, but Angular gets a CORS error. The Network tab shows 200 OK. What’s happening?”
 Ans. “Postman communicates directly with the server and does not enforce browser security.  
 Angular runs inside the browser, which enforces CORS.  
