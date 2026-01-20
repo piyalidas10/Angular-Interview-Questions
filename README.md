@@ -3528,6 +3528,138 @@ Ans. They can increase initial load due to multiple bundles, which is mitigated 
 | Angular future | Legacy            | Future-ready      |
 | Complexity     | Higher            | Lower             |
 
+## 🔴 What are the features inside Shell & Remote app ?
+| Concern                 | Shell  | Remote   |
+| ----------------------- | ------ | -------- |
+| Auth                    | ✅     | ❌      |
+| Layout                  | ✅     | ❌      |
+| Global routing          | ✅     | ❌      |
+| Business features       | ❌     | ✅      |
+| Domain APIs             | ❌     | ✅      |
+| UI consistency          | ✅     | ❌      |
+| Deployment independence | ❌     | ✅      |
+```
+apps/
+ ├── shell/
+ │   ├── auth/
+ │   ├── layout/
+ │   ├── core/
+ │   └── mfe-loader/
+ ├── orders/
+ │   ├── pages/
+ │   ├── services/
+ │   └── routes.ts
+ ├── payments/
+ │   ├── pages/
+ │   └── services/
+```
+**🚫 What Should Never Be in Remotes**
+  -  ❌ Authentication logic
+  -  ❌ Global user state
+  -  ❌ Global routing decisions
+  -  ❌ Cross-domain orchestration
+  -  ❌ Shared NgRx store
+  -  ❌ App-wide configuration
+
+## 🔴 What Goes Inside the Shell App
+
+1️⃣ Application Platform Responsibilities
+------------------------------------------------------------
+These must be single, centralized, and trusted.  
+✅ Authentication : Login / logout, Token handling, Session refresh, User bootstrap  
+Why : Auth must be consistent and cannot be duplicated.
+
+2️⃣ Global Authorization & User Context
+------------------------------------------------------------
+  -  Current user
+  -  Roles & permissions
+  -  Tenant / locale / feature flags
+Rule : Remotes consume auth context, never manage it.
+
+3️⃣ Top-Level Routing & Navigation
+------------------------------------------------------------
+  -  Root routes (/orders, /payments)
+  -  Layout composition
+  -  Navigation guards (UX only)
+```
+{ path: 'orders', loadChildren: () => loadRemote('orders') }
+```
+
+4️⃣ Application Shell UI
+------------------------------------------------------------
+  -  Header
+  -  Sidebar
+  -  Footer
+  -  Global modals
+  -  Toasts / notifications
+Why : Prevents inconsistent UX across remotes.
+
+5️⃣ Cross-Cutting Technical Concerns
+------------------------------------------------------------
+  -  Error handling
+  -  Logging
+  -  Analytics
+  -  Global HTTP interceptors
+  -  Feature flag resolution
+
+6️⃣ Shared Design System
+------------------------------------------------------------
+  -  UI component library
+  -  Typography
+  -  Themes
+  -  Icons
+Important : Shell hosts it, remotes consume it.
+
+7️⃣ MFE Infrastructure
+------------------------------------------------------------
+  -  Remote loading
+  -  Fallback UI
+  -  Version resolution
+  -  Runtime config
+
+## 🔴 What Goes Inside Remote Apps
+1️⃣ Business Domain Features
+------------------------------------------------------------
+Each remote owns one domain.  
+Examples: Orders, Payments, Admin, Reports, Inventory
+Interview line : “A remote should map 1:1 with a business domain.”
+
+2️⃣ Domain-Specific Routing
+------------------------------------------------------------
+  -  Child routes only
+  -  No global wildcards
+```
+/orders/list
+/orders/details/:id
+```
+🚫 Never : /login, /404
+
+3️⃣ Domain UI Components
+------------------------------------------------------------
+  -  Pages
+  -  Forms
+  -  Tables
+  -  Modals specific to domain
+
+4️⃣ Domain Services & APIs
+------------------------------------------------------------
+  -  OrdersService
+  -  PaymentsService
+  -  Domain-level caching
+Rule : No remote calls another remote directly.
+
+5️⃣ Local State Management
+------------------------------------------------------------
+  -  Signals
+  -  Component state
+  -  Domain NgRx (if needed)
+🚫 Never : Shared global store
+
+6️⃣ Domain Validation & Permissions
+------------------------------------------------------------
+  -  Feature-level permission checks
+  -  Button visibility
+⚠️ Still validated on backend
 
 ## 🔴What is Micro frontend?
 Ans. Micro frontends are a way of designing  frontend web applications by breaking them into smaller, independent, and  self-contained modules or "mini-apps." Each micro frontend can be built, tested,  and deployed separately by different teams, and they can even use different  technologies or frameworks. These individual frontends are then combined to  create the full user interface of the application.
