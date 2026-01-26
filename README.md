@@ -5336,6 +5336,23 @@ items = toSignal(
   -  Real-time apps
   -  Micro-frontends
 
+## 🔴19. Why Zoneless is critical ?
+Ans. Zoneless is critical for:
+  -  Angular SSR streaming
+  -  Module Federation
+  -  Angular Elements
+  -  Embedding Angular in React / Vue
+
+> No Zone.js conflicts = clean boundaries.
+
+| Topic            | Zone.js  | Zoneless     |
+| ---------------- | -------- | ------------ |
+| Change Detection | Implicit | Explicit     |
+| Async handling   | Magic    | Signals/RxJS |
+| Performance      | Medium   | 🔥          |
+| Debugging        | Hard     | Predictable  |
+| Future-proof     | ❌      | ✅           |
+
 </details>
 -----------------------------------------------------------------------------------------------------------------------------------
 <details>
