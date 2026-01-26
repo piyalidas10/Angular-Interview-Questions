@@ -5104,14 +5104,24 @@ Angular wraps your app in a "zone" — specifically, the NgZone.
 
 Every async task (like an HTTP call, setTimeout, or event listener) runs inside this zone. When any of these tasks complete, Zone.js tells Angular: “Hey, something just happened — maybe the UI needs to be updated!” Then Angular runs change detection automatically.
 
+**The old world (Zone.js)**  
+Angular traditionally relied on Zone.js to:
+  -  Monkey-patch async APIs (setTimeout, Promise, DOM events, XHR)
+  -  Detect “something async happened”
+  -  Run global change detection
+
+**💥 Problems:**
+  -  Every async event → full app CD cycle
+  -  Hard to reason about performance
+  -  Bad fit for micro-frontends, web components, SSR streaming
+  -  Zone.js patches conflict with modern libs (Mapbox, Stripe, WASM, etc.)
 
 ## 🔴2. How does Zone.js work to trigger change detection?
 Ans. It works in a few steps:
-
-Patching: When Angular starts, Zone.js patches most browser async APIs.  
-Tracking: It keeps track of a "zone" where your Angular application code runs. It knows when all async tasks within that zone are complete.  
-Notifying: When an async task finishes (e.g., a fetch request returns or a setTimeout callback executes), Zone.js emits an event called onMicrotaskEmpty or onStable.  
-Triggering: Angular's NgZone service listens for these events. When it's notified, it runs a "tick" of the application, which triggers change detection for the entire component tree.  
+  -  Patching: When Angular starts, Zone.js patches most browser async APIs.
+  -  Tracking: It keeps track of a "zone" where your Angular application code runs. It knows when all async tasks within that zone are complete.
+  -  Notifying: When an async task finishes (e.g., a fetch request returns or a setTimeout callback executes), Zone.js emits an event called onMicrotaskEmpty or onStable.
+  -  Triggering: Angular's NgZone service listens for these events. When it's notified, it runs a "tick" of the application, which triggers change detection for the entire component tree.  
 
 ## 🔴3. What is NgZone?
 Ans. NgZone is an Angular-specific wrapper service built on top of Zone.js. It provides a way to control and interact with Angular's zone. The two most important methods are:
@@ -5164,6 +5174,19 @@ Ans. A "zoneless" application is an Angular app that does not include or rely on
 In a zoneless app, change detection is no longer automatic or application-wide. Instead, it is:
    -   Local: Only the components that actually need to be updated are checked.
    -   Explicit: Updates are triggered directly by a mechanism, not as a side effect of an async operation.
+
+Core ideas:
+  -  No global async interception
+  -  Change detection runs only when:
+      -  Signals update
+      -  Events fire
+      -  Manual notification
+
+This is Angular catching up with:
+  -  React (hooks)
+  -  SolidJS
+  -  Svelte
+…but in an Angular way.
 
 ## 🔴7. If you remove Zone.js, how does change detection work?
 Ans. You have two primary (and complementary) ways to trigger change detection in a zoneless app:
@@ -5271,6 +5294,47 @@ Answer: ✅ Yes, absolutely. Angular allows hybrid use — signals handle local 
       -  Event listeners
       -  Input change notifications
 👉 Hydration knows it cannot rely on Zones to trigger the first detection cycle. 
+
+## 🔴18. Update UI with Zoneless
+**❌ This breaks**
+```
+fetch('/api/data')
+  .then(res => res.json())
+  .then(data => {
+    this.items = data; // UI won't update
+  });
+```
+**✅ Signal-based async**
+```
+items = signal<any[]>([]);
+
+load() {
+  fetch('/api/data')
+    .then(res => res.json())
+    .then(data => this.items.set(data));
+}
+```
+**✅ RxJS interop (recommended)**
+```
+items = toSignal(
+  this.http.get('/api/data'),
+  { initialValue: [] }
+);
+```
+
+**Traditional Angular**
+  -  Async event → entire app CD
+  -  O(N components)
+
+**Zoneless + Signals**
+  -  Signal update → affected views only
+  -  O(affected components)
+
+**✅ Huge win for:**
+  -  Dashboards
+  -  Tables
+  -  Real-time apps
+  -  Micro-frontends
 
 </details>
 -----------------------------------------------------------------------------------------------------------------------------------
