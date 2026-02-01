@@ -71,6 +71,85 @@ OnPush UI
 
 <summary><strong>Angular Security</strong></summary>
 
+**🏆 Google, Amazon, Flipkart rely on backend encryption for security. Frontend encryption is only an additional protective layer, never the primary one.**
+
+## 🔴 🔐 Frontend vs Backend Encryption
+Ans. 👉 Backend encryption is always more secure than frontend encryption. 👉 Frontend encryption alone is never considered secure.
+
+**1️⃣ Why frontend encryption is NOT fully secure**  
+
+In Angular (or any frontend):
+  -  JavaScript code is visible
+  -  Encryption logic is visible
+  -  Secret keys cannot be safely hidden
+  -  Browser DevTools can inspect:
+      -  Keys
+      -  Algorithms
+      -  Encrypted payloads
+
+> ⚠️ If the key exists in the frontend, assume the attacker can get it. So: ❌ Frontend-only encryption = obfuscation, not security
+
+**2️⃣ Why backend encryption IS secure**
+
+Backend:
+  -  Keys stored in secure vaults
+  -  Environment variables
+  -  Hardware Security Modules (HSM)
+  -  No client access to keys
+  -  Controlled runtime
+
+✔️ This is real security
+
+**4️⃣ What Google, Amazon, Flipkart actually do**
+
+🔐 1. Transport Encryption (Frontend → Backend)  
+✔️ TLS / HTTPS
+  -  Happens automatically
+  -  Browser handles it
+  -  No Angular code needed
+
+✅ Used by ALL (Google, Amazon, Flipkart)
+
+🔐 2. Frontend Encryption (Limited Use)  
+Used ONLY for:
+  -  Extra protection of sensitive fields
+  -  Preventing proxy/log leaks
+  -  Compliance (PCI, banking)
+Example:
+  -  Encrypt password or card number in browser
+  -  Send encrypted payload
+  -  Backend decrypts
+
+⚠️ Backend still validates & re-encrypts
+
+🔐 3. Backend Encryption (Actual Security)  
+Used for:
+  -  Passwords
+  -  Tokens
+  -  Credit cards
+  -  PII data
+  -  Session secrets
+
+Example:
+  -  Password → bcrypt (one-way)
+  -  Card data → AES/RSA + vault
+  -  Tokens → HSM
+
+✅ 100% backend responsibility
+
+**5️⃣ Password handling (important 🔥)**
+
+❌ NEVER:
+  -  Encrypt password in frontend and decrypt it anywhere
+
+✅ ALWAYS:
+  -  Frontend sends password over HTTPS
+  -  Backend hashes with bcrypt / argon2
+  -  No decryption ever
+
+> Google / Amazon / Flipkart: ✔️ Passwords are never decrypted
+
+
 ## 🔴Angular Security Summary (Interview Gold)
 | Area   | Key Takeaway                             |
 | ------ | ---------------------------------------- |
