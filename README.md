@@ -73,8 +73,149 @@ OnPush UI
 
 **🏆 Google, Amazon, Flipkart rely on backend encryption for security. Frontend encryption is only an additional protective layer, never the primary one.**
 
+## 🔴 Secure Angular → API Encryption Flow (Industry-grade)
+```
+┌────────────────────┐
+│    Angular App     │
+│  (Browser / SPA)   │
+└─────────┬──────────┘
+          │
+          │ 1️⃣ HTTPS (TLS)
+          │    - Browser handles encryption
+          │    - Prevents MITM
+          ▼
+┌────────────────────┐
+│   API Gateway /    │
+│   Load Balancer    │
+│  (TLS Termination) │
+└─────────┬──────────┘
+          │
+          │ 2️⃣ Optional Field-Level Encryption
+          │    (RSA / JWE payload)
+          ▼
+┌────────────────────┐
+│   Backend API      │
+│ (Node / Java /    │
+│  Spring / .NET)   │
+└─────────┬──────────┘
+          │
+          │ 3️⃣ Business Logic
+          │    - Validation
+          │    - AuthZ / AuthN
+          │
+          │ 4️⃣ Data Encryption
+          │    - AES-256
+          │    - bcrypt / argon2 (passwords)
+          ▼
+┌────────────────────┐
+│   Secure Storage   │
+│ (DB / Vault / KMS) │
+└────────────────────┘
+```
+
+**1️⃣ User action in Angular**  
+
+Example:
+  -  Login
+  -  Payment
+  -  Profile update
+```
+{
+  email: "user@gmail.com",
+  password: "P@ssw0rd"
+}
+```
+
+**2️⃣ Transport encryption (MANDATORY)**
+
+✔️ HTTPS / TLS
+  -  Automatic
+  -  Browser → Server
+  -  No Angular code
+
+💡 Even if attacker sniffs traffic → encrypted
+
+**3️⃣ Optional frontend encryption (Defense-in-Depth)**
+
+Used for very sensitive fields:
+```
+password → RSA encrypt (public key)
+cardNumber → RSA encrypt
+```
+Angular:
+  -  Uses public key only
+  -  Cannot decrypt
+```
+encryptedPassword = RSA(publicKey, password)
+```
+✔️ Used by banking, fintech, healthcare apps
+
+**4️⃣ Backend decryption (private key)**
+
+Backend:
+  -  Has private key
+  -  Decrypts sensitive fields
+```
+RSA Decrypt → plaintext (in memory only)
+```
+⚠️ Plaintext never stored
+
+**5️⃣ Backend security processing**
+| Data      | Method                      |
+| --------- | --------------------------- |
+| Password  | bcrypt / argon2 (hash only) |
+| Tokens    | Signed JWT                  |
+| PII       | AES-256                     |
+| Card data | Vault / Tokenization        |
+
+**6️⃣ Data at rest encryption**
+
+✔️ Database encryption  
+✔️ Disk encryption  
+✔️ Cloud KMS / Vault  
+
+Even DB admins cannot read plaintext
+
+**🔐 Real-world example (Google-like login)**
+```
+Angular
+  ↓ HTTPS
+Backend
+  ↓ bcrypt(password)
+Database (hash only)
+```
+❌ No decryption ever
+
+**🔐 Real-world example (Amazon-like payment)**
+```
+Angular
+  ↓ HTTPS
+  ↓ RSA encrypt card number
+Backend
+  ↓ RSA decrypt
+  ↓ Tokenize / Vault
+Payment Gateway
+```
+Angular never sees decrypted data again
+
+> “Frontend encryption is used only as defense-in-depth. Actual security always happens on the backend using hashing, AES, and secure key management.”
+
 ## 🔴 🔐 Frontend vs Backend Encryption
 Ans. 👉 Backend encryption is always more secure than frontend encryption. 👉 Frontend encryption alone is never considered secure.
+
+```
+[ Angular App ]
+   |
+   |  HTTPS (TLS)
+   |  Optional RSA encryption for sensitive fields
+   v
+[ Backend API ]
+   |
+   |  Validation
+   |  AES / Hashing / Vault
+   v
+[ Database ]
+```
 
 **1️⃣ Why frontend encryption is NOT fully secure**  
 
@@ -115,6 +256,7 @@ Used ONLY for:
   -  Extra protection of sensitive fields
   -  Preventing proxy/log leaks
   -  Compliance (PCI, banking)
+
 Example:
   -  Encrypt password or card number in browser
   -  Send encrypted payload
