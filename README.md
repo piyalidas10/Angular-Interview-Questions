@@ -3,6 +3,7 @@
 <details>
 
 <summary><strong>Angular RXJS</strong></summary>
+<img src="imgs/rxjs_operators.jpg" width="70%" />
 
 ## 🔴 “How do you handle a 1,000+ events/sec real-time stream in Angular?”
 Ans. “I treat the stream as hot, sample it using auditTime, cache the latest value with shareReplay(1), and bridge it into Signals so UI updates are controlled and predictable.”
