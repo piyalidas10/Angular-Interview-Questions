@@ -2,6 +2,105 @@
 
 <details>
 
+<summary><strong>Angular Core Concepts</strong></summary>
+
+## 🧩 1. Rendering Engine Evolution
+| Version           | Engine                               | Key Performance Improvements                                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Angular 2–7**   | **View Engine**                      | - Heavy factory generation per component.<br>- Larger bundle sizes (no tree-shaking).<br>- Change detection runs globally (Zone.js).<br>- DOM diffing inefficient for nested trees.                                                                             |
+| **Angular 9–14**  | **Ivy Renderer**                     | - Introduced **incremental DOM** — updates only the affected nodes.<br>- Eliminated factories → smaller bundles.<br>- Better tree-shaking & dead code removal.<br>- Lazy loading more efficient.<br>- Faster template instantiation.                            |
+| **Angular 15–16** | **Ivy + Standalone Components**      | - Removes NgModule overhead → less runtime memory.<br>- Bootstraps directly using `bootstrapApplication()`.<br>- Reduced dependency graph complexity.                                                                                                           |
+| **Angular 17–19** | **Ivy + Vite Runtime Optimizations** | - Rendering engine works with **partial hydration** (SSR + CSR merge).<br>- **Hybrid rendering**: prerenders on server, resumes client state without re-rendering.<br>- Faster startup (no full re-bootstrap).<br>- Internal runtime optimizations for Signals. |
+
+## ⚙️ 2. Compilation & Build Performance
+| Version   | Compiler                            | Build System            | Impact                                                                                                                                                                                       |
+| --------- | ----------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **2–4**   | Template compiler (View Engine JIT) | Manual / SystemJS       | - JIT builds were very slow.<br>- No caching, huge rebuild times.                                                                                                                            |
+| **5–8**   | ngc (AOT) + Webpack                 | Angular CLI             | - AOT introduced (precompiled templates).<br>- Faster runtime, smaller bundles.<br>- But still slow incremental builds (Webpack).                                                            |
+| **9–14**  | Ivy Compiler                        | Angular CLI + Webpack 5 | - Compiles templates at instruction level.<br>- 30–40% smaller bundles.<br>- Improved incremental rebuilds.<br>- Better caching.                                                             |
+| **15–16** | Ivy + esbuild (preview)             | Hybrid CLI              | - Partial replacement of Webpack with esbuild.<br>- Builds ~2× faster.<br>- Better HMR.                                                                                                      |
+| **17–19** | Ivy + Vite + esbuild                | `@angular/build`        | - **Vite dev server** with near-instant rebuilds.<br>- esbuild for bundling (10–100× faster than Webpack).<br>- Native code splitting & caching.<br>- Builds reduced from minutes → seconds. |
+
+**⚡ Effect:**
+- Cold build time: 5–10× faster than Angular 2 era.
+- HMR reloads: <1s instead of 5–10s.
+- Bundle sizes: ~60–70% smaller (Ivy + esbuild tree-shaking).
+
+## 🧠 3. Change Detection & Memory Efficiency
+| Version   | Strategy                         | Details                                                                                                                                                                                              |
+| --------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **2–8**   | **Zone.js + full tree re-check** | - Each async event re-checks *entire component tree*.<br>- Memory heavy.<br>- Difficult to fine-tune.                                                                                                |
+| **9–15**  | **Ivy fine-grained diffing**     | - Change detection is instruction-level.<br>- Reduced memory footprint per component.<br>- MarkForCheck / OnPush strategies improved.                                                                |
+| **16–19** | **Signals (Reactive Core)**      | - **Zone-less reactivity.**<br>- Components react only to signal changes.<br>- Eliminates full-tree checks.<br>- Enables SSR hydration reactivity.<br>- Up to **95% fewer change detection cycles.** |
+
+**🧠 Effect:**
+- Faster runtime updates, especially on large UIs.
+- Angular apps now rival React/Svelte reactivity speeds.
+- Lower memory leaks due to deterministic reactivity.
+
+## 🌍 4. SSR, Hydration & Rendering Architecture
+| Version   | SSR Mechanism                    | Performance Impact                                                                                                                                |
+| --------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **4–8**   | Angular Universal (Express)      | - Server renders HTML.<br>- Client reboots full app → duplicate work.                                                                             |
+| **9–15**  | Universal + TransferState        | - Transfers partial app state.<br>- Still full client bootstrap.                                                                                  |
+| **16–18** | SSR + Partial Hydration          | - Server renders static HTML.<br>- Client **hydrates** existing DOM instead of re-rendering.<br>- ~50% faster TTI (Time To Interactive).          |
+| **19**    | **Hybrid Rendering (SSR + CSR)** | - `"renderMode": "hybrid"` allows per-route rendering mode.<br>- SSR pages seamlessly resume on client.<br>- Greatly reduced CPU + network usage. |
+
+**🌐 Effect:**
+- TTFB faster due to streaming SSR.
+- Largest Contentful Paint (LCP) improved by 30–40%.
+- CPU load lower on hydration vs full re-render.
+
+## ⚡ 5. Developer Build & CI/CD Performance
+| Metric                        | Angular 2     | Angular 14 | Angular 19           |
+| ----------------------------- | ------------- | ---------- | -------------------- |
+| **Cold Build Time**           | ~90s          | ~25s       | **~5s (esbuild)**    |
+| **Rebuild (HMR)**             | ~5–8s         | ~2–3s      | **~0.5–1s**          |
+| **SSR Build Time**            | Manual (~60s) | ~25s       | **~8s**              |
+| **Bundle Size (Hello World)** | 800KB+        | 180KB      | **<70KB**            |
+| **Runtime FPS (Large List)**  | 30–40fps      | 55–60fps   | **60+ fps (stable)** |
+
+**🧩 Why so much faster now?**
+- esbuild: compiled in Go → ~100× faster than Webpack in JS.
+- Vite: uses native ES Modules + dev server caching.
+- Ivy: no factories, direct template instructions.
+- Signals: less runtime churn.
+- SSR Hybrid: less redundant rendering.
+
+## 🔍 Summary Table — Angular Performance Evolution
+| Area                   | Angular 2                        | Angular 19                        | Improvement              |
+| ---------------------- | -------------------------------- | --------------------------------- | ------------------------ |
+| **Rendering engine**   | View Engine (template factories) | Ivy (incremental DOM + hydration) | ⚡ 3–5× faster rendering  |
+| **Compiler / Build**   | JIT (slow)                       | esbuild + AOT                     | ⚙️ 10–100× faster builds |
+| **Change detection**   | Zone.js full tree                | Signals (fine-grained)            | 🧠 80–95% fewer checks   |
+| **SSR / Hydration**    | None / manual                    | Built-in Hybrid                   | 🌍 ~2× faster TTI        |
+| **Bundle size**        | 700–900KB                        | ~60–90KB                          | 📦 ~85–90% smaller       |
+| **Developer rebuilds** | 5–10s                            | <1s                               | 🧩 5–10× faster          |
+| **Startup memory**     | High                             | Low                               | 💾 ~50% less memory      |
+
+## ⚙️ TL;DR — Angular’s Performance Journey
+| Era               | Keyword            | Highlight                         |
+| ----------------- | ------------------ | --------------------------------- |
+| **Angular 2–4**   | “Heavy & manual”   | Big bundles, slow compiles, JIT.  |
+| **Angular 5–8**   | “Stable CLI”       | AOT & differential loading.       |
+| **Angular 9–14**  | “Ivy revolution”   | Faster runtime, smaller bundles.  |
+| **Angular 15–16** | “Modernization”    | Standalone APIs, Signals preview. |
+| **Angular 17–19** | “Next-gen Angular” | Vite + esbuild + Hybrid SSR.      |
+
+## 🔁 Direct Replacement Summary
+Old Tool                                               Modern Replacement
+---------------------------------                      -------------------------
+View Engine                                            Ivy
+tsc (build)                                            esbuild
+Webpack Dev Server                                     Vite
+Webpack (all-in-one)                                   Split tools
+Webpack HMR                                            Vite HMR
+
+
+</details>
+
+<details>
+
 <summary><strong>Angular RXJS</strong></summary>
 <img src="imgs/rxjs_operators.jpg" width="70%" />
 
