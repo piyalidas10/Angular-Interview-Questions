@@ -1756,6 +1756,34 @@ export class MarketComponent {
 </details>
 
 <details>
+<summary><strong>Resolver vs APP_INITIALIZER</strong></summary>
+
+**🔹 Resolver**
+Used to fetch data before a route/component loads.
+
+✅ Best for:
+- Route-specific API calls
+- Preloading page data
+- Preventing empty UI before data arrives
+Example: User profile, dashboard data, product details page.
+
+**🔹 APP_INITIALIZER**
+Used to run logic before the Angular app starts.
+✅ Best for:
+- Loading app configuration
+- Fetching environment settings
+- Authentication/bootstrap setup
+
+Example:
+Load feature flags, config JSON, user session before AppComponent.
+
+💡 Simple Difference:
+- Resolver → before route loads
+- APP_INITIALIZER → before app starts
+
+</details>
+
+<details>
 
 <summary><strong>Angular Architectural Questions & Answers</strong></summary>
 
